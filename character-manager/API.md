@@ -541,3 +541,47 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
   "message": "Cannot convert between the same currency."
 }
 ```
+
+### Dice
+
+#### Roll a Dice
+
+- **GET** `/roll/{sides}`
+
+#### Path Parameters:
+- `sides` (**required**, integer, allowed values: 4, 6, 8, 10, 12, 20)  
+  Number of sides on the dice.
+
+#### Validation Rules:
+- `sides` must be a valid integer.
+- `sides` must be one of the allowed values: `[4, 6, 8, 10, 12, 20]`.
+
+#### Behavior:
+- Rolls a die with the specified number of sides.
+- Returns a random integer between `1` and `sides` (inclusive).
+- Results are random and non-deterministic.
+
+#### Successful Response:
+- `200 OK`
+- Returns the rolled value.
+
+```json
+{
+  "result": 14
+}
+```
+
+### Error Responses:
+
+|           Status           | Error Code             | Description                                |
+|:--------------------------:|:-----------------------|:-------------------------------------------|
+|     `400 Bad Request`      | `INVALID_SIDES_FORMAT` | Provided `sides` is not a valid integer.   |
+| `422 Unprocessable Entity` | `INVALID_SIDES`        | Provided `sides` is not a valid dice type. |
+
+#### Error Response Body (Example for INVALID_SIDES):
+```json
+{
+  "error": "INVALID_SIDES",
+  "message": "Invalid number of sides. Must be one of: 4, 6, 8, 10, 12, 20."
+}
+```

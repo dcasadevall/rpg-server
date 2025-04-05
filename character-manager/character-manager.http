@@ -1,6 +1,80 @@
-@character_manager_HostAddress = http://localhost:5266
+### Create a character
+POST http://localhost:5266/api/v1/characters
+Content-Type: application/json
 
-GET {{character_manager_HostAddress}}/weatherforecast/
+{
+  "name": "Pykey",
+  "race": "Elf",
+  "subRace": "High",
+  "class": "Wizard"
+}
+
+###
+
+### Get a character
+GET http://localhost:5266/api/v1/characters/{{characterId}}
 Accept: application/json
 
 ###
+
+### Initialize character currency
+POST http://localhost:5266/api/v1/characters/{{characterId}}/initial-currency
+
+###
+
+### Delete a character
+DELETE http://localhost:5266/api/v1/characters/{{characterId}}
+
+###
+
+### Update hit points
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/hitpoints
+Content-Type: application/json
+
+{
+  "delta": 5
+}
+
+###
+
+### Equip armor
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/armor/{{armorId}}
+
+###
+
+### Equip weapon
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/weapons/{{weaponId}}
+Content-Type: application/json
+
+{
+  "offHand": true
+}
+
+###
+
+### Modify currency
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/currency
+Content-Type: application/json
+
+{
+  "gold": 10,
+  "silver": -5
+}
+
+###
+
+### Exchange currency
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/currency/exchange
+Content-Type: application/json
+
+{
+  "from": "gold",
+  "to": "silver",
+  "amount": 1
+}
+
+###
+
+### Roll a dice
+GET http://localhost:5266/api/v1/roll/20
+Accept: application/json
