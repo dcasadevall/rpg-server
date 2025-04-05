@@ -26,12 +26,16 @@ The server will extract the userId from the token and validate that the requeste
 Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 ---
+## Data Types
+
+| Type   | Description                                                                                                                   |
+|:-------|:------------------------------------------------------------------------------------------------------------------------------|
+| UUID   | Universally Unique Identifier (RFC 4122) used for resources like characters. Example: `123e4567-e89b-12d3-a456-426614174000`  |
+| uint16 | **8Unsigned 16-bit integer** used for shared item identifiers such as armorId and weaponId. Range: 0 to 65,535. Example: 1456 |
+
+---
 
 ## Endpoints
-
-> Note: All {id} path parameters in the character API refer to a UUID (Universally Unique Identifier) in RFC 4122 format.
-> Example: 123e4567-e89b-12d3-a456-426614174000
-> All equipment IDs (armorId, weaponId) are int16
 
 ### Character creation
 
@@ -127,6 +131,10 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 #### Retrieve Character Information
 
 - **GET** `/characters/{id}`
+
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+
 - **Successful Response:**
   - `200 OK`
   - Returns the character's details.
@@ -183,6 +191,9 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 - **POST** `/characters/{id}/initial-currency`
 
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+
 - **Behavior:**
   - Randomly sets the character's starting currency by rolling dice:
     - **Gold**: Roll `1d20`
@@ -225,6 +236,9 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 - **DELETE** `/characters/{id}`
 
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+
 - **Behavior:**
   - Deletes the character with the specified `id` from the database.
   - All associated data (e.g., inventory, currency) will also be deleted.
@@ -248,6 +262,10 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 #### Update Character Hit Points
 
 - **PATCH** `/characters/{id}/hitpoints`
+
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+
 - **Request Body:**
 ```json
 {
@@ -284,6 +302,11 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 #### Equip Armor to a Character
 
 - **PATCH** `/characters/{id}/armor/{armorId}`
+
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+  - `armorId` (required, uint16): Armor item identifier.
+
 - **Validation Rules:**
   - `armorId` must be a valid identifier for an armor item.
   - For this exercise, we do not manage player inventory, so we assume the armor is already in the character's inventory.
@@ -333,6 +356,11 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 #### Equip Weapon to a Character
 
 - **PATCH** `/characters/{id}/weapons/{weaponId}`
+
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+  - `weaponId` (required, uint16): Weapon item identifier.
+
 - **Request Body:**
 ```json
 {
@@ -388,6 +416,10 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 #### Modify a Character's Currency
 
 - **PATCH** `/characters/{id}/currency`
+
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+
 - **Request Body:**
 ```json
 {
@@ -445,6 +477,10 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 #### Exchange Currency
 
 - **PATCH** `/characters/{id}/currency/exchange`
+
+- **Path Parameters:**
+  - `id` (required, UUID): Character identifier.
+
 - **Request Body:**
 ```json
 {
