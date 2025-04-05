@@ -10,6 +10,7 @@ project.lock.json
 nupkg/
 
 # Visual Studio Code
+.vscode
 .vscode/*
 !.vscode/settings.json
 
