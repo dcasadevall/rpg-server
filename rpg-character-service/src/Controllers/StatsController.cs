@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Controllers
 {
@@ -9,7 +10,14 @@ namespace RPGCharacterService.Controllers
     public class StatsController(IStatsService statsService) : ControllerBase
     {
         [HttpPatch("hitpoints")]
-        public ActionResult<object> ModifyHitPoints(Guid characterId, [FromBody] HitPointUpdateRequest request)
+        [SwaggerOperation(Summary = "Update Character Hit Points", 
+                         Description = "Adds or subtracts the specified delta from the character's current hit points")]
+        [SwaggerResponse(200, "Hit Points Updated", typeof(object))]
+        [SwaggerResponse(400, "Invalid ID or Delta")]
+        [SwaggerResponse(404, "Character Not Found")]
+        public ActionResult<object> ModifyHitPoints(
+            [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
+            [FromBody][SwaggerRequestBody("Hit points modification details", Required = true)] HitPointUpdateRequest request)
         {
             try
             {

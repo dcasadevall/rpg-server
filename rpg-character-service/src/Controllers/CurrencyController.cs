@@ -3,6 +3,7 @@ using RPGCharacterService.Dtos.Currency.Requests;
 using RPGCharacterService.Dtos.Currency.Responses;
 using RPGCharacterService.Services;
 using RPGCharacterService.Mappers;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Controllers
 {
@@ -12,7 +13,14 @@ namespace RPGCharacterService.Controllers
         : ControllerBase
     {
         [HttpPost("init")]
-        public ActionResult<CurrencyResponse> InitializeCurrency(Guid characterId)
+        [SwaggerOperation(Summary = "Initialize a Character's Currency", 
+                             Description = "Randomly sets the character's starting currency by rolling dice")]
+        [SwaggerResponse(200, "Currency Initialized", typeof(object))]
+        [SwaggerResponse(400, "Invalid ID Format")]
+        [SwaggerResponse(404, "Character Not Found")]
+        [SwaggerResponse(409, "Currency Already Initialized")]
+        public ActionResult<CurrencyResponse> InitializeCurrency(
+            [SwaggerParameter("Character identifier", Required = true)] Guid characterId)
         {
             if (!ModelState.IsValid)
             {
@@ -47,7 +55,14 @@ namespace RPGCharacterService.Controllers
         }
 
         [HttpPatch]
-        public ActionResult<CurrencyResponse> ModifyCurrency(Guid characterId, [FromBody] ModifyCurrencyRequest request)
+        [SwaggerOperation(Summary = "Modify Character Currency", 
+                             Description = "Adds or subtracts the specified values from the character's current currency")]
+        [SwaggerResponse(200, "Currency Modified", typeof(object))]
+        [SwaggerResponse(400, "Invalid Request")]
+        [SwaggerResponse(404, "Character Not Found")]
+        public ActionResult<CurrencyResponse> ModifyCurrency(
+            [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
+            [FromBody][SwaggerRequestBody("Currency modification details", Required = true)] ModifyCurrencyRequest request)
         {
             try
             {
@@ -96,8 +111,14 @@ namespace RPGCharacterService.Controllers
         }
 
         [HttpPatch("exchange")]
-        public ActionResult<CurrencyResponse> ExchangeCurrency(Guid characterId,
-                                                              [FromBody] ExchangeCurrencyRequest request)
+        [SwaggerOperation(Summary = "Exchange Character Currency", 
+                         Description = "Converts the specified amount of currency from one type to another using standard D&D 5e conversions")]
+        [SwaggerResponse(200, "Currency Exchanged", typeof(object))]
+        [SwaggerResponse(400, "Invalid Request")]
+        [SwaggerResponse(404, "Character Not Found")]
+        public ActionResult<CurrencyResponse> ExchangeCurrency(
+            [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
+            [FromBody][SwaggerRequestBody("Currency exchange details", Required = true)] ExchangeCurrencyRequest request)
         {
             try
             {

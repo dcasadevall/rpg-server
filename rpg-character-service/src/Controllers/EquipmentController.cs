@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Controllers
 {
@@ -8,7 +9,14 @@ namespace RPGCharacterService.Controllers
     public class EquipmentController(ICharacterService characterService) : ControllerBase
     {
         [HttpPatch("armor/{armorId:int}")]
-        public ActionResult<object> EquipArmor(Guid characterId, int armorId)
+        [SwaggerOperation(Summary = "Equip Armor to a Character", 
+                         Description = "Equips the specified armor to the given character")]
+        [SwaggerResponse(200, "Armor Equipped", typeof(object))]
+        [SwaggerResponse(400, "Invalid ID or Armor ID")]
+        [SwaggerResponse(404, "Character or Armor Not Found")]
+        public ActionResult<object> EquipArmor(
+            [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
+            [SwaggerParameter("Armor item identifier", Required = true)] int armorId)
         {
             try
             {
@@ -36,7 +44,15 @@ namespace RPGCharacterService.Controllers
         }
         
         [HttpPatch("weapons/{weaponId:int}")]
-        public ActionResult<object> EquipWeapon(Guid characterId, int weaponId, [FromBody] EquipWeaponRequest request)
+        [SwaggerOperation(Summary = "Equip Weapon to a Character", 
+                         Description = "Equips the specified weapon to the given character")]
+        [SwaggerResponse(200, "Weapon Equipped", typeof(object))]
+        [SwaggerResponse(400, "Invalid ID or Weapon ID")]
+        [SwaggerResponse(404, "Character or Weapon Not Found")]
+        public ActionResult<object> EquipWeapon(
+            [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
+            [SwaggerParameter("Weapon item identifier", Required = true)] int weaponId, 
+            [FromBody, SwaggerRequestBody("Off-hand weapon details", Required = false)] EquipWeaponRequest request)
         {
             try
             {
@@ -66,6 +82,7 @@ namespace RPGCharacterService.Controllers
     
         public class EquipWeaponRequest
         {
+            [SwaggerSchema(Description = "Whether to equip the weapon in the off-hand slot")]
             public bool OffHand { get; set; }
         }
     }
