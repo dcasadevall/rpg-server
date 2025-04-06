@@ -5,7 +5,8 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace RPGCharacterService.Controllers
 {
     [ApiController]
-    [Route("api/v1/characters/{characterId:guid}/equipment")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/characters/{characterId:guid}/equipment")]
     public class EquipmentController(ICharacterService characterService) : ControllerBase
     {
         [HttpPatch("armor/{armorId:int}")]

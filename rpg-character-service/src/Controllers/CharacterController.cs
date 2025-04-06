@@ -7,17 +7,10 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace RPGCharacterService.Controllers
 {
     [ApiController]
-    [Route("api/v1/characters")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/characters")]
     public class CharacterController(ICharacterService characterService) : ControllerBase
     {
-        [HttpGet]
-        [SwaggerOperation(Summary = "Retrieve All Characters", Description = "Gets a list of all characters")]
-        [SwaggerResponse(200, "Successfully retrieved character list", typeof(List<CharacterResponse>))]
-        public ActionResult<List<CharacterResponse>> GetAllCharacters()
-        {
-            return Ok(characterService.GetAllCharacters());
-        }
-
         [HttpGet("{id:guid}")]
         [SwaggerOperation(Summary = "Retrieve Character Information", Description = "Gets a specific character by their ID")]
         [SwaggerResponse(200, "Successful Response", typeof(CharacterResponse))]

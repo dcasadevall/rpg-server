@@ -5,19 +5,20 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace RPGCharacterService.Controllers
 {
     [ApiController]
-    [Route("api/v1/dice")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/dice")]
     public class DiceController(IDiceService diceService) : ControllerBase
     {
         private static readonly HashSet<int> validSides = [4, 6, 8, 10, 12, 20];
         
         [HttpGet("roll")]
         [SwaggerOperation(Summary = "Roll a Dice", 
-                         Description = "Rolls one or more dice with the specified number of sides. " +
+                         Description = "Rolls one or more dice. Allowed sides: 4, 6, 8, 10, 12, 20." +
                                        "Returns random integer results between 1 and sides (inclusive) for each die rolled.")]
         [SwaggerResponse(200, "Successful dice roll", typeof(object))]
         [SwaggerResponse(400, "Invalid sides or count format")]
         [SwaggerResponse(422, "Invalid dice type - not a valid dice type")]
-        public ActionResult<object> RollDice([FromQuery][SwaggerParameter("Number of sides on the dice", Required = true)] int sides, 
+        public ActionResult<object> RollDice([FromQuery][SwaggerParameter("Number of sides on the dice (allowed: 4, 6, 8, 10, 12, 20)", Required = true)] int sides, 
                                              [FromQuery][SwaggerParameter("Number of dice to roll (default 1)")] int count = 1)
         {
             try

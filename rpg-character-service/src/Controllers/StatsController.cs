@@ -6,7 +6,8 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace RPGCharacterService.Controllers
 {
     [ApiController]
-    [Route("api/v1/characters/{characterId:guid}/stats")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/characters/{characterId:guid}/stats")]
     public class StatsController(IStatsService statsService) : ControllerBase
     {
         [HttpPatch("hitpoints")]

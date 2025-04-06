@@ -6,7 +6,6 @@ namespace RPGCharacterService.Services
 {
     public interface ICharacterService
     {
-        List<Character> GetAllCharacters();
         Character GetCharacterById(Guid characterId);
         Character CreateCharacter(CreateCharacterRequest request);
         void DeleteCharacter(Guid characterId);
@@ -14,14 +13,6 @@ namespace RPGCharacterService.Services
 
     public class CharacterService(ICharacterRepository repository) : ICharacterService
     {
-        public List<Character> GetAllCharacters()
-        {
-            return repository
-                   .GetAll()
-                   .Select(c => c)
-                   .ToList();
-        }
-
         public Character GetCharacterById(Guid characterId)
         {
             var character = repository.GetById(characterId);

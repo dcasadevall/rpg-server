@@ -8,7 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace RPGCharacterService.Controllers
 {
     [ApiController]
-    [Route("api/v1/characters/{characterId:guid}/currency")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:ApiVersion}/characters/{characterId:guid}/currency")]
     public class CurrencyController(ICurrencyService currencyService, ICharacterService characterService)
         : ControllerBase
     {
