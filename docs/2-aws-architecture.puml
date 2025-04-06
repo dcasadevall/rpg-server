@@ -2,7 +2,7 @@
 actor Client
 cloud "Route 53 DNS" {
     [CloudFront] --> [Static Content (S3)]
-    [DNS] --> [Application Load Balancer]
+    [Application Load Balancer]
 }
 
 node "AWS VPC" {
@@ -22,7 +22,6 @@ node "AWS VPC" {
 }
 
 ' Client Connections
-Client --> [DNS] : Connect
 Client --> [CloudFront] : Request Static Assets
 Client --> [Application Load Balancer] : Request Metadata Service (HTTPS)
 
@@ -35,7 +34,7 @@ Client --> [Application Load Balancer] : Request Metadata Service (HTTPS)
 [Metadata Service Instance N] --> RDS
 
 ' Direct UDP Connection to Game Sim (Single line)
-Client -[#blue,dashed]-> [Game Sim Instance 2] : UDP
+Client -[#blue,dashed]-> [Game Sim Instance 2] : UDP (IP:Port from Metadata Service)
 
 ' Game Sim Service updates
 [Game Sim Instance 1] --> [Metadata Service Instance 1] : Internal Events / Updates
