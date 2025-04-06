@@ -14,16 +14,10 @@ The API provides endpoints for managing player characters within a Dungeons & Dr
 
 ---
 
-## Authentication
+## Authentication (Planned - Not implemented)
 
-All requests to the API require a valid Authentication Token (e.g., JWT Bearer token).
-
-Clients must include the token in the Authorization HTTP header:
-
-`Authorization: Bearer <token>`
-
-The server will extract the userId from the token and validate that the requested characterId belongs to the authenticated player.
-Unauthorized or invalid access attempts will receive a 403 Forbidden response.
+All requests to the API will require a valid Authentication Token (e.g., JWT Bearer token) in future versions.
+For the scope of the first part of this prompt, authentication is not required.
 
 ---
 ## Data Types
