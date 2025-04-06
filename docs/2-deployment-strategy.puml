@@ -1,0 +1,37 @@
+@startuml Canary Deployment Across Regions
+
+actor Developer
+cloud "AWS Global Infrastructure" {
+    node "US Region" {
+        [ALB US]
+        [Metadata Service US (Old)]
+        [Metadata Service US (New Canary)]
+    }
+
+    node "EU Region" {
+        [ALB EU]
+        [Metadata Service EU (Old)]
+        [Metadata Service EU (New Canary)]
+    }
+
+    node "APAC Region" {
+        [ALB APAC]
+        [Metadata Service APAC (Old)]
+        [Metadata Service APAC (New Canary)]
+    }
+}
+
+Developer --> [ALB US] : Deploy Canary (5%)
+Developer --> [ALB EU] : Deploy Canary (5%)
+Developer --> [ALB APAC] : Deploy Canary (5%)
+
+[ALB US] --> [Metadata Service US (New Canary)] : 5% Traffic
+[ALB US] --> [Metadata Service US (Old)] : 95% Traffic
+
+[ALB EU] --> [Metadata Service EU (New Canary)] : 5% Traffic
+[ALB EU] --> [Metadata Service EU (Old)] : 95% Traffic
+
+[ALB APAC] --> [Metadata Service APAC (New Canary)] : 5% Traffic
+[ALB APAC] --> [Metadata Service APAC (Old)] : 95% Traffic
+
+@enduml

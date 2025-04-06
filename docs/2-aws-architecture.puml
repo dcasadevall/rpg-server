@@ -1,0 +1,30 @@
+@startuml AWS Multiplayer Deployment
+actor Client
+cloud "Route 53 DNS" {
+    [CloudFront] --> [Static Content (S3)]
+    [DNS] --> [Application Load Balancer]
+}
+
+node "AWS VPC" {
+    [Metadata Service]
+    [Game Sim Service]
+    database "RDS Database" as RDS
+}
+
+' Client Connections
+Client --> [DNS] : Connect
+Client --> [CloudFront] : Request Static Assets
+Client --> [Application Load Balancer] : Request Metadata Service (HTTPS)
+
+' API Flow
+[Application Load Balancer] --> [Metadata Service] : HTTPS Traffic
+
+' Metadata Service to RDS
+[Metadata Service] --> RDS : Character and Matchmaking Data
+
+' Direct UDP Connection to Game Sim
+Client -[#blue,dashed]-> [Game Sim Service] : UDP
+
+' Game Sim Service updates
+[Game Sim Service] --> [Metadata Service] : Internal Events / Updates (e.g., loot)
+@enduml

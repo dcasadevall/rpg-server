@@ -1,0 +1,35 @@
+@startuml Service Mesh Integration
+actor Client
+
+cloud "CloudFront CDN" {
+    [Static Content (S3)]
+}
+
+cloud "Route 53 DNS" {
+    [Application Load Balancer]
+}
+
+node "AWS VPC" {
+    frame "Service Mesh (Envoy/Sidecar Proxies)" {
+        [Metadata Service] - [Envoy Proxy A]
+        [Game Sim Service] - [Envoy Proxy B]
+    }
+    database "RDS Database" as RDS
+}
+
+' Client to Static Content
+Client --> [Static Content (S3)] : Request Static Assets
+
+' Client to Metadata Service
+Client --> [Application Load Balancer] : Request Metadata Service (HTTPS)
+[Application Load Balancer] --> [Envoy Proxy A] : Ingress HTTPS
+[Envoy Proxy A] --> [Metadata Service] : API Calls
+[Metadata Service] --> [Envoy Proxy A] : Responses
+
+' Internal Traffic (Service-to-Service)
+[Metadata Service] --> [Envoy Proxy B] : Management Traffic (TCP)
+[Metadata Service] --> RDS : Character and Matchmaking Data
+
+' Client to Game Sim - Direct UDP
+Client -[#blue,dashed]-> [Game Sim Service] : UDP 
+@enduml
