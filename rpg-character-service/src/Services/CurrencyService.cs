@@ -26,9 +26,9 @@ namespace RPGCharacterService.Services
             }
 
             // Generate currency using dice rolls
-            var goldAmount = diceService.Roll(20, 1).Sum();
-            var silverAmount = diceService.Roll(20, 3).Sum();
-            var copperAmount = diceService.Roll(20, 5).Sum();
+            var goldAmount = diceService.Roll(DiceSides.Twenty, 1).Sum();
+            var silverAmount = diceService.Roll(DiceSides.Twenty, 3).Sum();
+            var copperAmount = diceService.Roll(DiceSides.Twelve, 5).Sum();
 
             character.Currencies = new Dictionary<CurrencyType, int>
             {

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RPGCharacterService.Models;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -9,8 +10,6 @@ namespace RPGCharacterService.Controllers
     [Route("api/v{version:apiVersion}/dice")]
     public class DiceController(IDiceService diceService) : ControllerBase
     {
-        private static readonly HashSet<int> validSides = [4, 6, 8, 10, 12, 20];
-        
         [HttpGet("roll")]
         [SwaggerOperation(Summary = "Roll a Dice", 
                          Description = "Rolls one or more dice. Allowed sides: 4, 6, 8, 10, 12, 20." +
@@ -23,7 +22,10 @@ namespace RPGCharacterService.Controllers
         {
             try
             {
-                if (!validSides.Contains(sides))
+                // We could use DiceSides as the parameter type, and swagger would handle the enum conversion
+                // plus show a dropdown in the UI, but if we do that, we would not be able to properly
+                // send an INVALID_SIDES message without a custom model binder, which overcomplicates things.
+                if (!Enum.IsDefined(typeof(DiceSides), sides))
                 {
                     return UnprocessableEntity(new 
                     { 
@@ -41,9 +43,7 @@ namespace RPGCharacterService.Controllers
                     });
                 }
                 
-                var rolls = diceService.Roll(sides, count);
-                
-                // Return array of results as per the API.md specification
+                var rolls = diceService.Roll((DiceSides)sides, count);
                 return Ok(new { 
                     results = rolls
                 });
