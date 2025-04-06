@@ -14,7 +14,7 @@ namespace RPGCharacterService.Dtos.Character.Requests
         public string Race { get; set; }
         
         [StringLength(50)]
-        public string Subrace { get; set; }
+        public string? Subrace { get; set; }
         
         [Required]
         [StringLength(50)]

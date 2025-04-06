@@ -35,7 +35,7 @@ namespace RPGCharacterService.Services
             {
                 Name = request.Name ?? "Unknown",
                 Race = request.Race,
-                Subrace = request.Subrace,
+                Subrace = request?.Subrace ?? "",
                 Class = request.Class,
                 HitPoints = 10,
                 MaxHitPoints = 10,
