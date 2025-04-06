@@ -3,8 +3,9 @@ actor "US Client" as USClient
 actor "EU Client" as EUClient
 
 cloud "Route 53 DNS" {
-    [CloudFront] --> [Regional Load Balancer (US Region)]
-    [CloudFront] --> [Regional Load Balancer (EU Region)]
+    [CloudFront]
+    [Regional Load Balancer (US Region)]
+    [Regional Load Balancer (EU Region)]
 }
 
 node "AWS VPC (US Region)" {
@@ -36,8 +37,10 @@ node "AWS VPC (EU Region)" {
 }
 
 ' Client Regional Routing
-USClient --> [Regional Load Balancer (US Region)] : Request (US Region)
-EUClient --> [Regional Load Balancer (EU Region)] : Request (EU Region)
+USClient --> [CloudFront] : Request Static Assets
+USClient --> [Regional Load Balancer (US Region)] : Metadata Service Request (US Region)
+EUClient --> [CloudFront] : Request Static Assets
+EUClient --> [Regional Load Balancer (EU Region)] : Metadata Service Request (EU Region)
 
 ' API Flow US Region
 [Regional Load Balancer (US Region)] --> [Metadata Service Instance A1] : HTTPS Traffic

@@ -36,7 +36,7 @@ The terraform modules can be found in `/infra`
 - 1 Game Sim server can handle **10 game sessions** (4 players each).
 - Services are stateless and horizontally scalable.
 - Static data is served globally through **CloudFront**.
-- Multi-regional GameSim  
+- Single region deployment with future multi-region adoption. (See [Multi-regional deployment](#multi-regional-deployment-future-improvement))  
 
 ---
 
@@ -122,9 +122,13 @@ For a high-CCU environment with global users, **Canary Deployment** is recommend
 
 ---
 
+## Multi Regional Deployment (Future Improvement)
+
+![Multi Regional Deployment Diagram](2-regional-all.png)
+
 ### Client Regional Routing
 
-Clients connect to the Metadata Service via a Route 53 DNS endpoint with geolocation routing. This automatically routes players to the nearest AWS region based on their IP address.
+Clients connect to the Metadata Service via a Route 53 DNS endpoint with geolocation routing. This automatically routes players to the nearest AWS Load Balancer based on their IP address.
 
 **Alternatives:**
 - **Explicit Region Selection**: The client app allows players to select their preferred region manually (common in many multiplayer games).
@@ -132,7 +136,7 @@ Clients connect to the Metadata Service via a Route 53 DNS endpoint with geoloca
 
 ---
 
-### Infrastructure Nuances and Improvements
+### Load Balancing GameSim
 
 - **Current Behavior**:  
   In the MVP architecture, the Metadata Service returns the **GameSim IP address and port** directly to the client.  
