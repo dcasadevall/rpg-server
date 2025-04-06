@@ -1,0 +1,13 @@
+@startuml Login and Logout Flow
+actor Client
+node "API Gateway" {
+    [Auth Service]
+}
+
+Client --> "API Gateway" : POST /session/login (credentials)
+"API Gateway" -> "Auth Service" : Validate and issue token
+"Auth Service" --> Client : Return Bearer token
+
+Client --> "API Gateway" : POST /session/logout (Bearer token)
+"API Gateway" -> "Auth Service" : Validate and revoke token
+@enduml

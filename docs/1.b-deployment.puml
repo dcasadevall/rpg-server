@@ -1,0 +1,27 @@
+@startuml Player Management Service Extension
+actor Client
+node "API Gateway" {
+    [Shard Router]
+}
+node "PMS Instance A" {
+    [In-Memory Cache A]
+    [Player Management Service A]
+}
+node "PMS Instance B" {
+    [In-Memory Cache B]
+    [Player Management Service B]
+}
+database "Player Database" as DB
+node "Prometheus / Grafana" as Monitoring
+
+Client --> "API Gateway" : Authenticated API Calls (Bearer token)
+"API Gateway" --> "Shard Router" : Route by userId/characterId
+"Shard Router" --> "Player Management Service A" : Route Request
+"Shard Router" --> "Player Management Service B" : Route Request
+"Player Management Service A" --> "In-Memory Cache A" : Read/Write
+"Player Management Service A" --> DB : Load on Cache Miss
+"Player Management Service B" --> "In-Memory Cache B" : Read/Write
+"Player Management Service B" --> DB : Load on Cache Miss
+Monitoring --> "Player Management Service A" : Metrics
+Monitoring --> "Player Management Service B" : Metrics
+@enduml

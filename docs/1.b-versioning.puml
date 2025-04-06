@@ -1,0 +1,26 @@
+@startuml Character Versioning
+actor Client
+participant "API Gateway" as Gateway
+participant "Player Management Service" as PMS
+participant "In-Memory Cache" as Cache
+participant "Async Write Queue" as Queue
+database "Player Database" as DB
+
+Client -> Gateway: PATCH /characters/{id}/stats/hitpoints (delta, version)
+Gateway -> PMS: Forward authenticated request
+PMS -> Cache: Get character by ID
+Cache --> PMS: Character (hitpoints, version)
+
+alt Version matches
+    PMS -> Cache: Update character state (hitpoints -= delta)
+    PMS -> Cache: Increment version
+    PMS -> Queue: Enqueue character for DB write
+    PMS --> Gateway: 200 OK (updated character, new version)
+else Version mismatch
+    PMS --> Gateway: 409 Conflict (include latest character state)
+end
+
+Queue -> PMS: Batch characters every few seconds
+PMS -> DB: Update character WHERE version = oldVersion
+DB --> PMS: DB update success/failure
+@enduml
