@@ -11,6 +11,16 @@ namespace RPGCharacterService.Controllers
     [Route("api/v{version:apiVersion}/characters")]
     public class CharacterController(ICharacterService characterService) : ControllerBase
     {
+        // NOTE: This method is not a requirement for the 1.a version of the API, but it is useful for testing,
+        // and something we would probably want to have in a real API.
+        [HttpGet]
+        [SwaggerOperation(Summary = "Retrieve All Characters", Description = "Gets a list of all characters")]
+        [SwaggerResponse(200, "Successful Response", typeof(List<CharacterResponse>))]
+        public ActionResult<List<CharacterResponse>> GetAllCharacters()
+        {
+            return Ok(characterService.GetAllCharacters());
+        }
+    
         [HttpGet("{id:guid}")]
         [SwaggerOperation(Summary = "Retrieve Character Information", Description = "Gets a specific character by their ID")]
         [SwaggerResponse(200, "Successful Response", typeof(CharacterResponse))]

@@ -15,13 +15,18 @@ database "Player Database" as DB
 node "Prometheus / Grafana" as Monitoring
 
 Client --> "API Gateway" : Authenticated API Calls (Bearer token)
-"API Gateway" --> "Shard Router" : Route by userId/characterId
+"API Gateway" --> "Shard Router" : Route by userId
 "Shard Router" --> "Player Management Service A" : Route Request
 "Shard Router" --> "Player Management Service B" : Route Request
 "Player Management Service A" --> "In-Memory Cache A" : Read/Write
 "Player Management Service A" --> DB : Load on Cache Miss
 "Player Management Service B" --> "In-Memory Cache B" : Read/Write
 "Player Management Service B" --> DB : Load on Cache Miss
+
+' Async write path
+"Player Management Service A" --> DB : Async Batch Write
+"Player Management Service B" --> DB : Async Batch Write
+
 Monitoring --> "Player Management Service A" : Metrics
 Monitoring --> "Player Management Service B" : Metrics
 @enduml
