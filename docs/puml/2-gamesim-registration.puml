@@ -1,0 +1,27 @@
+@startuml GameSim Registration and Heartbeat
+participant "GameSim Instance" as GS
+participant "Metadata Service" as MDS
+participant "RDS Database" as RDS
+
+== Self-Registration ==
+GS -> MDS : Register (Public IP, Port)
+MDS -> RDS : Store GameSim Info (IP, Port, ActiveSessions=0)
+
+== Heartbeat ==
+loop Every 30 seconds
+    GS -> MDS : Heartbeat (Status Update)
+end
+
+== Session Allocation ==
+MDS -> RDS : Select Healthy GameSim with Available Capacity
+MDS -> RDS : Increment ActiveSessions for Selected GameSim
+MDS -> GS : Assign Session (Provide Port)
+
+== Session End ==
+GS -> MDS : Session End Notification
+MDS -> RDS : Decrement ActiveSessions for GameSim
+
+== Failure Detection ==
+MDS -> MDS : Detect Missing Heartbeats
+MDS -> RDS : Remove Unavailable GameSim Entry
+@enduml

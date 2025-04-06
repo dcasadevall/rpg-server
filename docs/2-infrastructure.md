@@ -20,7 +20,7 @@ The terraform modules can be found in `/infra`
 
 ## Architecture Overview
 
-![Architecture Diagram](2-aws-architecture.png)
+![Architecture Diagram](img/2-aws-architecture.png)
 
 - **Clients** → **CloudFront** → **S3** (static assets)
 - **Clients** → **ALB** → **Metadata Service**
@@ -36,13 +36,12 @@ The terraform modules can be found in `/infra`
 - 1 Game Sim server can handle **10 game sessions** (4 players each).
 - Services are stateless and horizontally scalable.
 - Static data is served globally through **CloudFront**.
+- No Load Balancer on top of GameSim (prompt specifies ELB for Metadata Service but not GameSim)
 - Single region deployment with future multi-region adoption. (See [Multi-regional deployment](#multi-regional-deployment-future-improvement))  
 
 ---
 
 ## Game Session Creation and Join Flow
-
-The following diagram describes the game session connection lifecycle:
 
 - **Session Creation**:  
   A player client sends a **Create New GameSim Request** to the Metadata Service via the Application Load Balancer (HTTPS).  
@@ -59,48 +58,51 @@ The following diagram describes the game session connection lifecycle:
 - **Session Finalization**:  
   Upon match completion, the GameSim instance sends a **final closing update** to the Metadata Service, which updates the final state in the RDS database.
 
-![Game Sim Flow](2-game-sim-flow.png)
+![GameSim Flow](img/2-game-sim-flow.png)
 
 ---
 
 ### GameSim Registration and Heartbeat Mechanism
 
-In order for the Metadata Service to assign players to active GameSim instances, it must have a real-time view of available capacity.
+Because we do not have a load balancer on top of GameSim instances, the clients cannot be routed to the right instance
+via the gameSimId. Because of that, game clients will need the IP:Port given to them after a new simulation session is joined
+or created. This means that our Metadata Service needs to act as a load balancer at an application level, and store / fetch
+the GameSim routing information in the RDS Database.
+In a production environment, we would favor using an NLB and use the GameSimId as a seed for the routing / instance selection,
+which would all be handled by the load balancer.
 
 - **Self-Registration**:  
-  Upon startup, each GameSim instance registers itself with the Metadata Service, providing:
-  - Private IP address
-  - List of UDP ports
-  - Maximum session capacity
-  - Current active sessions count
+  Upon startup, each GameSim instance will register itself with the Metadata Service, providing its public IP / port.
+  The Metadata Service stores this info in the RDS database, as well as initializing the number of active sessions to 0.
 
 - **Heartbeat / Health Checks**:  
   GameSim instances periodically (e.g., every 30 seconds) send heartbeat messages to the Metadata Service to signal they are healthy and available.
 
 - **Session Allocation**:  
-  When a new session is created, the Metadata Service selects a healthy GameSim instance with available capacity and allocates a port.
+  When a new session is created, the Metadata Service selects a healthy GameSim instance with available capacity and
+  updates the amount of active sessions for that instance in RDS.
+
+- **Session End**:
+  When a session ends, the GameSim service notifies the Metadata Service which in turn reduces the amount of active sessions in
+  RDS.
 
 - **Failure Detection**:  
-  If a GameSim instance misses heartbeat intervals, the Metadata Service marks it as unavailable and removes it from the pool.
+  If a GameSim instance misses heartbeat intervals, the Metadata Service marks it as unavailable, removes it from the pool, and
+  reduces the amount of active sessions in RDS.
 
-This dynamic registry allows the Metadata Service to route players reliably without hard-coding IPs or ports.
+![GameSim Registration](img/2-gamesim-registration.png)
 
+## GameSim Service Autoscaling
 
-## Game Sim Service Autoscaling
-
-The Game Simulation Service **Auto Scaling Group** is configured with a **Target Tracking Scaling Policy** based on a **custom CloudWatch metric**:
-
-| Item | Description |
-|:---|:---|
-| **Metric Name** | `ActiveGameSessions` |
-| **Namespace** | `GameSimService` |
-| **Target Value** | 10 active sessions per EC2 instance |
-
-**Goal**: Automatically add or remove Game Simulation servers to maintain approximately 10 active game sessions per server.
+To achieve autoscaling for the GameSim Service **Auto Scaling Groups** in each region, we can create a **Target Tracking Scaling Policy** based on a **custom CloudWatch metrics**.
+A GameSim service will publish `ActiveGameSessions` each time the number of active sessions changes for that instance, and
+at an interval chosen (can start every 60 seconds).
+A target tracking scaling policy will track the number of active sessions over the total number of game sim instances, and
+trigger scale in or out based on our defined threshold.
 
 ### Important Note
 
-The **Game Simulation service** must **publish the `ActiveGameSessions` metric** to CloudWatch at regular intervals.
+The **Game Simulation service** must publish the `ActiveGameSessions` metric to CloudWatch at regular intervals.
 Without this metric, autoscaling will not trigger correctly.
 
 ---
@@ -122,11 +124,22 @@ For a high-CCU environment with global users, **Canary Deployment** is recommend
 
 ---
 
-## Multi Regional Deployment (Future Improvement)
+## Future Improvements
 
-![Multi Regional Deployment Diagram](2-regional-all.png)
+### Multi Regional Deployment
 
-### Client Regional Routing
+With the current architecture, it would be rather easy to support regional servers.
+
+We could use Route 53 DNS to automatically select the closest Application Load Balancer for the region,
+which would then route clients to the right AWS VPC.
+Note that routing Cloudfront requests for static content would not change in this implementation.
+
+Alternatively, we could let players select their desired region in game, which is very common and sometimes
+more desirable (players wanting to play with their friends despite latency increase).
+
+![Multi Regional Deployment Diagram](img/2-regional-all.png)
+
+#### Client Regional Routing
 
 Clients connect to the Metadata Service via a Route 53 DNS endpoint with geolocation routing. This automatically routes players to the nearest AWS Load Balancer based on their IP address.
 
