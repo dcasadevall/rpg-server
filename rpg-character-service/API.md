@@ -1,6 +1,6 @@
-# RPG Character Management API Documentation
+# RPG Character Service API Documentation
 
-This document describes the **RPG Character Management API**, a RESTful service built using ASP.NET Core.
+This document describes the **RPG Character Service API**, a RESTful service built using ASP.NET Core.
 
 The API provides endpoints for managing player characters within a Dungeons & Dragons (DnD) inspired role-playing game system.
 
@@ -159,10 +159,10 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
   "equipment": {
     "armor": 1458,
     "mainHand": 1478,
-    "offHand": 1459
+    "offHand": 1459,
   },
   "armorClass": 12,
-  "currency": {
+  "currencies": {
     "gold": 15,
     "silver": 48,
     "bronze": 92
@@ -189,7 +189,7 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 #### Initialize a Character's Currency
 
-- **POST** `/characters/{id}/initial-currency`
+- **POST** `/characters/{id}/currency/init`
 
 - **Path Parameters:**
   - `id` (required, UUID): Character identifier.
@@ -208,7 +208,7 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 ```json
 {
-  "currency": {
+  "currencies": {
     "gold": 17,
     "silver": 42,
     "bronze": 86
@@ -261,7 +261,7 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 #### Update Character Hit Points
 
-- **PATCH** `/characters/{id}/hitpoints`
+- **PATCH** `/characters/{id}/stats/hitpoints`
 
 - **Path Parameters:**
   - `id` (required, UUID): Character identifier.
@@ -301,7 +301,7 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 #### Equip Armor to a Character
 
-- **PATCH** `/characters/{id}/armor/{armorId}`
+- **PATCH** `/characters/{id}/equipment/armor/{armorId}`
 
 - **Path Parameters:**
   - `id` (required, UUID): Character identifier.
@@ -355,7 +355,7 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 #### Equip Weapon to a Character
 
-- **PATCH** `/characters/{id}/weapons/{weaponId}`
+- **PATCH** `/characters/{id}/equipment/weapons/{weaponId}`
 
 - **Path Parameters:**
   - `id` (required, UUID): Character identifier.
@@ -449,7 +449,7 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
   - Returns the updated currency values.
 ```json
 {
-  "currency": {
+  "currencies": {
     "gold": 20,
     "silver": 38,
     "bronze": 92,
@@ -460,11 +460,13 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 - **Error Responses:**
 
-|      Status       | Error Code               | Description                                  |
-|:-----------------:|:-------------------------|:---------------------------------------------|
-|  `404 Not Found`  | `CHARACTER_NOT_FOUND`    | No character exists with the specified `id`. |
-| `400 Bad Request` | `INVALID_ID_FORMAT`      | Provided `id` is not a valid GUID.           |
-| `400 Bad Request` | `INVALID_CURRENCY`       | Provided currency values are not valid.      |
+|      Status       | Error Code               | Description                                                     |
+|:-----------------:|:-------------------------|:----------------------------------------------------------------|
+|  `404 Not Found`  | `CHARACTER_NOT_FOUND`    | No character exists with the specified `id`.                    |
+| `400 Bad Request` | `INVALID_ID_FORMAT`      | Provided `id` is not a valid GUID.                              |
+| `400 Bad Request` | `INVALID_CURRENCY_AMOUNT`| At least one of the provided currency amounts is not valid.     |
+| `400 Bad Request` | `INVALID_CURRENCY`       | At least one of the provided currency types is not valid.       |
+| `400 Bad Request` | `NO_CURRENCY_PROVIDED`   | The provided body does not contain any currency amount.         |
 
 - **Error Response Body:**
 ```json
@@ -515,7 +517,7 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
     - Returns the updated currency values.
 ```json
 {
-  "currency": {
+  "currencies": {
     "gold": 19,
     "silver": 40,
     "bronze": 92,
@@ -546,28 +548,31 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 #### Roll a Dice
 
-- **GET** `/roll/{sides}`
+- **GET** `/dice?sides={sides}&count={count}`
 
-#### Path Parameters:
+#### Query Parameters:
 - `sides` (**required**, integer, allowed values: 4, 6, 8, 10, 12, 20)  
-  Number of sides on the dice.
+  - Number of sides on the dice.
+- `count` (**optional**, integer, default = 1)  
+  - Number of dice to roll.
 
 #### Validation Rules:
 - `sides` must be a valid integer.
 - `sides` must be one of the allowed values: `[4, 6, 8, 10, 12, 20]`.
+- `count` must be a positive integer (if provided).
 
 #### Behavior:
-- Rolls a die with the specified number of sides.
-- Returns a random integer between `1` and `sides` (inclusive).
+- Rolls one or more dice with the specified number of sides.
+- Returns random integer results between `1` and `sides` (inclusive) for each die rolled.
 - Results are random and non-deterministic.
 
 #### Successful Response:
 - `200 OK`
-- Returns the rolled value.
+- Returns the rolled value(s) inside a results array.
 
 ```json
 {
-  "result": 14
+  "results": [2, 5, 4]
 }
 ```
 
@@ -575,8 +580,10 @@ Unauthorized or invalid access attempts will receive a 403 Forbidden response.
 
 |           Status           | Error Code             | Description                                |
 |:--------------------------:|:-----------------------|:-------------------------------------------|
-|     `400 Bad Request`      | `INVALID_SIDES_FORMAT` | Provided `sides` is not a valid integer.   |
-| `422 Unprocessable Entity` | `INVALID_SIDES`        | Provided `sides` is not a valid dice type. |
+| `400 Bad Request`          | `INVALID_SIDES_FORMAT` | Provided `sides` is not a valid integer.   |
+| `400 Bad Request`          | `INVALID_SIDES`        | Provided `sides` is not a valid dice type. |
+| `400 Bad Request`          | `INVALID_COUNT_FORMAT` | Provided `count` is not a valid integer.   |
+| `400 Bad Request`          | `INVALID_COUNT`        | Provided `count` is less than 1.           |
 
 #### Error Response Body (Example for INVALID_SIDES):
 ```json

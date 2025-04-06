@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "RPG Character Management API",
+    "title": "RPG Character Service API",
     "description": "A RESTful service for managing D&D-inspired RPG characters.",
     "version": "1.0.0"
   },
@@ -11,58 +11,6 @@
     }
   ],
   "paths": {
-    "/roll/{sides}": {
-      "get": {
-        "summary": "Roll a Dice",
-        "operationId": "rollDice",
-        "parameters": [
-          {
-            "name": "sides",
-            "in": "path",
-            "required": true,
-            "description": "Number of sides on the dice",
-            "schema": {
-              "type": "integer",
-              "enum": [
-                4,
-                6,
-                8,
-                10,
-                12,
-                20
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful dice roll",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "result": {
-                      "type": "integer",
-                      "minimum": 1
-                    }
-                  },
-                  "required": [
-                    "result"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid sides format"
-          },
-          "422": {
-            "description": "Invalid sides - not a valid dice type"
-          }
-        }
-      }
-    },
     "/characters": {
       "post": {
         "summary": "Create a New Character",

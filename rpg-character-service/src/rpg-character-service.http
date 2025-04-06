@@ -18,7 +18,12 @@ Accept: application/json
 ###
 
 ### Initialize character currency
-POST http://localhost:5266/api/v1/characters/{{characterId}}/initial-currency
+POST http://localhost:5266/api/v1/characters/{{characterId}}/currency/init
+Content-Type: application/json
+
+{
+  "amount": 100
+}
 
 ###
 
@@ -28,7 +33,7 @@ DELETE http://localhost:5266/api/v1/characters/{{characterId}}
 ###
 
 ### Update hit points
-PATCH http://localhost:5266/api/v1/characters/{{characterId}}/hitpoints
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/stats/hitpoints
 Content-Type: application/json
 
 {
@@ -38,12 +43,12 @@ Content-Type: application/json
 ###
 
 ### Equip armor
-PATCH http://localhost:5266/api/v1/characters/{{characterId}}/armor/{{armorId}}
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/equipment/armor/{{armorId}}
 
 ###
 
 ### Equip weapon
-PATCH http://localhost:5266/api/v1/characters/{{characterId}}/weapons/{{weaponId}}
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/equipment/weapons/{{weaponId}}
 Content-Type: application/json
 
 {
@@ -75,6 +80,12 @@ Content-Type: application/json
 
 ###
 
-### Roll a dice
-GET http://localhost:5266/api/v1/roll/20
+### Roll a single die
+GET http://localhost:5266/api/v1/dice/roll?sides=20&count=1
+Accept: application/json
+
+###
+
+### Roll multiple dice
+GET http://localhost:5266/api/v1/dice/roll?sides=6&count=4
 Accept: application/json
