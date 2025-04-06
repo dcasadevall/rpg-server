@@ -44,19 +44,19 @@ The terraform modules can be found in `/infra`
 ## Game Session Creation and Join Flow
 
 - **Session Creation**:  
-  A player client sends a **Create New GameSim Request** to the Metadata Service via the Application Load Balancer (HTTPS).  
+  A player client sends a `Create New GameSim Request` to the Metadata Service via the Application Load Balancer (`HTTPS`).  
   The Metadata Service allocates a new `GameSimId`, selects a GameSim instance with available capacity, records the mapping in the RDS database, and returns the connection details to the client.
 
 - **Session Joining**:  
-  A player client sends a **Join Existing GameSim Request** with an existing `GameSimId`.  
+  A player client sends a `Join Existing GameSim Request` with an existing `GameSimId`.  
   The Metadata Service validates the ID and fetches the mapping from the RDS database, returning the corresponding GameSim instance connection details.
 
 - **Gameplay Phase**:  
-  The client connects **directly via UDP** to the assigned GameSim instance and participates in the game session.  
-  During gameplay, the GameSim service periodically sends **asynchronous updates** (e.g., player state, loot, match events) to the Metadata Service.
+  The client connects directly via `UDP` to the assigned GameSim instance and participates in the game session.  
+  During gameplay, the GameSim service periodically sends asynchronous updates (e.g., player state, loot, match events) to the Metadata Service.
 
 - **Session Finalization**:  
-  Upon match completion, the GameSim instance sends a **final closing update** to the Metadata Service, which updates the final state in the RDS database.
+  Upon match completion, the GameSim instance sends a final closing update to the Metadata Service, which updates the final state in the RDS database.
 
 ![GameSim Flow](img/2-game-sim-flow.png)
 
@@ -94,33 +94,66 @@ which would all be handled by the load balancer.
 
 ## GameSim Service Autoscaling
 
-To achieve autoscaling for the GameSim Service **Auto Scaling Groups** in each region, we can create a **Target Tracking Scaling Policy** based on a **custom CloudWatch metrics**.
+To achieve autoscaling for the GameSim Service Auto Scaling Groups in each region, we can create a `Target Tracking Scaling Policy` based on a custom `CloudWatch` metric.
+
 A GameSim service will publish `ActiveGameSessions` each time the number of active sessions changes for that instance, and
 at an interval chosen (can start every 60 seconds).
+
 A target tracking scaling policy will track the number of active sessions over the total number of game sim instances, and
 trigger scale in or out based on our defined threshold.
 
 ### Important Note
 
-The **Game Simulation service** must publish the `ActiveGameSessions` metric to CloudWatch at regular intervals.
+The Game Simulation service must publish the `ActiveGameSessions` metric to `CloudWatch` at regular intervals.
 Without this metric, autoscaling will not trigger correctly.
 
 ---
 
-## Live Server Deployment Strategies (High CCU)
+## Live Server Deployment Strategies
 
-| Strategy | Pros | Cons |
-|:---|:---|:---|
-| **Canary Deployment** | Gradually shifts a small % of real players to the new version. Early detection of bugs in production. Very low risk to live sessions. | More complex setup (requires traffic shaping or service mesh). Slightly slower rollout. |
-| **Blue/Green Deployment** | Zero downtime; easy rollback by switching DNS or ALB target group. Good for large, global player bases. | Higher cost because two full environments must run simultaneously. |
+### 1. Blue-Green Deployment
 
-For a high-CCU environment with global users, **Canary Deployment** is recommended for safer, gradual rollouts. **Blue/Green Deployment** is ideal for major updates requiring fast rollback.
+In a blue-green deployment, we run two identical production environments, "Blue" and "Green".
 
-### Global Deployment Considerations
+* Blue is the live version.
+* Green is the version we are rolling out.
+* Once Green is fully deployed and validated, traffic is switched over from Blue to Green.
 
-- **Cyclical Player Load**: Player session counts rise and fall daily. Deployments should occur during regional low-traffic periods to minimize disruption.
-- **Regional Rollouts**: Canary deployments can be phased per region (e.g., start with APAC, then EU, then US) to limit risk exposure.
-- **Staggered Update Strategy**: Combine canary percentages (e.g., 5%, 25%, 50%) with regional time windows for maximum safety.
+Pros:
+
+* Near zero downtime: Traffic is not switched over until sessions are drained
+* Easy rollback: If issues appear, we can revert to the previous (Blue) environment
+* Testability: We can test the new version fully before routing traffic to it
+
+Cons:
+
+* Double infrastructure cost: We need to run two full production environments in parallel.
+* Session stickiness issues: Active sessions may be dropped. For our use case, not migrating sessions is fine, so this is not a big concern.
+
+Used when: We want a quick switchover with instant ability to recover from critical issues.
+
+### 2. Canary Deployment
+
+A canary deployment consists in rolling out a new version to a small percentage of users first, while the rest stay on the old version. We gradually ramp up the percentage
+of rolled out instances if no issues are detected.
+
+Pros:
+
+* Minimum risk: Issues are surfaced earlier, with only a small fraction of users experiencing them as we rollout.
+* Flexible scaling: Can increase the rollout % slowly or fast depending on stability.
+
+Cons:
+
+* Versioning: Clients may need to be compatible with multiple server versions.
+* Slow Rollback: If issues appear, rollback across multiple partially upgraded servers can get messy.
+* Player fairness: Some players may get a different experience during rollout window.
+
+Used when: We expect medium to high risk changes being deployed
+
+### Recommended strategy
+
+Given that our game will present standard cyclical game session counts across all regions, I recommend using a canary deployment outside of peak hours on each region.
+We can additionally combine this with a blue-green deployment in other regions after the new version has been validated. 
 
 ---
 
@@ -139,26 +172,18 @@ more desirable (players wanting to play with their friends despite latency incre
 
 ![Multi Regional Deployment Diagram](img/2-regional-all.png)
 
-#### Client Regional Routing
-
-Clients connect to the Metadata Service via a Route 53 DNS endpoint with geolocation routing. This automatically routes players to the nearest AWS Load Balancer based on their IP address.
-
-**Alternatives:**
-- **Explicit Region Selection**: The client app allows players to select their preferred region manually (common in many multiplayer games).
-- **Global Accelerator**: Use AWS Global Accelerator to route traffic to the closest healthy endpoint using Anycast IP.
-
 ---
 
 ### Load Balancing GameSim
 
 - **Current Behavior**:  
-  In the MVP architecture, the Metadata Service returns the **GameSim IP address and port** directly to the client.  
-  This allows clients to connect via UDP without needing a load balancer. However, it does introduce application
+  In the MVP architecture, the Metadata Service returns the GameSim `IP address` and `port` directly to the client.  
+  This allows clients to connect via `UDP` without needing a load balancer. However, it does introduce application
   complexity as we need game sims to register themselves on load, as well as keep track of them. (see [GameSim Registration and Heartbeat Mechanism](#gamesim-registration-and-heartbeat-mechanism)) 
 
 - **Future Improvement**:  
-  Instead of directly returning infrastructure details (IP/Port) to the client, the Metadata Service could simply return a **GameSimId**.  
-  This `GameSimId` would map to a **Network Load Balancer (NLB)** target group in AWS, which would route UDP traffic dynamically to the correct GameSim instance.
+  Instead of directly returning infrastructure details (`IP/Port`) to the client, the Metadata Service could simply return a `GameSimId`.  
+  This `GameSimId` would map to a Network Load Balancer (`NLB`) target group in AWS, which would route `UDP` traffic dynamically to the correct GameSim instance.
 
 **Advantages of returning only a GameSimId**:
   - **Infrastructure Decoupling**: Clients do not need to know or care about specific IPs or ports.
