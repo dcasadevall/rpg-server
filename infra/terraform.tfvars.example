@@ -1,0 +1,21 @@
+region              = "us-east-1"
+vpc_id              = "vpc-xxxxxxxx"
+public_subnet_ids   = ["subnet-xxxxxx", "subnet-yyyyyy"]
+
+certificate_arn     = "arn:aws:acm:us-east-1:123456789:certificate/abcdefg"
+
+metadata_ami_id     = "ami-xxxxxxxx"
+metadata_instance_type = "t3.medium"
+metadata_user_data  = "<base64-encoded user-data script>"
+
+gamesim_ami_id      = "ami-yyyyyyyy"
+gamesim_instance_type = "t3.medium"
+gamesim_user_data   = "<base64-encoded user-data script>"
+gamesim_udp_port    = 30000
+
+db_name             = "game_metadata"
+db_username         = "admin"
+db_password         = "supersecretpassword"
+db_subnet_group_name = "rds-subnet-group-name"
+
+static_bucket_name  = "your-static-content-bucket-name"
