@@ -1,0 +1,39 @@
+@startuml Regional Game Sim Instances with Cross-Region Access
+actor Client
+cloud "Route 53 DNS" {
+    [CloudFront] --> [Application Load Balancer]
+}
+
+node "AWS VPC (Region A)" {
+    frame "Metadata Service (Auto-Scaled)" {
+        [Metadata Service Instance 1]
+        [Metadata Service Instance 2]
+    }
+    database "RDS Database" as RDS
+}
+
+node "AWS VPC (Region B)" {
+    frame "Game Sim Service (Auto-Scaled)" {
+        [Game Sim Instance 1]
+        [Game Sim Instance 2]
+    }
+}
+
+' Client Connections
+Client --> [CloudFront] : Request Static Assets
+Client --> [Application Load Balancer] : Request Metadata Service (HTTPS)
+
+' API Flow
+[Application Load Balancer] --> [Metadata Service Instance 1] : HTTPS Traffic
+
+' Metadata Service to RDS
+[Metadata Service Instance 1] --> RDS
+[Metadata Service Instance 2] --> RDS
+
+' Cross-Region Access
+[Game Sim Instance 1] --> [Metadata Service Instance 1] : Async Updates (via Cross-Region PrivateLink/PSC)
+[Game Sim Instance 2] --> [Metadata Service Instance 2] : Async Updates (via Cross-Region PrivateLink/PSC)
+
+' Direct UDP Connection
+Client -[#blue,dashed]-> [Game Sim Instance 2] : UDP (IP:Port)
+@enduml

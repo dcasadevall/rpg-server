@@ -1,0 +1,55 @@
+@startuml Regional
+actor "US Client" as USClient
+actor "EU Client" as EUClient
+
+cloud "Route 53 DNS" {
+    [CloudFront] --> [Regional Load Balancer (US Region)]
+    [CloudFront] --> [Regional Load Balancer (EU Region)]
+}
+
+node "AWS VPC (US Region)" {
+    frame "US Region Services" {
+        frame "Metadata Service (Auto-Scaled)" as MetadataServiceA {
+            [Metadata Service Instance A1]
+            [Metadata Service Instance A2]
+        }
+        frame "Game Sim Service (Auto-Scaled)" as GameSimServiceA {
+            [Game Sim Instance A1]
+            [Game Sim Instance A2]
+        }
+        database "RDS Database (US Region)" as RDS_A
+    }
+}
+
+node "AWS VPC (EU Region)" {
+    frame "EU Region Services" {
+        frame "Metadata Service (Auto-Scaled)" as MetadataServiceB {
+            [Metadata Service Instance B1]
+            [Metadata Service Instance B2]
+        }
+        frame "Game Sim Service (Auto-Scaled)" as GameSimServiceB {
+            [Game Sim Instance B1]
+            [Game Sim Instance B2]
+        }
+        database "RDS Database (EU Region)" as RDS_B
+    }
+}
+
+' Client Regional Routing
+USClient --> [Regional Load Balancer (US Region)] : Request (US Region)
+EUClient --> [Regional Load Balancer (EU Region)] : Request (EU Region)
+
+' API Flow US Region
+[Regional Load Balancer (US Region)] --> [Metadata Service Instance A1] : HTTPS Traffic
+[Metadata Service Instance A1] --> RDS_A
+
+' API Flow EU Region
+[Regional Load Balancer (EU Region)] --> [Metadata Service Instance B1] : HTTPS Traffic
+[Metadata Service Instance B1] --> RDS_B
+
+' UDP Connection US Region
+USClient -[#blue,dashed]-> [Game Sim Instance A1] : UDP (US Region)
+
+' UDP Connection EU Region
+EUClient -[#blue,dashed]-> [Game Sim Instance B1] : UDP (EU Region)
+@enduml
