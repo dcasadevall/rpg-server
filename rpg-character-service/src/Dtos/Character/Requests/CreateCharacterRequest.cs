@@ -4,7 +4,9 @@ namespace RPGCharacterService.Dtos.Character.Requests
 {
     public class CreateCharacterRequest
     {
+        [Required]
         [StringLength(15, MinimumLength = 3)]
+        [RegularExpression(@"^[a-zA-Z]+$")]
         public string Name { get; set; }
         
         [Required]
