@@ -11,6 +11,73 @@
     }
   ],
   "paths": {
+    "/dice/roll": {
+      "get": {
+        "summary": "Roll Dice",
+        "operationId": "rollDice",
+        "parameters": [
+          {
+            "name": "sides",
+            "in": "query",
+            "required": true,
+            "description": "Number of sides on the dice",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                4,
+                6,
+                8,
+                10,
+                12,
+                20
+              ]
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "required": false,
+            "description": "Number of dice to roll (default 1)",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful dice roll",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  },
+                  "required": [
+                    "results"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid sides or count format"
+          },
+          "422": {
+            "description": "Invalid sides - not a valid dice type"
+          }
+        }
+      }
+    },
     "/characters": {
       "post": {
         "summary": "Create a New Character",
@@ -26,13 +93,38 @@
                     "type": "string"
                   },
                   "race": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "Dwarf",
+                      "Elf",
+                      "Halfling",
+                      "Human",
+                      "Dragonborn",
+                      "Gnome",
+                      "Half-Elf",
+                      "Half-Orc",
+                      "Tiefling"
+                    ]
                   },
                   "subRace": {
                     "type": "string"
                   },
                   "class": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "Cleric",
+                      "Fighter",
+                      "Rogue",
+                      "Wizard",
+                      "Barbarian",
+                      "Bard",
+                      "Druid",
+                      "Monk",
+                      "Paladin",
+                      "Ranger",
+                      "Sorcerer",
+                      "Warlock"
+                    ]
                   }
                 },
                 "required": [
@@ -77,7 +169,97 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "race": {
+                      "type": "string"
+                    },
+                    "subRace": {
+                      "type": "string"
+                    },
+                    "class": {
+                      "type": "string"
+                    },
+                    "level": {
+                      "type": "integer"
+                    },
+                    "hitPoints": {
+                      "type": "integer"
+                    },
+                    "proficiencyBonus": {
+                      "type": "integer"
+                    },
+                    "abilityScores": {
+                      "type": "object",
+                      "properties": {
+                        "strength": {
+                          "type": "integer"
+                        },
+                        "dexterity": {
+                          "type": "integer"
+                        },
+                        "constitution": {
+                          "type": "integer"
+                        },
+                        "intelligence": {
+                          "type": "integer"
+                        },
+                        "wisdom": {
+                          "type": "integer"
+                        },
+                        "charisma": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "equipment": {
+                      "type": "object",
+                      "properties": {
+                        "armor": {
+                          "type": "integer"
+                        },
+                        "mainHand": {
+                          "type": "integer"
+                        },
+                        "offHand": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "armorClass": {
+                      "type": "integer"
+                    },
+                    "currencies": {
+                      "type": "object",
+                      "properties": {
+                        "gold": {
+                          "type": "integer"
+                        },
+                        "silver": {
+                          "type": "integer"
+                        },
+                        "bronze": {
+                          "type": "integer"
+                        },
+                        "copper": {
+                          "type": "integer"
+                        },
+                        "electrum": {
+                          "type": "integer"
+                        },
+                        "platinum": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -117,7 +299,7 @@
         }
       }
     },
-    "/characters/{id}/initial-currency": {
+    "/characters/{id}/currency/init": {
       "post": {
         "summary": "Initialize a Character's Currency",
         "operationId": "initCurrency",
@@ -134,7 +316,39 @@
         ],
         "responses": {
           "200": {
-            "description": "Currency Initialized"
+            "description": "Currency Initialized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currencies": {
+                      "type": "object",
+                      "properties": {
+                        "gold": {
+                          "type": "integer"
+                        },
+                        "silver": {
+                          "type": "integer"
+                        },
+                        "bronze": {
+                          "type": "integer"
+                        },
+                        "copper": {
+                          "type": "integer"
+                        },
+                        "electrum": {
+                          "type": "integer"
+                        },
+                        "platinum": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid ID Format"
@@ -148,7 +362,7 @@
         }
       }
     },
-    "/characters/{id}/hitpoints": {
+    "/characters/{id}/stats/hitpoints": {
       "patch": {
         "summary": "Update Character Hit Points",
         "operationId": "updateHitPoints",
@@ -183,7 +397,19 @@
         },
         "responses": {
           "200": {
-            "description": "Hit Points Updated"
+            "description": "Hit Points Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hitPoints": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid ID or Delta"
@@ -194,7 +420,7 @@
         }
       }
     },
-    "/characters/{id}/armor/{armorId}": {
+    "/characters/{id}/equipment/armor/{armorId}": {
       "patch": {
         "summary": "Equip Armor to a Character",
         "operationId": "equipArmor",
@@ -220,7 +446,36 @@
         ],
         "responses": {
           "200": {
-            "description": "Armor Equipped"
+            "description": "Armor Equipped",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "armorClass": {
+                      "type": "integer"
+                    },
+                    "attackModifier": {
+                      "type": "string"
+                    },
+                    "equipment": {
+                      "type": "object",
+                      "properties": {
+                        "armor": {
+                          "type": "integer"
+                        },
+                        "mainHand": {
+                          "type": "integer"
+                        },
+                        "offHand": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid ID or Armor ID"
@@ -231,7 +486,7 @@
         }
       }
     },
-    "/characters/{id}/weapons/{weaponId}": {
+    "/characters/{id}/equipment/weapons/{weaponId}": {
       "patch": {
         "summary": "Equip Weapon to a Character",
         "operationId": "equipWeapon",
@@ -272,7 +527,33 @@
         },
         "responses": {
           "200": {
-            "description": "Weapon Equipped"
+            "description": "Weapon Equipped",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attackModifier": {
+                      "type": "string"
+                    },
+                    "armorClass": {
+                      "type": "integer"
+                    },
+                    "equipment": {
+                      "type": "object",
+                      "properties": {
+                        "mainHand": {
+                          "type": "integer"
+                        },
+                        "offHand": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid ID or Weapon ID"
@@ -330,7 +611,39 @@
         },
         "responses": {
           "200": {
-            "description": "Currency Modified"
+            "description": "Currency Modified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currencies": {
+                      "type": "object",
+                      "properties": {
+                        "gold": {
+                          "type": "integer"
+                        },
+                        "silver": {
+                          "type": "integer"
+                        },
+                        "bronze": {
+                          "type": "integer"
+                        },
+                        "copper": {
+                          "type": "integer"
+                        },
+                        "electrum": {
+                          "type": "integer"
+                        },
+                        "platinum": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid Request"
@@ -364,13 +677,30 @@
                 "type": "object",
                 "properties": {
                   "from": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "gold",
+                      "silver",
+                      "bronze",
+                      "copper",
+                      "electrum",
+                      "platinum"
+                    ]
                   },
                   "to": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "gold",
+                      "silver",
+                      "bronze",
+                      "copper",
+                      "electrum",
+                      "platinum"
+                    ]
                   },
                   "amount": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 1
                   }
                 },
                 "required": [
@@ -384,7 +714,39 @@
         },
         "responses": {
           "200": {
-            "description": "Currency Exchanged"
+            "description": "Currency Exchanged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currencies": {
+                      "type": "object",
+                      "properties": {
+                        "gold": {
+                          "type": "integer"
+                        },
+                        "silver": {
+                          "type": "integer"
+                        },
+                        "bronze": {
+                          "type": "integer"
+                        },
+                        "copper": {
+                          "type": "integer"
+                        },
+                        "electrum": {
+                          "type": "integer"
+                        },
+                        "platinum": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid Request"
