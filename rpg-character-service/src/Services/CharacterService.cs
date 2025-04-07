@@ -48,6 +48,7 @@ namespace RPGCharacterService.Services
                               .Sum();
             }
 
+            // Create character and set initial HP based on Max HP
             var character = new Character
             {
                 Name = request.Name,
@@ -57,8 +58,6 @@ namespace RPGCharacterService.Services
                 Level = 1,
                 Stats = stats,
             };
-            
-            // Set initial HP to max HP
             character.HitPoints = characterRules.CalculateMaxHitPoints(character);
 
             repository.Add(character);
