@@ -6,60 +6,55 @@ namespace RPGCharacterService.Mappers
 {
     public static class CurrencyMapper
     {
-        public static CurrencyResponse ToResponse(Dictionary<CurrencyType, int> currencies)
+        public static CurrencyResponse ToCurrencyResponse(Wealth wealth)
         {
             return new CurrencyResponse
             {
-                Copper = currencies.GetValueOrDefault(CurrencyType.Copper, 0),
-                Silver = currencies.GetValueOrDefault(CurrencyType.Silver, 0),
-                Electrum = currencies.GetValueOrDefault(CurrencyType.Electrum, 0),
-                Gold = currencies.GetValueOrDefault(CurrencyType.Gold, 0),
-                Platinum = currencies.GetValueOrDefault(CurrencyType.Platinum, 0)
+                Copper = wealth.Copper,
+                Silver = wealth.Silver,
+                Electrum = wealth.Electrum,
+                Gold = wealth.Gold,
+                Platinum = wealth.Platinum
             };
         }
         
-        public static Dictionary<CurrencyType, int> ToDictionary(CurrencyResponse response)
+        public static Wealth ToWealth(CurrencyResponse response)
         {
-            return new Dictionary<CurrencyType, int>
-            {
-                { CurrencyType.Copper, response.Copper },
-                { CurrencyType.Silver, response.Silver },
-                { CurrencyType.Electrum, response.Electrum },
-                { CurrencyType.Gold, response.Gold },
-                { CurrencyType.Platinum, response.Platinum }
-            };
+            var wealth = new Wealth();
+            wealth.SetCurrencyAmount(CurrencyType.Copper, response.Copper);
+            wealth.SetCurrencyAmount(CurrencyType.Silver, response.Silver);
+            wealth.SetCurrencyAmount(CurrencyType.Electrum, response.Electrum);
+            wealth.SetCurrencyAmount(CurrencyType.Gold, response.Gold);
+            wealth.SetCurrencyAmount(CurrencyType.Platinum, response.Platinum);
+            return wealth;
         }
         
-        public static Dictionary<CurrencyType, int> ToCurrencyDictionary(ModifyCurrencyRequest request)
+        public static Wealth ToWealth(ModifyCurrencyRequest request)
         {
-            var result = new Dictionary<CurrencyType, int>();
-
+            var wealth = new Wealth();
+            
             if (request.Gold.HasValue)
             {
-                result[CurrencyType.Gold] = request.Gold.Value;
+                wealth.SetCurrencyAmount(CurrencyType.Gold, request.Gold.Value);
             }
             if (request.Silver.HasValue)
             {
-                result[CurrencyType.Silver] = request.Silver.Value;
-            }
-            if (request.Bronze.HasValue)
-            {
-                result[CurrencyType.Bronze] = request.Bronze.Value;
+                wealth.SetCurrencyAmount(CurrencyType.Silver, request.Silver.Value);
             }
             if (request.Copper.HasValue)
             {
-                result[CurrencyType.Copper] = request.Copper.Value;
+                wealth.SetCurrencyAmount(CurrencyType.Copper, request.Copper.Value);
             }
             if (request.Electrum.HasValue)
             {
-                result[CurrencyType.Electrum] = request.Electrum.Value;
+                wealth.SetCurrencyAmount(CurrencyType.Electrum, request.Electrum.Value);
             }
             if (request.Platinum.HasValue)
             {
-                result[CurrencyType.Platinum] = request.Platinum.Value;
+                wealth.SetCurrencyAmount(CurrencyType.Platinum, request.Platinum.Value);
             }
 
-            return result;
+            return wealth;
         }
     }
 }

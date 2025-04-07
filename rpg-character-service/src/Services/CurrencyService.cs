@@ -7,7 +7,7 @@ namespace RPGCharacterService.Services
     public interface ICurrencyService
     {
         Character GenerateInitialCurrency(Guid characterId);
-        Character ModifyCurrencies(Guid characterId, Dictionary<CurrencyType, int> currencies);
+        Character ModifyCurrencies(Guid characterId, Wealth currencies);
         Character ExchangeCurrency(Guid characterId, CurrencyType from, CurrencyType to, int amount);
     }
 
@@ -21,7 +21,7 @@ namespace RPGCharacterService.Services
                 throw new KeyNotFoundException($"Character with ID {characterId} not found");
             }
 
-            if (character.Currencies is {Count: > 0})
+            if (character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
             {
                 throw new InvalidOperationException("Currency already initialized for this character");
             }
@@ -31,17 +31,12 @@ namespace RPGCharacterService.Services
             var silverAmount = diceService.Roll(DiceSides.Twenty, 3).Sum();
             var copperAmount = diceService.Roll(DiceSides.Twelve, 5).Sum();
 
-            character.Currencies = new Dictionary<CurrencyType, int>
-            {
-                { CurrencyType.Gold, goldAmount },
-                { CurrencyType.Silver, silverAmount },
-                { CurrencyType.Copper, copperAmount },
-                { CurrencyType.Electrum, 0 },
-                { CurrencyType.Platinum, 0 }
-            };
+            character.Wealth.SetCurrencyAmount(CurrencyType.Gold, goldAmount);
+            character.Wealth.SetCurrencyAmount(CurrencyType.Silver, silverAmount);
+            character.Wealth.SetCurrencyAmount(CurrencyType.Copper, copperAmount);
+            character.InitFlags |= CharacterInitializationFlags.CurrencyInitialized;
             
             repository.Update(character);
-
             return character;
         }
 
@@ -53,12 +48,12 @@ namespace RPGCharacterService.Services
                 throw new KeyNotFoundException($"Character with ID {characterId} not found");
             }
             
-            if (!character.Currencies.ContainsKey(from) || !character.Currencies.ContainsKey(to))
+            if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
             {
-                throw new ArgumentException("Invalid currency type");
+                throw new InvalidOperationException("Character's currency must be initialized before exchanging");
             }
-
-            if (character.Currencies[from] < amount)
+            
+            if (character.Wealth.GetCurrencyAmount(from) < amount)
             {
                 throw new InvalidOperationException($"Not enough {from} currency");
             }
@@ -74,19 +69,22 @@ namespace RPGCharacterService.Services
                 { (CurrencyType.Platinum, CurrencyType.Gold), 1 }
             };
 
-            if (!exchangeRates.TryGetValue((from, to), out int rate))
+            if (!exchangeRates.TryGetValue((from, to), out var rate))
             {
                 throw new InvalidOperationException($"Cannot exchange {from} to {to}");
             }
 
-            character.Currencies[from] -= amount;
-            character.Currencies[to] += amount * rate;
+            var fromAmount = character.Wealth.GetCurrencyAmount(from);
+            var toAmount = character.Wealth.GetCurrencyAmount(to);
+            
+            character.Wealth.SetCurrencyAmount(from, fromAmount - amount);
+            character.Wealth.SetCurrencyAmount(to, toAmount + (amount * rate));
             
             repository.Update(character);
             return character;
         }
         
-        public Character ModifyCurrencies(Guid characterId, Dictionary<CurrencyType, int> currencies)
+        public Character ModifyCurrencies(Guid characterId, Wealth currencies)
         {
             var character = repository.GetById(characterId);
             if (character == null)
@@ -94,9 +92,16 @@ namespace RPGCharacterService.Services
                 throw new KeyNotFoundException($"Character with ID {characterId} not found");
             }
             
-            foreach (var currency in currencies)
+            if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
             {
-                character.Currencies[currency.Key] = Math.Max(0, character.Currencies[currency.Key] + currency.Value);
+                throw new InvalidOperationException("Character's currency must be initialized before modifying");
+            }
+            
+            foreach (var currencyType in Enum.GetValues<CurrencyType>())
+            {
+                var currentAmount = character.Wealth.GetCurrencyAmount(currencyType);
+                var newAmount = Math.Max(0, currentAmount + currencies.GetCurrencyAmount(currencyType));
+                character.Wealth.SetCurrencyAmount(currencyType, newAmount);
             }
             
             repository.Update(character);

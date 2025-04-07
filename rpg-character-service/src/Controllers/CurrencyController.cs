@@ -36,7 +36,7 @@ namespace RPGCharacterService.Controllers
                 var character = currencyService.GenerateInitialCurrency(characterId);
                 return Ok(new
                 {
-                    currencies = CurrencyMapper.ToResponse(character.Currencies)
+                    currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
                 });
             } catch (KeyNotFoundException)
             {
@@ -61,6 +61,7 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(200, "Currency Modified", typeof(object))]
         [SwaggerResponse(400, "Invalid Request")]
         [SwaggerResponse(404, "Character Not Found")]
+        [SwaggerResponse(409, "Currency Not Initialized")]
         public ActionResult<CurrencyResponse> ModifyCurrency(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
             [FromBody][SwaggerRequestBody("Currency modification details", Required = true)] ModifyCurrencyRequest request)
@@ -75,7 +76,7 @@ namespace RPGCharacterService.Controllers
                     });
                 }
                 
-                if (request.Gold == null && request.Silver == null && request.Bronze == null &&
+                if (request.Gold == null && request.Silver == null &&
                     request.Copper == null && request.Electrum == null && request.Platinum == null)
                 {
                     return BadRequest(new
@@ -85,14 +86,14 @@ namespace RPGCharacterService.Controllers
                     });
                 }
 
-                var currencies = CurrencyMapper.ToCurrencyDictionary(request);
+                var wealth = CurrencyMapper.ToWealth(request);
                 
                 // TODO: Try/ catch. Services should throw concrete exceptions.
                 // Controllers should validate basic input (null and required fields)
-                var character = currencyService.ModifyCurrencies(characterId, currencies);
+                var character = currencyService.ModifyCurrencies(characterId, wealth);
                 return Ok(new
                 {
-                    currencies = CurrencyMapper.ToResponse(character.Currencies)
+                    currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
                 });
             } catch (KeyNotFoundException)
             {
@@ -116,7 +117,10 @@ namespace RPGCharacterService.Controllers
                          Description = "Converts the specified amount of currency from one type to another using standard D&D 5e conversions")]
         [SwaggerResponse(200, "Currency Exchanged", typeof(object))]
         [SwaggerResponse(400, "Invalid Request")]
+        [SwaggerResponse(400, "Invalid Exchange")]
         [SwaggerResponse(404, "Character Not Found")]
+        [SwaggerResponse(409, "Currency Not Initialized")]
+        [SwaggerResponse(409, "Not Enough Currency")]
         public ActionResult<CurrencyResponse> ExchangeCurrency(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
             [FromBody][SwaggerRequestBody("Currency exchange details", Required = true)] ExchangeCurrencyRequest request)
@@ -143,7 +147,7 @@ namespace RPGCharacterService.Controllers
                 var character = currencyService.ExchangeCurrency(characterId, request.From, request.To, request.Amount);
                 return Ok(new
                 {
-                    currencies = CurrencyMapper.ToResponse(character.Currencies)
+                    currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
                 });
             } catch (KeyNotFoundException)
             {

@@ -4,5 +4,6 @@ namespace RPGCharacterService.Models.Characters
     {
         public int ArmorClass { get; init; }
         public int ProficiencyBonus { get; init; }
+        public Dictionary<StatType, int> AbilityModifiers { get; init; } = new();
     }
 }

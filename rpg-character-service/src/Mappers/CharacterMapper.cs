@@ -1,11 +1,13 @@
 using RPGCharacterService.Dtos.Character.Responses;
+using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 
 namespace RPGCharacterService.Mappers
 {
     public static class CharacterMapper
     {
-        public static CharacterResponse ToResponse(Character character, CharacterDerivedProperties derivedProperties)
+        public static CharacterResponse ToResponse(Character character, 
+                                                   CharacterDerivedProperties derivedProperties)
         {
             return new CharacterResponse
             {
@@ -17,7 +19,7 @@ namespace RPGCharacterService.Mappers
                 Health = character.HitPoints,
                 MaxHealth = character.MaxHitPoints,
                 Stats = character.Stats,
-                Currencies = character.Currencies,
+                Wealth = character.Wealth,
                 ArmorClass = derivedProperties.ArmorClass,
                 ProficiencyBonus = derivedProperties.ProficiencyBonus,
             };

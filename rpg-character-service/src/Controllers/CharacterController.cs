@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Character.Requests;
 using RPGCharacterService.Dtos.Character.Responses;
 using RPGCharacterService.Mappers;
-using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
@@ -14,8 +13,6 @@ namespace RPGCharacterService.Controllers
     [Route("api/v{version:apiVersion}/characters")]
     public class CharacterController(ICharacterService characterService, ICharacterRules characterRules) : ControllerBase
     {
-        // NOTE: This method is not a requirement for the 1.a version of the API, but it is useful for testing,
-        // and something we would probably want to have in a real API.
         [HttpGet]
         [SwaggerOperation(Summary = "Retrieve All Characters", Description = "Gets a list of all characters")]
         [SwaggerResponse(200, "Successful Response", typeof(List<CharacterResponse>))]

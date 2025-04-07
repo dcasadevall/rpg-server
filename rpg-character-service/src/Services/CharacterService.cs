@@ -59,7 +59,6 @@ namespace RPGCharacterService.Services
                 MaxHitPoints = maxHp,
                 Level = 1,
                 Stats = stats,
-                Currencies = new Dictionary<CurrencyType, int>()
             };
 
             repository.Add(character);
