@@ -16,18 +16,6 @@ namespace RPGCharacterService.Models
         public EquippedItems EquippedItems { get; set; } = new();
         public Dictionary<CurrencyType, int> Currencies { get; set; }
         
-        public int ProficiencyBonus
-        {
-            get
-            {
-                if (Level >= 17) return 6;
-                if (Level >= 13) return 5;
-                if (Level >= 9) return 4;
-                if (Level >= 5) return 3;
-                return 2;
-            }
-        }
-        
         public int GetAbilityModifier(StatType stat)
         {
             if (Stats.TryGetValue(stat, out var score))
