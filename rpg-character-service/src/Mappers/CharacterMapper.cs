@@ -16,12 +16,15 @@ namespace RPGCharacterService.Mappers
                 Race = character.Race,
                 Subrace = character.Subrace,
                 Class = character.Class,
-                Health = character.HitPoints,
-                MaxHealth = character.MaxHitPoints,
+                HitPoints = character.HitPoints,
                 Stats = character.Stats,
                 Wealth = character.Wealth,
+                
+                // Derived Properties
+                MaxHitPoints = character.HitPoints,
                 ArmorClass = derivedProperties.ArmorClass,
                 ProficiencyBonus = derivedProperties.ProficiencyBonus,
+                AbilityModifiers = derivedProperties.AbilityModifiers,
             };
         }
     }

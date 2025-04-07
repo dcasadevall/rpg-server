@@ -4,25 +4,20 @@ namespace RPGCharacterService.Models.Characters
 {
     public interface ICharacterRules
     {
-        CharacterDerivedProperties GetDerivedProperties(Character character);
+        int CalculateMaxHitPoints(Character character);
+        int CalculateArmorClass(Character character);
+        int CalculateProficiencyBonus(Character character);
+        Dictionary<StatType, int> CalculateAbilityModifiers(Character character);
     }
 
     public class DndFifthEditionCharacterRules : ICharacterRules
     {
-        public CharacterDerivedProperties GetDerivedProperties(Character character)
+        public int CalculateArmorClass(Character character)
         {
-            return new CharacterDerivedProperties
-            {
-                ArmorClass = CalculateArmorClass(character),
-                ProficiencyBonus = CalculateProficiencyBonus(character)
-            };
-        }
-        
-        private int CalculateArmorClass(Character character)
-        {
+            var abilityModifiers = CalculateAbilityModifiers(character);
             var armorType = character.EquippedItems.ArmorType;
             var baseArmorClass = character.EquippedItems.BaseArmorClass;
-            var dexterityModifier = character.GetAbilityModifier(StatType.Dexterity);
+            var dexterityModifier = abilityModifiers[StatType.Dexterity];
 
             return armorType switch
             {
@@ -34,13 +29,31 @@ namespace RPGCharacterService.Models.Characters
             };
         }
 
-        private int CalculateProficiencyBonus(Character character)
+        public int CalculateProficiencyBonus(Character character)
         {
             if (character.Level >= 17) return 6;
             if (character.Level >= 13) return 5;
             if (character.Level >= 9) return 4;
             if (character.Level >= 5) return 3;
             return 2;
+        }
+        
+        public Dictionary<StatType, int> CalculateAbilityModifiers(Character character)
+        {
+            var modifiers = new Dictionary<StatType, int>();
+            foreach (var stat in character.Stats)
+            {
+                modifiers[stat.Key] = (stat.Value - 10) / 2;
+            }
+            
+            return modifiers;
+        }
+        
+        public int CalculateMaxHitPoints(Character character)
+        {
+            var abilityModifiers = CalculateAbilityModifiers(character);
+            var constitutionModifier = abilityModifiers[StatType.Constitution];
+            return 10 + constitutionModifier * character.Level;
         }
     }
 }

@@ -20,7 +20,7 @@ namespace RPGCharacterService.Controllers
         {
             return Ok(characterService.GetAllCharacters().Select(x => 
             {
-                var derivedProps = characterRules.GetDerivedProperties(x);
+                var derivedProps = CalculateDerivedProperties(x, characterRules);
                 return CharacterMapper.ToResponse(x, derivedProps);
             }).ToList());
         }
@@ -36,7 +36,7 @@ namespace RPGCharacterService.Controllers
             try
             {
                 var character = characterService.GetCharacterById(id);
-                var derivedProps = characterRules.GetDerivedProperties(character);
+                var derivedProps = CalculateDerivedProperties(character, characterRules);
                 var characterResponse = CharacterMapper.ToResponse(character, derivedProps);
                 return Ok(characterResponse);
             } catch (KeyNotFoundException)
@@ -85,6 +85,21 @@ namespace RPGCharacterService.Controllers
             {
                 return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
             }
+        }
+        
+        private static CharacterDerivedProperties CalculateDerivedProperties(
+            Character character, 
+            ICharacterRules characterRules)
+        {
+            var derivedProperties = new CharacterDerivedProperties
+            {
+                MaxHitPoints = characterRules.CalculateMaxHitPoints(character),
+                ArmorClass = characterRules.CalculateArmorClass(character),
+                ProficiencyBonus = characterRules.CalculateProficiencyBonus(character),
+                AbilityModifiers = characterRules.CalculateAbilityModifiers(character)
+            };
+
+            return derivedProperties;
         }
     }
 }

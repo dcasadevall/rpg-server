@@ -13,7 +13,10 @@ namespace RPGCharacterService.Services
         void DeleteCharacter(Guid characterId);
     }
 
-    public class CharacterService(ICharacterRepository repository, IDiceService diceService) : ICharacterService
+    public class CharacterService(
+        ICharacterRepository repository,
+        IDiceService diceService,
+        ICharacterRules characterRules) : ICharacterService
     {
         public IEnumerable<Character> GetAllCharacters()
         {
@@ -44,10 +47,6 @@ namespace RPGCharacterService.Services
                               .Take(3)
                               .Sum();
             }
-            
-            // At level 1, the character has 10 hit points + Constitution modifier
-            // This should be moved to a separate function if we have more than one level
-            var maxHp = stats[StatType.Constitution] + 2;
 
             var character = new Character
             {
@@ -55,11 +54,12 @@ namespace RPGCharacterService.Services
                 Race = request.Race,
                 Subrace = request?.Subrace ?? "",
                 Class = request.Class,
-                HitPoints = maxHp,
-                MaxHitPoints = maxHp,
                 Level = 1,
                 Stats = stats,
             };
+            
+            // Set initial HP to max HP
+            character.HitPoints = characterRules.CalculateMaxHitPoints(character);
 
             repository.Add(character);
             return character;

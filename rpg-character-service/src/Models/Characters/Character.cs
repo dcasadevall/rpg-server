@@ -10,22 +10,11 @@ namespace RPGCharacterService.Models.Characters
         public string Subrace { get; set; }
         public string Class { get; set; }
         public int HitPoints { get; set; }
-        public int MaxHitPoints { get; set; }
         public int Level { get; set; }
         public CharacterInitializationFlags InitFlags { get; set; } = 0;
         public Dictionary<StatType, int> Stats { get; init; } = new();
         public EquippedItems EquippedItems { get; init; } = new();
         public Wealth Wealth { get; set; } = new();
-
-        public int GetAbilityModifier(StatType stat)
-        {
-            if (Stats.TryGetValue(stat, out var score))
-            {
-                return (score - 10) / 2;
-            }
-            
-            return 0;
-        }
     }
 
     public class EquippedItems
