@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Character.Requests;
 using RPGCharacterService.Dtos.Character.Responses;
+using RPGCharacterService.Mappers;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -31,7 +32,9 @@ namespace RPGCharacterService.Controllers
         {
             try
             {
-                return Ok(characterService.GetCharacterById(id));
+                var character = characterService.GetCharacterById(id);
+                var characterResponse = CharacterMapper.ToResponse(character);
+                return Ok(characterResponse);
             } catch (KeyNotFoundException)
             {
                 return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});

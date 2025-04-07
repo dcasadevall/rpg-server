@@ -13,21 +13,11 @@ namespace RPGCharacterService.Persistence
 
         public Character? GetById(Guid id)
         {
-            if (characters.TryGetValue(id, out var character))
-            {
-                return character;
-            }
-
-            return null;
+            return characters.GetValueOrDefault(id);
         }
 
         public void Add(Character character)
         {
-            if (character.Id == Guid.Empty)
-            {
-                character.Id = Guid.NewGuid();
-            }
-
             characters[character.Id] = character;
         }
 

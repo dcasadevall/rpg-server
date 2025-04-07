@@ -22,18 +22,6 @@ namespace RPGCharacterService.Mappers
                 ProficiencyBonus = CalculateProficiencyBonus(character),
                 ArmorClass = CalculateArmorClass(character),
             };
-        }
         
-        private static int CalculateProficiencyBonus(Character character)
-        {
-            // TODO: Calculate proficiency bonus based on character's level
-            return 0;
-        }
-
-        private static int CalculateArmorClass(Character character)
-        {
-            // TODO: Calculate armor class based on character's equipment and stats
-            return 0;
-        }
     }
 } 
