@@ -1,11 +1,11 @@
 namespace RPGCharacterService.Dtos.Currency.Responses
 {
-    public class CurrencyResponse
+    public record CurrencyResponse
     {
-        public int Copper { get; set; }
-        public int Silver { get; set; }
-        public int Electrum { get; set; }
-        public int Gold { get; set; }
-        public int Platinum { get; set; }
+        public int Copper { get; init; }
+        public int Silver { get; init; }
+        public int Electrum { get; init; }
+        public int Gold { get; init; }
+        public int Platinum { get; init; }
     }
 }

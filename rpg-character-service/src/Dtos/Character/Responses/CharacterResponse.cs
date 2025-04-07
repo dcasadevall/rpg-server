@@ -2,19 +2,19 @@ using RPGCharacterService.Models;
 
 namespace RPGCharacterService.Dtos.Character.Responses
 {
-    public class CharacterResponse
+    public record CharacterResponse
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Race { get; set; }
-        public string Subrace { get; set; }
-        public string Class { get; set; }
-        public int Health { get; set; }
-        public int MaxHealth { get; set; }
-        public int ArmorClass { get; set; }
-        public int ProficiencyBonus { get; set; }
-        public Equipment Equipment { get; set; } = new();
-        public Dictionary<StatType, int> Stats { get; set; }
-        public Dictionary<CurrencyType, int> Currencies { get; set; }
+        public Guid Id { get; init; }
+        public string Name { get; init; }
+        public string Race { get; init; }
+        public string Subrace { get; init; }
+        public string Class { get; init; }
+        public int Health { get; init; }
+        public int MaxHealth { get; init; }
+        public int ArmorClass { get; init; }
+        public int ProficiencyBonus { get; init; }
+        public Equipment Equipment { get; init; } = new();
+        public Dictionary<StatType, int> Stats { get; init; }
+        public Dictionary<CurrencyType, int> Currencies { get; init; }
     }
 }

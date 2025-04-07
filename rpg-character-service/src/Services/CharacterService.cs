@@ -33,7 +33,7 @@ namespace RPGCharacterService.Services
             // TODO: Actual character creation logic
             var character = new Character
             {
-                Name = request.Name ?? "Unknown",
+                Name = request.Name,
                 Race = request.Race,
                 Subrace = request?.Subrace ?? "",
                 Class = request.Class,

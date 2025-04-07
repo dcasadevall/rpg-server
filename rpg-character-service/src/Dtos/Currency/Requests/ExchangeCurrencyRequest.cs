@@ -4,17 +4,17 @@ using RPGCharacterService.Models;
 
 namespace RPGCharacterService.Dtos.Currency.Requests
 {
-    public class ExchangeCurrencyRequest
+    public record ExchangeCurrencyRequest
     {
         [Required]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public CurrencyType From { get; set; }
+        public CurrencyType From { get; init; }
         
         [Required]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public CurrencyType To { get; set; }
+        public CurrencyType To { get; init; }
         
         [Required]
-        public int Amount { get; set; }
+        public int Amount { get; init; }
     }
 }
