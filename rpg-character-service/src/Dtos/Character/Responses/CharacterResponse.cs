@@ -1,4 +1,5 @@
 using RPGCharacterService.Models;
+using RPGCharacterService.Models.Characters;
 
 namespace RPGCharacterService.Dtos.Character.Responses
 {

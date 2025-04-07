@@ -1,5 +1,6 @@
 using RPGCharacterService.Dtos.Character.Requests;
 using RPGCharacterService.Models;
+using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence;
 
 namespace RPGCharacterService.Services

@@ -3,6 +3,7 @@ using RPGCharacterService.Dtos.Character.Requests;
 using RPGCharacterService.Dtos.Character.Responses;
 using RPGCharacterService.Mappers;
 using RPGCharacterService.Models;
+using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 

@@ -1,6 +1,6 @@
 using RPGCharacterService.Models.Items;
 
-namespace RPGCharacterService.Models
+namespace RPGCharacterService.Models.Characters
 {
     public class Character
     {

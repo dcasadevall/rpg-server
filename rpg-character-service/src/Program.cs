@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
+using RPGCharacterService.Models;
+using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 
@@ -12,6 +14,7 @@ builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddSingleton<IDiceService, DiceService>();
+builder.Services.AddSingleton<ICharacterRules, DndFifthEditionCharacterRules>();
 
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();

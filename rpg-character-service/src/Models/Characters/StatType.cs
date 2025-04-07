@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models
+namespace RPGCharacterService.Models.Characters
 {
     public enum StatType
     {

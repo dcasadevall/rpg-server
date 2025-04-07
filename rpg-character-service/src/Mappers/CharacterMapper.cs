@@ -1,5 +1,5 @@
 using RPGCharacterService.Dtos.Character.Responses;
-using RPGCharacterService.Models;
+using RPGCharacterService.Models.Characters;
 
 namespace RPGCharacterService.Mappers
 {

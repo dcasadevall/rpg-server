@@ -1,13 +1,7 @@
 using RPGCharacterService.Models.Items;
 
-namespace RPGCharacterService.Models
+namespace RPGCharacterService.Models.Characters
 {
-    public record CharacterDerivedProperties
-    {
-        public int ArmorClass { get; init; }
-        public int ProficiencyBonus { get; init; }
-    }
-    
     public interface ICharacterRules
     {
         CharacterDerivedProperties GetDerivedProperties(Character character);
@@ -28,10 +22,16 @@ namespace RPGCharacterService.Models
         {
             var armorType = character.EquippedItems.ArmorType;
             var baseArmorClass = character.EquippedItems.BaseArmorClass;
-            var armorClassAdjuster = DndFifthEditionArmorClassAdjusterFactory.GetArmorClassAdjuster(armorType);
             var dexterityModifier = character.GetAbilityModifier(StatType.Dexterity);
 
-            return armorClassAdjuster.AdjustArmorClass(baseArmorClass, dexterityModifier);
+            return armorType switch
+            {
+                ArmorType.Light => baseArmorClass + dexterityModifier,
+                ArmorType.Medium => baseArmorClass + Math.Min(dexterityModifier, 2),
+                ArmorType.Heavy => baseArmorClass,
+                ArmorType.None => 10 + dexterityModifier,
+                _ => throw new NotSupportedException($"Unknown armor type: {armorType}")
+            };
         }
 
         private int CalculateProficiencyBonus(Character character)
