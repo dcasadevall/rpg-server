@@ -25,13 +25,4 @@ namespace RPGCharacterService.Models.Items
         Simple,
         Martial,
     }
-
-    public record Weapon(
-        ushort Id,
-        string Name,
-        string Description,
-        int DamageBonus = 0,
-        WeaponProperty Properties = WeaponProperty.None,
-        WeaponCategory Category = WeaponCategory.Simple,
-        WeaponRangeType RangeType = WeaponRangeType.Melee) : Equipment(Id, Name, Description, 0, DamageBonus);
 }
