@@ -11,10 +11,11 @@ namespace RPGCharacterService.Dtos.Character.Responses
         public string Class { get; init; }
         public int Health { get; init; }
         public int MaxHealth { get; init; }
-        public int ArmorClass { get; init; }
-        public int ProficiencyBonus { get; init; }
-        public Equipment Equipment { get; init; } = new();
+        public EquippedItems Equipment { get; init; } = new();
         public Dictionary<StatType, int> Stats { get; init; }
         public Dictionary<CurrencyType, int> Currencies { get; init; }
+        // Derived Properties
+        public int ArmorClass { get; init; }
+        public int ProficiencyBonus { get; init; }
     }
 }

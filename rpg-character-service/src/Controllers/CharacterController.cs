@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Character.Requests;
 using RPGCharacterService.Dtos.Character.Responses;
 using RPGCharacterService.Mappers;
+using RPGCharacterService.Models;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -10,7 +11,7 @@ namespace RPGCharacterService.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/characters")]
-    public class CharacterController(ICharacterService characterService) : ControllerBase
+    public class CharacterController(ICharacterService characterService, ICharacterRules characterRules) : ControllerBase
     {
         // NOTE: This method is not a requirement for the 1.a version of the API, but it is useful for testing,
         // and something we would probably want to have in a real API.
@@ -19,7 +20,11 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(200, "Successful Response", typeof(List<CharacterResponse>))]
         public ActionResult<List<CharacterResponse>> GetAllCharacters()
         {
-            return Ok(characterService.GetAllCharacters());
+            return Ok(characterService.GetAllCharacters().Select(x => 
+            {
+                var derivedProps = characterRules.GetDerivedProperties(x);
+                return CharacterMapper.ToResponse(x, derivedProps);
+            }).ToList());
         }
     
         [HttpGet("{id:guid}")]
@@ -33,7 +38,8 @@ namespace RPGCharacterService.Controllers
             try
             {
                 var character = characterService.GetCharacterById(id);
-                var characterResponse = CharacterMapper.ToResponse(character);
+                var derivedProps = characterRules.GetDerivedProperties(character);
+                var characterResponse = CharacterMapper.ToResponse(character, derivedProps);
                 return Ok(characterResponse);
             } catch (KeyNotFoundException)
             {

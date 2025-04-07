@@ -1,3 +1,5 @@
+using RPGCharacterService.Models.Items;
+
 namespace RPGCharacterService.Models
 {
     public class Character
@@ -11,7 +13,7 @@ namespace RPGCharacterService.Models
         public int MaxHitPoints { get; set; }
         public int Level { get; set; }
         public Dictionary<StatType, int> Stats { get; init; } = new();
-        public EquippedSlots EquippedSlots { get; set; } = new();
+        public EquippedItems EquippedItems { get; set; } = new();
         public Dictionary<CurrencyType, int> Currencies { get; set; }
         
         public int ProficiencyBonus
@@ -35,31 +37,15 @@ namespace RPGCharacterService.Models
             
             return 0;
         }
+    }
+
+    public class EquippedItems
+    {
+        public Item? MainHand { get; set; }
+        public Item? OffHand { get; set; }
+        public Item? Armor { get; set; }
         
-        public int ArmorClass => 10 + GetAbilityModifier(StatType.Dexterity);
-
-
-        private static int CalculateArmorClass(Character character)
-        {
-            // TODO: Calculate armor class based on character's equipment and stats
-            return 0;
-        }
-    }
-
-    public class EquippedSlots
-    {
-        public int MainHand { get; set; }
-        public int OffHand { get; set; }
-        public int Armor { get; set; }
-    }
-    
-    public enum StatType
-    {
-        Strength,
-        Dexterity,
-        Constitution,
-        Intelligence,
-        Wisdom,
-        Charisma
+        public ArmorType ArmorType => Armor?.EquipmentStats?.ArmorStats?.ArmorType ?? ArmorType.None;
+        public int BaseArmorClass => Armor?.EquipmentStats?.ArmorStats?.BaseArmorClass ?? 0;
     }
 } 

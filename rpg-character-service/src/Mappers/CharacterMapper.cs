@@ -5,7 +5,7 @@ namespace RPGCharacterService.Mappers
 {
     public static class CharacterMapper
     {
-        public static CharacterResponse ToResponse(Character character)
+        public static CharacterResponse ToResponse(Character character, CharacterDerivedProperties derivedProperties)
         {
             return new CharacterResponse
             {
@@ -18,10 +18,9 @@ namespace RPGCharacterService.Mappers
                 MaxHealth = character.MaxHitPoints,
                 Stats = character.Stats,
                 Currencies = character.Currencies,
-                // Derived properties
-                ProficiencyBonus = CalculateProficiencyBonus(character),
-                ArmorClass = CalculateArmorClass(character),
+                ArmorClass = derivedProperties.ArmorClass,
+                ProficiencyBonus = derivedProperties.ProficiencyBonus,
             };
-        
+        }
     }
-} 
+}

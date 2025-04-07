@@ -2,43 +2,59 @@ namespace RPGCharacterService.Models.Items
 {
     public interface IArmorClassAdjuster
     {
-        int AdjustArmorClass(int armorClass, Armor armor, Character character);
+        int AdjustArmorClass(int baseArmorClass, int dexterityModifier);
     }
 
     public class LightArmorAdjuster : IArmorClassAdjuster
     {
-        public int AdjustArmorClass(int armorClass, Armor armor, Character character)
+        public int AdjustArmorClass(int baseArmorClass, int dexterityModifier)
         {
-            var dexMod = character.GetAbilityModifier(StatType.Dexterity);
-            return armorClass + armor.BaseArmorClass + dexMod;
+            return baseArmorClass + dexterityModifier;
         }
     }
 
     public class MediumArmorAdjuster : IArmorClassAdjuster
     {
-        public int AdjustArmorClass(int armorClass, Armor armor, Character character)
+        public int AdjustArmorClass(int baseArmorClass, int dexterityModifier)
         {
-            // Medium caps Dex at +2
-            var dexMod = character.GetAbilityModifier(StatType.Dexterity);
-            return armorClass + armor.BaseArmorClass + Math.Min(dexMod, 2); 
+            return baseArmorClass + Math.Min(dexterityModifier, 2); 
         }
     }
 
     public class HeavyArmorAdjuster : IArmorClassAdjuster
     {
-        public int AdjustArmorClass(int armorClass, Armor armor, Character character)
+        public int AdjustArmorClass(int baseArmorClass, int dexterityModifier)
         {
-            // Heavy armor ignores Dex
-            return armorClass + armor.BaseArmorClass; 
+            return baseArmorClass; 
         }
     }
     
-    public class ShieldArmorAdjuster : IArmorClassAdjuster
+    public class WithoutArmorClassAdjuster : IArmorClassAdjuster
     {
-        public int AdjustArmorClass(int armorClass, Armor armor, Character character)
+        public int AdjustArmorClass(int baseArmorClass, int dexterityModifier)
         {
-            // Shield adds +2 to AC
-            return armorClass + 2; 
+            return 10 + dexterityModifier; 
+        }
+    }
+    
+    public static class DndFifthEditionArmorClassAdjusterFactory
+    {
+        private static readonly Dictionary<ArmorType, IArmorClassAdjuster> adjusters = new()
+        {
+            { ArmorType.Light, new LightArmorAdjuster() },
+            { ArmorType.Medium, new MediumArmorAdjuster() },
+            { ArmorType.Heavy, new HeavyArmorAdjuster() },
+            { ArmorType.None, new WithoutArmorClassAdjuster() }
+        };
+
+        public static IArmorClassAdjuster GetArmorClassAdjuster(ArmorType armorType)
+        {
+            if (!adjusters.TryGetValue(armorType, out var calculator))
+            {
+                throw new NotSupportedException($"No calculator for armor type {armorType}");
+            }
+
+            return calculator;
         }
     }
 }
