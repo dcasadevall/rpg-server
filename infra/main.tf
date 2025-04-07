@@ -16,17 +16,18 @@ module "alb" {
 
 # Deploys the Metadata Service
 module "metadata_service" {
-  source                  = "./modules/metadata_service"
-  vpc_id                  = var.vpc_id
-  public_subnet_ids       = var.public_subnet_ids
-  ami_id                  = var.metadata_ami_id
-  instance_type           = var.metadata_instance_type
-  user_data               = var.metadata_user_data
-  alb_target_group_arn    = module.alb.alb_target_group_arn
-  alb_security_group_id   = module.alb.alb_security_group_id
-  min_size                = 2
-  max_size                = 10
-  desired_capacity        = 2
+  source                    = "./modules/metadata_service"
+  vpc_id                    = var.vpc_id
+  public_subnet_ids         = var.public_subnet_ids
+  ami_id                    = var.metadata_ami_id
+  instance_type             = var.metadata_instance_type
+  user_data                 = var.metadata_user_data
+  alb_target_group_arn      = module.alb.alb_target_group_arn
+  alb_security_group_id     = module.alb.alb_security_group_id
+  gamesim_security_group_id = module.game_sim_service.gamesim_security_group_id
+  min_size                  = 2
+  max_size                  = 10
+  desired_capacity          = 2
 }
 
 module "game_sim_service" {

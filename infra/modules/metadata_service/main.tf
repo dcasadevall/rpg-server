@@ -3,9 +3,10 @@
 # Create Security Group for Metadata Service
 resource "aws_security_group" "metadata_sg" {
   name        = "metadata-service-sg"
-  description = "Allow HTTPS traffic from ALB"
+  description = "Allow HTTPS traffic from ALB and Game Sim Service"
   vpc_id      = var.vpc_id
 
+  # Allow HTTPS traffic from the ALB
   ingress {
     from_port       = 443
     to_port         = 443
@@ -13,6 +14,16 @@ resource "aws_security_group" "metadata_sg" {
     security_groups = [var.alb_security_group_id]
   }
 
+  # Allow HTTPS traffic from Game Sim service for session updates and heartbeats
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [var.gamesim_security_group_id]
+  }
+
+  # Allow all outbound traffic from Metadata service instances
+  # This allows the service to communicate with other AWS services and the internet
   egress {
     from_port   = 0
     to_port     = 0
@@ -27,11 +38,14 @@ resource "aws_launch_template" "metadata_lt" {
   image_id      = var.ami_id
   instance_type = var.instance_type
 
+  # Network configuration for EC2 instances
   network_interfaces {
     associate_public_ip_address = true
     security_groups             = [aws_security_group.metadata_sg.id]
   }
 
+  # User data script that runs on instance startup (base64 encoded)
+  # This typically installs and configures the metadata service software
   user_data = base64encode(var.user_data)
 }
 

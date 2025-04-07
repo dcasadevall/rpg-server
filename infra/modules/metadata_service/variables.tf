@@ -51,4 +51,10 @@ variable "user_data" {
   description = "User data script for instance initialization"
   type        = string
   default     = ""
+}
+
+variable "gamesim_security_group_id" {
+  description = "The ID of the Game Simulation security group for ingress rules"
+  type        = string
+  default     = ""
 } 
