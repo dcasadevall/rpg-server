@@ -7,27 +7,28 @@ namespace RPGCharacterService.Persistence
     {
         private readonly Dictionary<Guid, Character> characters = new();
 
-        public List<Character> GetAll()
+        public Task<IEnumerable<Character>> GetAllAsync()
         {
-            return characters.Values.ToList();
+            return Task.FromResult(characters.Values.AsEnumerable());
         }
 
-        public Character? GetById(Guid id)
+        public Task<Character?> GetByIdAsync(Guid id)
         {
-            return characters.GetValueOrDefault(id);
+            return Task.FromResult(characters.GetValueOrDefault(id));
         }
         
-        public Character? GetByName(string name)
+        public Task<Character?> GetByNameAsync(string name)
         {
-            return characters.Values.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return Task.FromResult(characters.Values.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
         }
 
-        public void Add(Character character)
+        public Task AddAsync(Character character)
         {
             characters[character.Id] = character;
+            return Task.CompletedTask;
         }
 
-        public void Update(Character character)
+        public Task UpdateAsync(Character character)
         {
             if (!characters.ContainsKey(character.Id))
             {
@@ -35,9 +36,10 @@ namespace RPGCharacterService.Persistence
             }
 
             characters[character.Id] = character;
+            return Task.CompletedTask;
         }
 
-        public void Delete(Guid id)
+        public Task DeleteAsync(Guid id)
         {
             if (!characters.ContainsKey(id))
             {
@@ -45,6 +47,7 @@ namespace RPGCharacterService.Persistence
             }
 
             characters.Remove(id);
+            return Task.CompletedTask;
         }
     }
 }

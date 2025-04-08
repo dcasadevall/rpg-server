@@ -13,6 +13,7 @@ namespace RPGCharacterService.Models.Items
     {
         public int ArmorBonus { get; init; }
         public int DamageBonus { get; init; }
+        public EquipmentType EquipmentType { get; init; }
         public ArmorStats? ArmorStats { get; init; }
         public WeaponStats? WeaponStats { get; init; }
     }

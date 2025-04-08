@@ -19,6 +19,7 @@ namespace RPGCharacterService.Models.Characters
 
     public class EquippedItems
     {
+        // TODO: This may need to be computed as we store int lists
         public Item? MainHand { get; set; }
         public Item? OffHand { get; set; }
         public Item? Armor { get; set; }

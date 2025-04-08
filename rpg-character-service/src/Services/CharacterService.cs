@@ -69,7 +69,7 @@ namespace RPGCharacterService.Services
             };
             character.HitPoints = characterRules.CalculateMaxHitPoints(character);
 
-            repository.Add(character);
+            repository.AddAsync(character);
             return character;
         }
 
