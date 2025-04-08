@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Equipment;
 using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Exceptions.Items;
 using RPGCharacterService.Mappers;
 using RPGCharacterService.Services;

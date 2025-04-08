@@ -1,6 +1,6 @@
 using RPGCharacterService.Models.Items;
 
-namespace RPGCharacterService.Exceptions.Items {
+namespace RPGCharacterService.Exceptions.Equipment {
   /// <summary>
   /// Exception thrown when attempting to equip an item in a slot that doesn't match its type.
   /// For example, trying to equip a weapon in the armor slot.

@@ -1,4 +1,4 @@
-using RPGCharacterService.Exceptions.Items;
+using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Models.Items;
 
@@ -84,9 +84,14 @@ namespace RPGCharacterService.Models {
     /// <param name="item">The weapon item to equip.</param>
     /// <param name="offHand">If true, the weapon will be equipped in the off-hand slot; otherwise, it will be equipped in the main hand.</param>
     /// <exception cref="EquipmentTypeMismatchException">Thrown when the item is not a weapon.</exception>
+    /// <exception cref="IllegalEquipmentStateException">If an invalid weapon is equipped in the offhand</exception>
     public void EquipWeapon(Item item, bool offHand = false) {
       if (!item.IsWeapon()) {
         throw new EquipmentTypeMismatchException(item.Id, EquipmentType.Weapon);
+      }
+
+      if (item.IsTwoHandedWeapon() && offHand) {
+        throw new IllegalEquipmentStateException("Cannot equip a two-handed weapon in the off-hand slot.");
       }
 
       Item? mainHandItem = MainHand;

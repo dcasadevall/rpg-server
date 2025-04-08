@@ -1,4 +1,5 @@
 using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Exceptions.Items;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Models.Items;
