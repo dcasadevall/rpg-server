@@ -4,6 +4,8 @@ using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
+using System.Reflection;
+using RPGCharacterService.Persistence.Characters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,11 @@ builder.Services.AddSwaggerGen(c =>
         Title = "RPG Character Service API",
         Description = "A RESTful service for managing D&D-inspired RPG characters."
     });
+
+    // Include XML comments
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
 
     // Add future supported versions here.
     // This will generate multiple Swagger endpoints for different API versions.

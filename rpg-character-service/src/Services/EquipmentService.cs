@@ -2,6 +2,7 @@ using RPGCharacterService.Exceptions;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Models.Equipment;
 using RPGCharacterService.Persistence;
+using RPGCharacterService.Persistence.Characters;
 
 namespace RPGCharacterService.Services
 {

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using RPGCharacterService.Dtos.Equipment.Requests;
+using RPGCharacterService.Dtos.Equipment.Responses;
 using RPGCharacterService.Exceptions;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Models.Equipment;
@@ -15,24 +17,24 @@ namespace RPGCharacterService.Controllers
         [HttpPatch("armor/{armorId:int}")]
         [SwaggerOperation(Summary = "Equip Armor to a Character", 
                          Description = "Equips the specified armor to the given character")]
-        [SwaggerResponse(200, "Armor Equipped", typeof(object))]
+        [SwaggerResponse(200, "Armor Equipped", typeof(EquipmentResponse))]
         [SwaggerResponse(400, "Invalid ID or Armor ID")]
         [SwaggerResponse(404, "Character or Armor Not Found")]
-        public async Task<ActionResult<object>> EquipArmor(
+        public async Task<ActionResult<EquipmentResponse>> EquipArmor(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
             [SwaggerParameter("Armor item identifier", Required = true)] uint armorId)
         {
             try
             {
                 var character = await equipmentService.EquipItemAsync(characterId, armorId, EquipmentSlot.Armor);
-                return Ok(new 
+                return Ok(new EquipmentResponse 
                 { 
-                    armorClass = character.ArmorClass,
-                    equipment = new 
+                    ArmorClass = character.ArmorClass,
+                    Equipment = new EquipmentDetails 
                     {
-                        armor = character.EquippedItems.ArmorId,
-                        mainHand = character.EquippedItems.MainHandId,
-                        offHand = character.EquippedItems.OffHandId
+                        Armor = character.EquippedItems.ArmorId,
+                        MainHand = character.EquippedItems.MainHandId,
+                        OffHand = character.EquippedItems.OffHandId
                     }
                 });
             }
@@ -49,10 +51,10 @@ namespace RPGCharacterService.Controllers
         [HttpPatch("weapons/{weaponId:int}")]
         [SwaggerOperation(Summary = "Equip Weapon to a Character", 
                          Description = "Equips the specified weapon to the given character")]
-        [SwaggerResponse(200, "Weapon Equipped", typeof(object))]
+        [SwaggerResponse(200, "Weapon Equipped", typeof(EquipmentResponse))]
         [SwaggerResponse(400, "Invalid ID or Weapon ID")]
         [SwaggerResponse(404, "Character or Weapon Not Found")]
-        public async Task<ActionResult<object>> EquipWeapon(
+        public async Task<ActionResult<EquipmentResponse>> EquipWeapon(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
             [SwaggerParameter("Weapon item identifier", Required = true)] uint weaponId, 
             [FromBody, SwaggerRequestBody("Off-hand weapon details", Required = false)] EquipWeaponRequest request)
@@ -63,13 +65,14 @@ namespace RPGCharacterService.Controllers
                 var slot = isOffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
                 
                 var character = await equipmentService.EquipItemAsync(characterId, weaponId, slot);
-                return Ok(new 
+                return Ok(new EquipmentResponse 
                 { 
-                    armorClass = character.ArmorClass,
-                    equipment = new 
+                    ArmorClass = character.ArmorClass,
+                    Equipment = new EquipmentDetails 
                     {
-                        mainHand = character.EquippedItems.MainHandId,
-                        offHand = character.EquippedItems.OffHandId
+                        MainHand = character.EquippedItems.MainHandId,
+                        OffHand = character.EquippedItems.OffHandId,
+                        Armor = character.EquippedItems.ArmorId
                     }
                 });
             }

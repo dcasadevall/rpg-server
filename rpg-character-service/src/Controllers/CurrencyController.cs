@@ -16,7 +16,7 @@ namespace RPGCharacterService.Controllers
         [HttpPost("init")]
         [SwaggerOperation(Summary = "Initialize a Character's Currency", 
                              Description = "Randomly sets the character's starting currency by rolling dice")]
-        [SwaggerResponse(200, "Currency Initialized", typeof(object))]
+        [SwaggerResponse(200, "Currency Initialized", typeof(CurrencyResponse))]
         [SwaggerResponse(400, "Invalid ID Format")]
         [SwaggerResponse(404, "Character Not Found")]
         [SwaggerResponse(409, "Currency Already Initialized")]
@@ -34,10 +34,8 @@ namespace RPGCharacterService.Controllers
             try
             {
                 var character = await currencyService.GenerateInitialCurrencyAsync(characterId);
-                return Ok(new
-                {
-                    currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
-                });
+                var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
+                return Ok(currencyResponse);
             } catch (KeyNotFoundException)
             {
                 return NotFound(new
@@ -58,7 +56,7 @@ namespace RPGCharacterService.Controllers
         [HttpPatch]
         [SwaggerOperation(Summary = "Modify Character Currency", 
                              Description = "Adds or subtracts the specified values from the character's current currency")]
-        [SwaggerResponse(200, "Currency Modified", typeof(object))]
+        [SwaggerResponse(200, "Currency Modified", typeof(CurrencyResponse))]
         [SwaggerResponse(400, "Invalid Request")]
         [SwaggerResponse(404, "Character Not Found")]
         [SwaggerResponse(409, "Currency Not Initialized")]
@@ -88,10 +86,8 @@ namespace RPGCharacterService.Controllers
 
                 var currencyChanges = CurrencyMapper.ToDictionary(request);
                 var character = await currencyService.ModifyCurrenciesAsync(characterId, currencyChanges);
-                return Ok(new
-                {
-                    currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
-                });
+                var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
+                return Ok(currencyResponse);
             } catch (KeyNotFoundException)
             {
                 return NotFound(new
@@ -112,7 +108,7 @@ namespace RPGCharacterService.Controllers
         [HttpPatch("exchange")]
         [SwaggerOperation(Summary = "Exchange Character Currency", 
                          Description = "Converts the specified amount of currency from one type to another using standard D&D 5e conversions")]
-        [SwaggerResponse(200, "Currency Exchanged", typeof(object))]
+        [SwaggerResponse(200, "Currency Exchanged", typeof(CurrencyResponse))]
         [SwaggerResponse(400, "Invalid Request")]
         [SwaggerResponse(400, "Invalid Exchange")]
         [SwaggerResponse(404, "Character Not Found")]
@@ -143,10 +139,8 @@ namespace RPGCharacterService.Controllers
                 }
 
                 var character = await currencyService.ExchangeCurrencyAsync(characterId, request.From, request.To, request.Amount);
-                return Ok(new
-                {
-                    currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
-                });
+                var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
+                return Ok(currencyResponse);
             } catch (KeyNotFoundException)
             {
                 return NotFound(new

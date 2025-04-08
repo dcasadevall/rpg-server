@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using RPGCharacterService.Dtos.Stats.Requests;
+using RPGCharacterService.Dtos.Stats.Responses;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -39,16 +40,5 @@ namespace RPGCharacterService.Controllers
                 return BadRequest(new { error = "INVALID_DELTA", message = ex.Message });
             }
         }
-    }
-    
-    public class HitPointUpdateRequest
-    {
-        [Required]
-        public int Delta { get; set; }
-    }
-
-    public class HitPointUpdateResponse
-    {
-        public int HitPoints { get; set; }
     }
 } 

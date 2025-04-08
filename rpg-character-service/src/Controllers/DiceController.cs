@@ -35,7 +35,7 @@ namespace RPGCharacterService.Controllers
                     });
                 }
 
-                var rolls = diceService.Roll((DiceSides) request.Sides, request.Count);
+                var rolls = diceService.Roll(request.Sides, request.Count);
                 return Ok(new RollDiceResponse
                 {
                     Results = rolls

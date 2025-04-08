@@ -3,6 +3,7 @@ using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence;
 using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Persistence.Characters;
 
 namespace RPGCharacterService.Services
 {
