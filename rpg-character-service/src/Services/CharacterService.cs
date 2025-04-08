@@ -6,26 +6,72 @@ using RPGCharacterService.Persistence.Characters;
 
 namespace RPGCharacterService.Services {
   public interface ICharacterService {
+    /// <summary>
+    /// Retrieves all characters from the system.
+    /// </summary>
+    /// <returns>A collection of all characters.</returns>
     Task<IEnumerable<Character>> GetAllCharactersAsync();
+
+    /// <summary>
+    /// Retrieves a specific character by their unique identifier.
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character to retrieve.</param>
+    /// <returns>The character with the specified identifier.</returns>
+    /// <exception cref="CharacterNotFoundException">Thrown when no character exists with the specified ID.</exception>
     Task<Character> GetCharacterAsync(Guid characterId);
+
+    /// <summary>
+    /// Creates a new character with the specified details.
+    /// </summary>
+    /// <param name="request">The request containing the character's details.</param>
+    /// <returns>The newly created character.</returns>
+    /// <exception cref="InappropriateNameException">Thrown when the character name is inappropriate.</exception>
+    /// <exception cref="CharacterAlreadyExistsException">Thrown when a character with the same name already exists.</exception>
     Task<Character> CreateCharacterAsync(CreateCharacterRequest request);
+
+    /// <summary>
+    /// Deletes a character with the specified identifier.
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character to delete.</param>
+    /// <exception cref="CharacterNotFoundException">Thrown when no character exists with the specified ID.</exception>
     Task DeleteCharacterAsync(Guid characterId);
   }
 
+  /// <summary>
+  /// Provides functionality for managing characters.
+  /// This service handles character creation, retrieval, and deletion, including validation and initialization.
+  /// </summary>
   public class CharacterService(ICharacterRepository repository, IDiceService diceService)
     : ICharacterService {
     private static readonly HashSet<string> InappropriateNames = new(StringComparer.OrdinalIgnoreCase) {
       "admin", "moderator", "gamemaster", "dungeonmaster",
     };
 
+    /// <summary>
+    /// Retrieves all characters from the system.
+    /// </summary>
+    /// <returns>A collection of all characters.</returns>
     public async Task<IEnumerable<Character>> GetAllCharactersAsync() {
       return await repository.GetAllAsync();
     }
 
+    /// <summary>
+    /// Retrieves a specific character by their unique identifier.
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character to retrieve.</param>
+    /// <returns>The character with the specified identifier.</returns>
+    /// <exception cref="CharacterNotFoundException">Thrown when no character exists with the specified ID.</exception>
     public async Task<Character> GetCharacterAsync(Guid characterId) {
       return await repository.GetByIdOrThrowAsync(characterId);
     }
 
+    /// <summary>
+    /// Creates a new character with the specified details.
+    /// </summary>
+    /// <param name="request">The request containing the character's details.</param>
+    /// <returns>The newly created character.</returns>
+    /// <exception cref="InappropriateNameException">Thrown when the character name is inappropriate.</exception>
+    /// <exception cref="CharacterAlreadyExistsException">Thrown when a character with the same name already exists.</exception>
     public async Task<Character> CreateCharacterAsync(CreateCharacterRequest request) {
       // Check for inappropriate names
       if (InappropriateNames.Contains(request.Name)) {
@@ -66,6 +112,11 @@ namespace RPGCharacterService.Services {
       return character;
     }
 
+    /// <summary>
+    /// Deletes a character with the specified identifier.
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character to delete.</param>
+    /// <exception cref="CharacterNotFoundException">Thrown when no character exists with the specified ID.</exception>
     public Task DeleteCharacterAsync(Guid characterId) {
       return repository.DeleteAsync(characterId);
     }
