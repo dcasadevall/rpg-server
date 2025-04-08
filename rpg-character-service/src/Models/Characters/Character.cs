@@ -91,11 +91,11 @@ namespace RPGCharacterService.Models.Characters {
     /// <param name="score">The ability score to calculate the modifier for.</param>
     /// <returns>The ability modifier, calculated as (score - 10) / 2, rounded down.</returns>
     public int CalculateAbilityModifier(AbilityScore score) {
-      return (AbilityScores[score] - 10) / 2;
+      return (int)Math.Floor((AbilityScores[score] - 10) / 2.0);
     }
 
     /// <summary>
-    /// Calculates ability modifiers for all of the character's ability scores.
+    /// Calculates ability modifiers for all the character's ability scores.
     /// </summary>
     /// <returns>A dictionary mapping each ability score to its corresponding modifier.</returns>
     public Dictionary<AbilityScore, int> CalculateAllAbilityModifiers() {

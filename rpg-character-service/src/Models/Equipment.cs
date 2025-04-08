@@ -94,8 +94,9 @@ namespace RPGCharacterService.Models {
         throw new IllegalEquipmentStateException("Cannot equip a two-handed weapon in the off-hand slot.");
       }
 
-      Item? mainHandItem = MainHand;
-      Item? offHandItem = OffHand;
+      // Store the currently equipped items
+      var mainHandItem = MainHand;
+      var offHandItem = OffHand;
 
       if (item.IsTwoHandedWeapon()) {
         // Scenario 1: Two-handed weapon
