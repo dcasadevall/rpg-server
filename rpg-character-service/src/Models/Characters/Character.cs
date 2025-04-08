@@ -146,13 +146,15 @@ namespace RPGCharacterService.Models.Characters {
 
     /// <summary>
     /// Calculates the total armor class based on equipped armor and the character's dexterity modifier.
+    /// Shields are treated as armor with a bonus to AC.
+    /// Does not currently account for magic armor bonus in other items.
     /// </summary>
     /// <param name="dexterityModifier">The character's dexterity modifier.</param>
     /// <returns>The total armor class value, accounting for armor type and dexterity modifier limits.</returns>
     public int CalculateArmorClass(int dexterityModifier) {
       var armorType = Armor?.EquipmentStats?.ArmorStats?.ArmorType ?? ArmorType.None;
       var baseArmorClass = Armor?.EquipmentStats?.ArmorStats?.BaseArmorClass ?? 0;
-      var armorBonus = Armor?.EquipmentStats?.ArmorBonus ?? 0;
+      var shieldBonus = OffHand?.IsShield() ?? false ? OffHand.EquipmentStats?.ArmorBonus ?? 0 :  0;
 
       var acBeforeBonus = armorType switch {
         ArmorType.Light => baseArmorClass + dexterityModifier,
@@ -162,7 +164,7 @@ namespace RPGCharacterService.Models.Characters {
         _ => throw new NotSupportedException($"Unknown armor type: {armorType}")
       };
 
-      return acBeforeBonus + armorBonus;
+      return acBeforeBonus + shieldBonus;
     }
 
     /// <summary>

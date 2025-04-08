@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Currency.Requests;
 using RPGCharacterService.Dtos.Currency.Responses;
+using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Mappers;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
