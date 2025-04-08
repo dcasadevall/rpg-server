@@ -4,6 +4,7 @@ namespace RPGCharacterService.Models.Characters {
   /// <summary>
   /// Represents a D&D character, containing all character attributes, equipment, and wealth.
   /// This class implements core D&D 5e character mechanics including hit points, ability scores, and armor class calculations.
+  /// This model is an Aggregate Root, containing other models such as Equipment or Wealth.
   /// </summary>
   public class Character {
     /// <summary>
@@ -54,7 +55,7 @@ namespace RPGCharacterService.Models.Characters {
     /// <summary>
     /// Gets or initializes the character's equipped items (weapons, armor, shield).
     /// </summary>
-    public EquippedItems Equipment { get; init; } = new();
+    public Equipment Equipment { get; init; } = new();
 
     /// <summary>
     /// Gets or sets the character's wealth in various currency types (gold, silver, copper, etc.).
@@ -124,67 +125,4 @@ namespace RPGCharacterService.Models.Characters {
     }
   }
 
-  /// <summary>
-  /// Represents the items currently equipped by a character, including weapons, armor, and shields.
-  /// This class handles calculations related to equipment, such as armor class and weapon damage modifiers.
-  /// </summary>
-  public class EquippedItems {
-    /// <summary>
-    /// Gets or sets the item equipped in the main hand (typically a weapon).
-    /// </summary>
-    public Item? MainHand { get; set; }
-
-    /// <summary>
-    /// Gets or sets the item equipped in the off-hand (typically a shield or second weapon).
-    /// </summary>
-    public Item? OffHand { get; set; }
-
-    /// <summary>
-    /// Gets or sets the armor equipped by the character.
-    /// </summary>
-    public Item? Armor { get; set; }
-
-    /// <summary>
-    /// Calculates the total armor class based on equipped armor and the character's dexterity modifier.
-    /// Shields are treated as armor with a bonus to AC.
-    /// Does not currently account for magic armor bonus in other items.
-    /// </summary>
-    /// <param name="dexterityModifier">The character's dexterity modifier.</param>
-    /// <returns>The total armor class value, accounting for armor type and dexterity modifier limits.</returns>
-    public int CalculateArmorClass(int dexterityModifier) {
-      var armorType = Armor?.EquipmentStats?.ArmorStats?.ArmorType ?? ArmorType.None;
-      var baseArmorClass = Armor?.EquipmentStats?.ArmorStats?.BaseArmorClass ?? 0;
-      var shieldBonus = OffHand?.IsShield() ?? false ? OffHand.EquipmentStats?.ArmorBonus ?? 0 :  0;
-
-      var acBeforeBonus = armorType switch {
-        ArmorType.Light => baseArmorClass + dexterityModifier,
-        ArmorType.Medium => baseArmorClass + Math.Min(dexterityModifier, 2),
-        ArmorType.Heavy => baseArmorClass,
-        ArmorType.None => 10 + dexterityModifier,
-        _ => throw new NotSupportedException($"Unknown armor type: {armorType}")
-      };
-
-      return acBeforeBonus + shieldBonus;
-    }
-
-    /// <summary>
-    /// Determines which ability score should be used for weapon damage calculations based on weapon properties.
-    /// </summary>
-    /// <param name="abilityModifiers">A dictionary of the character's ability modifiers.</param>
-    /// <returns>The ability score (Strength or Dexterity) that should be used for weapon damage calculations.</returns>
-    public AbilityScore CalculateWeaponDamageModifier(Dictionary<AbilityScore, int> abilityModifiers) {
-      var strengthModifier = abilityModifiers[AbilityScore.Strength];
-      var dexterityModifier = abilityModifiers[AbilityScore.Dexterity];
-
-      if (MainHand?.EquipmentStats?.WeaponStats?.WeaponProperties.HasFlag(WeaponProperty.Finesse) ?? false) {
-        return dexterityModifier > strengthModifier ? AbilityScore.Dexterity : AbilityScore.Strength;
-      }
-
-      if (MainHand?.EquipmentStats?.WeaponStats?.RangeType == WeaponRangeType.Ranged) {
-        return AbilityScore.Dexterity;
-      }
-
-      return AbilityScore.Strength;
-    }
-  }
 }
