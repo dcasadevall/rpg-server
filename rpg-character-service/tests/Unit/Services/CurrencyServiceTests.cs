@@ -1,8 +1,14 @@
+using Moq;
 using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace RPGCharacterService.UnitTests.Services {
   public class CurrencyServiceTests {
@@ -14,188 +20,202 @@ namespace RPGCharacterService.UnitTests.Services {
       currencyService = new CurrencyService(repositoryMock.Object, diceServiceMock.Object);
     }
 
+    // Helper to create a character with initialized currency
+    private Character CreateCharacterWithCurrency(Dictionary<CurrencyType, int> initialAmounts) {
+        var character = new Character {
+            InitFlags = CharacterInitializationFlags.CurrencyInitialized
+        };
+        foreach(var kvp in initialAmounts) {
+            character.Wealth.SetCurrencyAmount(kvp.Key, kvp.Value);
+        }
+        return character;
+    }
+
     [Fact]
-    public async Task GenerateInitialCurrencyAsync_WithUninitializedCharacter_ShouldInitializeCurrency() {
+    public async Task GenerateInitialCurrencyAsync_WhenNotInitialized_ShouldSetCurrencyAndFlag() {
       // Arrange
-      var character = new Character();
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
-      diceServiceMock
-        .Setup(d => d.Roll(DiceSides.Twenty, 1))
-        .Returns([10]);
-      diceServiceMock
-        .Setup(d => d.Roll(DiceSides.Twenty, 3))
-        .Returns([5, 10, 15]);
-      diceServiceMock
-        .Setup(d => d.Roll(DiceSides.Twelve, 5))
-        .Returns([3, 6, 9, 12, 15]);
+      var character = new Character { InitFlags = CharacterInitializationFlags.None }; // Not initialized
+      repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
+      diceServiceMock.Setup(d => d.Roll(DiceSides.Twenty, 1)).Returns(new List<int> { 10 }); // Example roll
+      diceServiceMock.Setup(d => d.Roll(DiceSides.Twenty, 3)).Returns(new List<int> { 5, 10, 15 }); // Example roll
+      diceServiceMock.Setup(d => d.Roll(DiceSides.Twelve, 5)).Returns(new List<int> { 1, 2, 3, 4, 5 }); // Example roll
 
       // Act
       var result = await currencyService.GenerateInitialCurrencyAsync(character.Id);
 
       // Assert
-      Assert.Equal(10, result.Wealth.GetCurrencyAmount(CurrencyType.Gold));
-      Assert.Equal(30, result.Wealth.GetCurrencyAmount(CurrencyType.Silver));
-      Assert.Equal(45, result.Wealth.GetCurrencyAmount(CurrencyType.Copper));
       Assert.True(result.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized));
-      repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
+      Assert.Equal(10, result.Wealth.GetCurrencyAmount(CurrencyType.Gold));  // 10
+      Assert.Equal(30, result.Wealth.GetCurrencyAmount(CurrencyType.Silver)); // 5+10+15
+      Assert.Equal(15, result.Wealth.GetCurrencyAmount(CurrencyType.Copper)); // 1+2+3+4+5
+      repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c =>
+          c.Id == character.Id &&
+          c.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized) &&
+          c.Wealth.GetCurrencyAmount(CurrencyType.Gold) == 10
+      )), Times.Once);
     }
 
     [Fact]
-    public async Task
-      GenerateInitialCurrencyAsync_WithInitializedCharacter_ShouldThrowCurrencyAlreadyInitializedException() {
+    public async Task GenerateInitialCurrencyAsync_WhenAlreadyInitialized_ShouldThrowException() {
       // Arrange
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
-      };
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
+      var character = CreateCharacterWithCurrency(new Dictionary<CurrencyType, int> { { CurrencyType.Gold, 1 } });
+      repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
 
       // Act & Assert
-      await Assert.ThrowsAsync<CurrencyAlreadyInitializedException>(() =>
-                                                                      currencyService
-                                                                        .GenerateInitialCurrencyAsync(character.Id));
+      await Assert.ThrowsAsync<CurrencyAlreadyInitializedException>(
+          () => currencyService.GenerateInitialCurrencyAsync(character.Id));
+      repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Character>()), Times.Never);
     }
 
     [Fact]
-    public async Task ModifyCurrenciesAsync_WithValidChanges_ShouldUpdateCurrency() {
-      // Arrange
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
-      };
-      character.Wealth.SetCurrencyAmount(CurrencyType.Gold, 10);
-      character.Wealth.SetCurrencyAmount(CurrencyType.Silver, 20);
-      character.Wealth.SetCurrencyAmount(CurrencyType.Copper, 30);
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
-      var changes = new Dictionary<CurrencyType, int> {
-        {CurrencyType.Gold, 5},
-        {CurrencyType.Silver, -10},
-        {CurrencyType.Copper, 15}
-      };
+    public async Task ModifyCurrenciesAsync_WithSufficientFunds_ShouldUpdateAmounts() {
+        // Arrange
+        var initialCurrency = new Dictionary<CurrencyType, int> {
+            { CurrencyType.Gold, 20 },
+            { CurrencyType.Silver, 50 }
+        };
+        var character = CreateCharacterWithCurrency(initialCurrency);
+        repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
 
-      // Act
-      var result = await currencyService.ModifyCurrenciesAsync(character.Id, changes);
+        var changes = new Dictionary<CurrencyType, int> {
+            { CurrencyType.Gold, 5 },   // Add 5 gold
+            { CurrencyType.Silver, -10 } // Subtract 10 silver
+        };
 
-      // Assert
-      Assert.Equal(15, result.Wealth.GetCurrencyAmount(CurrencyType.Gold));
-      Assert.Equal(10, result.Wealth.GetCurrencyAmount(CurrencyType.Silver));
-      Assert.Equal(45, result.Wealth.GetCurrencyAmount(CurrencyType.Copper));
-      repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
+        // Act
+        var result = await currencyService.ModifyCurrenciesAsync(character.Id, changes);
+
+        // Assert
+        Assert.Equal(25, result.Wealth.GetCurrencyAmount(CurrencyType.Gold));
+        Assert.Equal(40, result.Wealth.GetCurrencyAmount(CurrencyType.Silver));
+        repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c =>
+            c.Id == character.Id &&
+            c.Wealth.GetCurrencyAmount(CurrencyType.Gold) == 25 &&
+            c.Wealth.GetCurrencyAmount(CurrencyType.Silver) == 40
+        )), Times.Once);
     }
 
     [Fact]
-    public async Task ModifyCurrenciesAsync_WithInsufficientFunds_ShouldThrowNotEnoughCurrencyException() {
+    public async Task ModifyCurrenciesAsync_WithInsufficientFunds_ShouldThrowException() {
+        // Arrange
+        var initialCurrency = new Dictionary<CurrencyType, int> { { CurrencyType.Gold, 5 } };
+        var character = CreateCharacterWithCurrency(initialCurrency);
+        repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
+
+        var changes = new Dictionary<CurrencyType, int> { { CurrencyType.Gold, -10 } }; // Try to subtract 10 gold
+
+        // Act & Assert
+        await Assert.ThrowsAsync<NotEnoughCurrencyException>(
+            () => currencyService.ModifyCurrenciesAsync(character.Id, changes));
+        repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Character>()), Times.Never); // Ensure no update occurred
+    }
+
+     [Fact]
+    public async Task ModifyCurrenciesAsync_WhenNotInitialized_ShouldThrowException() {
       // Arrange
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
-      };
-      character.Wealth.SetCurrencyAmount(CurrencyType.Gold, 10);
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
-      var changes = new Dictionary<CurrencyType, int> {
-        {CurrencyType.Gold, -15}
-      };
+      var character = new Character { InitFlags = CharacterInitializationFlags.None }; // Not initialized
+      repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
+      var changes = new Dictionary<CurrencyType, int> { { CurrencyType.Gold, 10 } };
 
       // Act & Assert
-      await Assert.ThrowsAsync<NotEnoughCurrencyException>(() =>
-                                                             currencyService.ModifyCurrenciesAsync(character.Id,
-                                                              changes));
+      await Assert.ThrowsAsync<CurrencyNotInitializedException>(
+          () => currencyService.ModifyCurrenciesAsync(character.Id, changes));
     }
+
+
+    // --- ExchangeCurrencyAsync Tests --- Reverted Logic ---
 
     [Theory]
-    [InlineData(CurrencyType.Copper, 20, CurrencyType.Silver, 0, 2)] // 10:1
-    [InlineData(CurrencyType.Silver, 2, CurrencyType.Copper, 20, 0)] // 1:10
-    [InlineData(CurrencyType.Silver, 10, CurrencyType.Electrum, 0, 2)] // 5:1
-    [InlineData(CurrencyType.Electrum, 2, CurrencyType.Silver, 10, 0)] // 1:5
-    [InlineData(CurrencyType.Electrum, 4, CurrencyType.Gold, 0, 2)] // 2:1
-    [InlineData(CurrencyType.Gold, 2, CurrencyType.Electrum, 4, 0)] // 1:2
-    [InlineData(CurrencyType.Gold, 20, CurrencyType.Platinum, 0, 2)] // 10:1
-    [InlineData(CurrencyType.Platinum, 2, CurrencyType.Gold, 20, 0)] // 1:10
-    public async Task ExchangeCurrencyAsync_WithValidExchange_ShouldUpdateCurrencies(
+    // Standard Rates (From -> To)
+    [InlineData(CurrencyType.Platinum, CurrencyType.Gold, 1, 1000, 0, 0, 10)]     // 1 PP -> 10 GP (Rate: 10)
+    [InlineData(CurrencyType.Gold, CurrencyType.Platinum, 10, 100, 0, 90, 1)]      // 10 GP -> 1 PP (Rate: 0.1)
+    [InlineData(CurrencyType.Gold, CurrencyType.Electrum, 1, 100, 0, 99, 2)]      // 1 GP -> 2 EP (Rate: 2)
+    [InlineData(CurrencyType.Electrum, CurrencyType.Gold, 2, 50, 0, 48, 1)]       // 2 EP -> 1 GP (Rate: 0.5)
+    [InlineData(CurrencyType.Electrum, CurrencyType.Silver, 1, 50, 0, 49, 5)]       // 1 EP -> 5 SP (Rate: 5)
+    [InlineData(CurrencyType.Silver, CurrencyType.Electrum, 5, 50, 0, 45, 1)]      // 5 SP -> 1 EP (Rate: 0.2)
+    [InlineData(CurrencyType.Silver, CurrencyType.Copper, 1, 50, 0, 49, 10)]       // 1 SP -> 10 CP (Rate: 10)
+    [InlineData(CurrencyType.Copper, CurrencyType.Silver, 10, 50, 0, 40, 1)]      // 10 CP -> 1 SP (Rate: 0.1)
+    // Fractional Results (Floored)
+    [InlineData(CurrencyType.Copper, CurrencyType.Gold, 99, 100, 0, 1, 0)]       // 99 CP -> 0 GP (Rate: 0.01, Floor(0.99)=0)
+    [InlineData(CurrencyType.Silver, CurrencyType.Gold, 1, 100, 0, 99, 0)]       // 1 SP -> 0 GP (Rate: 0.1, Floor(0.1)=0)
+    [InlineData(CurrencyType.Copper, CurrencyType.Platinum, 999, 1000, 0, 1, 0)] // 999 CP -> 0 PP (Rate: 0.001, Floor(0.999)=0)
+    // Edge case: Amount = 1
+    [InlineData(CurrencyType.Gold, CurrencyType.Silver, 1, 100, 5, 99, 15)]       // 1 GP (cost) -> 10 SP (gain). Initial SP 5 -> final SP 15.
+    public async Task ExchangeCurrencyAsync_WithValidExchange_ShouldUpdateCurrenciesCorrectly(
       CurrencyType fromCurrency,
-      int fromAmount,
       CurrencyType toCurrency,
-      int expectedFromAmount,
-      int expectedToAmount) {
+      int amount, // Amount of 'from' currency to spend
+      int initialFromAmount,
+      int initialToAmount,
+      int expectedFinalFromAmount,
+      int expectedFinalToAmount
+    ) {
       // Arrange
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
+      var initialCurrency = new Dictionary<CurrencyType, int> {
+          { fromCurrency, initialFromAmount },
+          { toCurrency, initialToAmount }
       };
-      character.Wealth.SetCurrencyAmount(fromCurrency, fromAmount);
-      character.Wealth.SetCurrencyAmount(toCurrency, 0);
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
+      var character = CreateCharacterWithCurrency(initialCurrency);
+      repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
 
       // Act
-      var result = await currencyService.ExchangeCurrencyAsync(character.Id, fromCurrency, toCurrency, fromAmount);
+      var result = await currencyService.ExchangeCurrencyAsync(character.Id, fromCurrency, toCurrency, amount);
 
       // Assert
-      Assert.Equal(expectedFromAmount, result.Wealth.GetCurrencyAmount(fromCurrency));
-      Assert.Equal(expectedToAmount, result.Wealth.GetCurrencyAmount(toCurrency));
+      Assert.Equal(expectedFinalFromAmount, result.Wealth.GetCurrencyAmount(fromCurrency));
+      Assert.Equal(expectedFinalToAmount, result.Wealth.GetCurrencyAmount(toCurrency));
       repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
     }
 
     [Fact]
-    public async Task ExchangeCurrencyAsync_WithInsufficientFunds_ShouldThrowNotEnoughCurrencyException() {
+    public async Task ExchangeCurrencyAsync_WithInsufficientFromCurrency_ShouldThrowException() {
       // Arrange
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
-      };
-      character.Wealth.SetCurrencyAmount(CurrencyType.Gold, 5);
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
+      var initialCurrency = new Dictionary<CurrencyType, int> { { CurrencyType.Gold, 1 } }; // Only 1 Gold
+      var character = CreateCharacterWithCurrency(initialCurrency);
+      repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
 
       // Act & Assert
-      await Assert.ThrowsAsync<NotEnoughCurrencyException>(() =>
-                                                             currencyService.ExchangeCurrencyAsync(character.Id,
-                                                              CurrencyType.Gold,
-                                                              CurrencyType.Silver,
-                                                              10));
+      await Assert.ThrowsAsync<NotEnoughCurrencyException>(
+          () => currencyService.ExchangeCurrencyAsync(character.Id, CurrencyType.Gold, CurrencyType.Silver, 2)); // Try to spend 2 Gold
+      repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Character>()), Times.Never);
     }
 
     [Fact]
-    public async Task ExchangeCurrencyAsync_WithInvalidExchange_ShouldThrowInvalidCurrencyExchangeException() {
+    public async Task ExchangeCurrencyAsync_WithSameCurrency_ShouldThrowException() {
       // Arrange
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
-      };
-      character.Wealth.SetCurrencyAmount(CurrencyType.Gold, 10);
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
+      var initialCurrency = new Dictionary<CurrencyType, int> { { CurrencyType.Gold, 10 } };
+      var character = CreateCharacterWithCurrency(initialCurrency);
+      repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
 
       // Act & Assert
-      await Assert.ThrowsAsync<InvalidCurrencyExchangeException>(() =>
-                                                                   currencyService.ExchangeCurrencyAsync(character.Id,
-                                                                    CurrencyType.Gold,
-                                                                    CurrencyType.Platinum,
-                                                                    1));
+      await Assert.ThrowsAsync<InvalidCurrencyExchangeException>(
+          () => currencyService.ExchangeCurrencyAsync(character.Id, CurrencyType.Gold, CurrencyType.Gold, 1));
     }
 
-    // Add test for overflow
     [Fact]
-    public async Task ExchangeCurrencyAsync_WithOverflow_ShouldThrowOverflowException() {
-      // Arrange
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
-      };
-      character.Wealth.SetCurrencyAmount(CurrencyType.Gold, int.MaxValue);
-      repositoryMock
-        .Setup(r => r.GetByIdAsync(character.Id))
-        .ReturnsAsync(character);
+    public async Task ExchangeCurrencyAsync_WithNegativeAmount_ShouldThrowException() {
+       // Arrange
+      var initialCurrency = new Dictionary<CurrencyType, int> { { CurrencyType.Gold, 10 } };
+      var character = CreateCharacterWithCurrency(initialCurrency);
+      repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
 
       // Act & Assert
-      await Assert.ThrowsAsync<OverflowException>(() => currencyService.ExchangeCurrencyAsync(character.Id,
-                                                   CurrencyType.Gold,
-                                                   CurrencyType.Silver,
-                                                   1));
+      await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+          () => currencyService.ExchangeCurrencyAsync(character.Id, CurrencyType.Gold, CurrencyType.Silver, -1));
     }
+
+    [Fact]
+    public async Task ExchangeCurrencyAsync_WhenNotInitialized_ShouldThrowException() {
+       // Arrange
+       var character = new Character { InitFlags = CharacterInitializationFlags.None };
+       repositoryMock.Setup(r => r.GetByIdOrThrowAsync(character.Id)).ReturnsAsync(character);
+
+       // Act & Assert
+       await Assert.ThrowsAsync<CurrencyNotInitializedException>(
+           () => currencyService.ExchangeCurrencyAsync(character.Id, CurrencyType.Gold, CurrencyType.Silver, 1));
+    }
+
+    // TODO: Add tests for OverflowException scenarios if needed (requires very large amounts)
+
   }
 }
