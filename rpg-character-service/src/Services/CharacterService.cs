@@ -14,6 +14,10 @@ namespace RPGCharacterService.Services {
 
   public class CharacterService(ICharacterRepository repository, IDiceService diceService)
     : ICharacterService {
+    private static readonly HashSet<string> InappropriateNames = new(StringComparer.OrdinalIgnoreCase) {
+      "admin", "moderator", "gamemaster", "dungeonmaster",
+    };
+
     public async Task<IEnumerable<Character>> GetAllCharactersAsync() {
       return await repository.GetAllAsync();
     }
@@ -23,6 +27,11 @@ namespace RPGCharacterService.Services {
     }
 
     public async Task<Character> CreateCharacterAsync(CreateCharacterRequest request) {
+      // Check for inappropriate names
+      if (InappropriateNames.Contains(request.Name)) {
+        throw new InappropriateNameException(request.Name);
+      }
+
       // NOTE: For the scope of this prompt, we are not using transactions.
       // In a production environment these kind of checks before creation need to be atomic,
       // and would require a transaction to be created and used for both GetByNameAsync and AddAsync.

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Character;
+using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Mappers;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
@@ -53,8 +54,12 @@ namespace RPGCharacterService.Controllers {
         var newCharacter = await characterService.CreateCharacterAsync(characterRequest);
         var characterResponse = CharacterMapper.ToResponse(newCharacter);
         return CreatedAtAction(nameof(GetCharacterById), new {id = newCharacter.Id}, characterResponse);
+      } catch (InappropriateNameException) {
+        return BadRequest(new {error = "NAME_INAPPROPRIATE", message = "The provided name is inappropriate and cannot be used."});
+      } catch (CharacterAlreadyExistsException) {
+        return Conflict(new {error = "NAME_ALREADY_TAKEN", message = "A character with this name already exists."});
       } catch (Exception ex) {
-        return BadRequest(new {error = ex.Message});
+        return BadRequest(new {error = "INVALID_INPUT", message = ex.Message});
       }
     }
 
@@ -67,7 +72,7 @@ namespace RPGCharacterService.Controllers {
       try {
         await characterService.DeleteCharacterAsync(id);
         return NoContent();
-      } catch (KeyNotFoundException) {
+      } catch (CharacterNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       }
     }

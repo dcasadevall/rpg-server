@@ -38,58 +38,65 @@ namespace RPGCharacterService.Services {
       return character;
     }
 
-    public async Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount) {
+    public async Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges) {
       var character = await repository.GetByIdOrThrowAsync(characterId);
 
       if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
         throw new CurrencyNotInitializedException(characterId);
       }
 
-      if (character.Wealth.GetCurrencyAmount(from) < amount) {
-        throw new NotEnoughCurrencyException(from, amount, character.Wealth.GetCurrencyAmount(from));
+      // Apply changes
+      foreach (var change in currencyChanges) {
+        var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) - change.Value;
+        if (currencyAmountAfter < 0) {
+          throw new NotEnoughCurrencyException(change.Key,
+                                               -change.Value,
+                                               character.Wealth.GetCurrencyAmount(change.Key));
+        }
       }
-
-      // Hardcoded exchange rates. If needed, inject this mapping or load from a config file.
-      var exchangeRates = new Dictionary<(CurrencyType, CurrencyType), int> {
-        {(CurrencyType.Copper, CurrencyType.Silver), 10},
-        {(CurrencyType.Silver, CurrencyType.Gold), 10},
-        {(CurrencyType.Gold, CurrencyType.Platinum), 10},
-        {(CurrencyType.Silver, CurrencyType.Copper), 1},
-        {(CurrencyType.Gold, CurrencyType.Silver), 1},
-        {(CurrencyType.Platinum, CurrencyType.Gold), 1}
-      };
-
-      if (!exchangeRates.TryGetValue((from, to), out var rate)) {
-        throw new InvalidCurrencyExchangeException(from, to);
-      }
-
-      var fromAmount = character.Wealth.GetCurrencyAmount(from);
-      var toAmount = character.Wealth.GetCurrencyAmount(to);
-
-      character.Wealth.SetCurrencyAmount(from, fromAmount - amount);
-      character.Wealth.SetCurrencyAmount(to, toAmount + amount * rate);
 
       await repository.UpdateAsync(character);
       return character;
     }
 
-    public async Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges) {
+    public async Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount) {
       var character = await repository.GetByIdOrThrowAsync(characterId);
       if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
         throw new CurrencyNotInitializedException(characterId);
       }
 
-      foreach (var change in currencyChanges) {
-        var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) - change.Value;
-        if (currencyAmountAfter < 0) {
-          throw new NotEnoughCurrencyException(change.Key, -change.Value, character.Wealth.GetCurrencyAmount(change.Key));
-        }
-
-        character.Wealth.SetCurrencyAmount(change.Key, currencyAmountAfter);
+      // Check if character has enough currency to exchange
+      var currentAmount = character.Wealth.GetCurrencyAmount(from);
+      if (currentAmount < amount) {
+        throw new NotEnoughCurrencyException(from, amount, currentAmount);
       }
+
+      // Calculate exchange rate
+      var exchangeRate = GetExchangeRate(from, to);
+      var newAmount = amount * exchangeRate;
+
+      // Update currency amounts
+      character.Wealth.SetCurrencyAmount(from, currentAmount - amount);
+      character.Wealth.SetCurrencyAmount(to,
+        character.Wealth.GetCurrencyAmount(to) + newAmount);
 
       await repository.UpdateAsync(character);
       return character;
+    }
+
+    private static int GetExchangeRate(CurrencyType from, CurrencyType to) {
+      // Standard D&D 5e conversion rates
+      return (from, to) switch {
+        (CurrencyType.Copper, CurrencyType.Silver) => 1,
+        (CurrencyType.Silver, CurrencyType.Copper) => 10,
+        (CurrencyType.Silver, CurrencyType.Electrum) => 1,
+        (CurrencyType.Electrum, CurrencyType.Silver) => 5,
+        (CurrencyType.Electrum, CurrencyType.Gold) => 1,
+        (CurrencyType.Gold, CurrencyType.Electrum) => 2,
+        (CurrencyType.Gold, CurrencyType.Platinum) => 1,
+        (CurrencyType.Platinum, CurrencyType.Gold) => 10,
+        _ => throw new InvalidOperationException($"Invalid currency conversion from {from} to {to}")
+      };
     }
   }
 }
