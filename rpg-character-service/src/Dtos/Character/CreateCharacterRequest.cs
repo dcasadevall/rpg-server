@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace RPGCharacterService.Dtos.Character.Requests {
+namespace RPGCharacterService.Dtos.Character {
   /// <summary>
   ///   Request object for creating a new character
   /// </summary>

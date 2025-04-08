@@ -1,11 +1,8 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
-using RPGCharacterService.Models.Characters;
-using RPGCharacterService.Models.Items;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
-using RPGCharacterService.Rules;
 using RPGCharacterService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,8 +16,6 @@ builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddSingleton<IDiceService, DiceService>();
-builder.Services.AddSingleton<ICharacterRules, DndFifthEditionCharacterRules>();
-builder.Services.AddSingleton<IEquipmentRules, DndFifthEditionEquipmentRules>();
 
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();

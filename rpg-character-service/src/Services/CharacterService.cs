@@ -1,9 +1,8 @@
-using RPGCharacterService.Dtos.Character.Requests;
+using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence.Characters;
-using RPGCharacterService.Rules;
 
 namespace RPGCharacterService.Services {
   public interface ICharacterService {
@@ -13,7 +12,7 @@ namespace RPGCharacterService.Services {
     Task DeleteCharacterAsync(Guid characterId);
   }
 
-  public class CharacterService(ICharacterRepository repository, IDiceService diceService, ICharacterRules characterRules)
+  public class CharacterService(ICharacterRepository repository, IDiceService diceService)
     : ICharacterService {
     public async Task<IEnumerable<Character>> GetAllCharactersAsync() {
       return await repository.GetAllAsync();
@@ -52,7 +51,7 @@ namespace RPGCharacterService.Services {
         Level = 1,
         AbilityScores = abilityScores
       };
-      character.HitPoints = characterRules.CalculateMaxHitPoints(character);
+      character.HitPoints = character.CalculateMaxHitPoints();
 
       await repository.AddAsync(character);
       return character;

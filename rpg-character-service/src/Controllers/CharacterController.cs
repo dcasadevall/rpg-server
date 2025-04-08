@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using RPGCharacterService.Dtos.Character.Requests;
-using RPGCharacterService.Dtos.Character.Responses;
+using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Mappers;
-using RPGCharacterService.Models.Characters;
-using RPGCharacterService.Models.Items;
-using RPGCharacterService.Rules;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -12,19 +8,14 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:apiVersion}/characters")]
-  public class CharacterController(ICharacterService characterService,
-                                   ICharacterRules characterRules,
-                                   IEquipmentRules equipmentRules) : ControllerBase {
+  public class CharacterController(ICharacterService characterService) : ControllerBase {
     [HttpGet]
     [SwaggerOperation(Summary = "Retrieve All Characters", Description = "Gets a list of all characters")]
     [SwaggerResponse(200, "Successful Response", typeof(List<CharacterResponse>))]
     public async Task<ActionResult<List<CharacterResponse>>> GetAllCharacters() {
       var characters = await characterService.GetAllCharactersAsync();
       return Ok(characters
-                .Select(x => {
-                  var derivedProps = CalculateDerivedProperties(x, characterRules, equipmentRules);
-                  return CharacterMapper.ToResponse(x, derivedProps);
-                })
+                .Select(CharacterMapper.ToResponse)
                 .ToList());
     }
 
@@ -37,8 +28,7 @@ namespace RPGCharacterService.Controllers {
       [SwaggerParameter("Character identifier", Required = true)] Guid id) {
       try {
         var character = await characterService.GetCharacterAsync(id);
-        var derivedProps = CalculateDerivedProperties(character, characterRules, equipmentRules);
-        var characterResponse = CharacterMapper.ToResponse(character, derivedProps);
+        var characterResponse = CharacterMapper.ToResponse(character);
         return Ok(characterResponse);
       } catch (KeyNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
@@ -61,7 +51,8 @@ namespace RPGCharacterService.Controllers {
 
       try {
         var newCharacter = await characterService.CreateCharacterAsync(characterRequest);
-        return CreatedAtAction(nameof(GetCharacterById), new {id = newCharacter.Id}, newCharacter);
+        var characterResponse = CharacterMapper.ToResponse(newCharacter);
+        return CreatedAtAction(nameof(GetCharacterById), new {id = newCharacter.Id}, characterResponse);
       } catch (Exception ex) {
         return BadRequest(new {error = ex.Message});
       }
@@ -79,19 +70,6 @@ namespace RPGCharacterService.Controllers {
       } catch (KeyNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       }
-    }
-
-    private static CharacterDerivedProperties CalculateDerivedProperties(Character character,
-                                                                         ICharacterRules characterRules,
-                                                                         IEquipmentRules equipmentRules) {
-      var derivedProperties = new CharacterDerivedProperties {
-        MaxHitPoints = characterRules.CalculateMaxHitPoints(character),
-        ArmorClass = equipmentRules.CalculateArmorClass(character),
-        ProficiencyBonus = characterRules.CalculateProficiencyBonus(character),
-        AbilityModifiers = characterRules.CalculateAbilityModifiers(character)
-      };
-
-      return derivedProperties;
     }
   }
 }

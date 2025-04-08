@@ -1,7 +1,7 @@
 using RPGCharacterService.Models.Characters;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace RPGCharacterService.Dtos.Equipment.Responses {
+namespace RPGCharacterService.Dtos.Equipment {
   /// <summary>
   ///   Response object for equipment-related operations
   /// </summary>

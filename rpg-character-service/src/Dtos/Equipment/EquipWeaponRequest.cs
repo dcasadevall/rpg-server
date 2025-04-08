@@ -1,7 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace RPGCharacterService.Dtos.Equipment.Requests {
+namespace RPGCharacterService.Dtos.Equipment {
   /// <summary>
   ///   Request object for equipping a weapon to a character
   /// </summary>

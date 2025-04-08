@@ -2,7 +2,7 @@ using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace RPGCharacterService.Dtos.Character.Responses {
+namespace RPGCharacterService.Dtos.Character {
   /// <summary>
   ///   Response object for character information
   /// </summary>
