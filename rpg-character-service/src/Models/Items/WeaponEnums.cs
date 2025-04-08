@@ -11,12 +11,9 @@ namespace RPGCharacterService.Models.Items {
     Loading = 1 << 6, // 64
     Ammunition = 1 << 7 // 128
   }
+
   public enum WeaponRangeType {
     Melee,
     Ranged
-  }
-  public enum WeaponCategory {
-    Simple,
-    Martial
   }
 }

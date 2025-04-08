@@ -24,7 +24,6 @@ namespace RPGCharacterService.Models.Items {
     public int Damage { get; init; }
     public WeaponProperty WeaponProperties { get; init; } = WeaponProperty.None;
     public WeaponRangeType RangeType { get; init; } = WeaponRangeType.Melee;
-    public WeaponCategory Category { get; init; } = WeaponCategory.Simple;
   }
 
   public static class EquipmentExtensions {

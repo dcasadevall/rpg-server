@@ -3,7 +3,8 @@ using RPGCharacterService.Models.Characters;
 
 namespace RPGCharacterService.Mappers {
   public static class CharacterMapper {
-    public static CharacterResponse ToResponse(Character character, CharacterDerivedProperties derivedProperties) {
+    public static CharacterResponse ToResponse(Character character,
+                                               CharacterDerivedProperties derivedProperties) {
       return new CharacterResponse {
         Id = character.Id,
         Name = character.Name,

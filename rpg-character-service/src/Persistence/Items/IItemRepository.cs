@@ -6,7 +6,6 @@ namespace RPGCharacterService.Persistence.Items {
     Task<Item?> GetByIdAsync(int id);
     Task<Item> CreateAsync(Item item);
     Task<Item> UpdateAsync(Item item);
-    Task DeleteAsync(Guid id);
   }
 
   public static class ItemRepositoryExtensions {

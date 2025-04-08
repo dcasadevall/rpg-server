@@ -1,5 +1,6 @@
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence.Characters;
+using RPGCharacterService.Rules;
 
 namespace RPGCharacterService.Services {
   public interface IStatsService {

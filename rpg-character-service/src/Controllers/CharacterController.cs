@@ -3,6 +3,8 @@ using RPGCharacterService.Dtos.Character.Requests;
 using RPGCharacterService.Dtos.Character.Responses;
 using RPGCharacterService.Mappers;
 using RPGCharacterService.Models.Characters;
+using RPGCharacterService.Models.Items;
+using RPGCharacterService.Rules;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -10,7 +12,9 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:apiVersion}/characters")]
-  public class CharacterController(ICharacterService characterService, ICharacterRules characterRules) : ControllerBase {
+  public class CharacterController(ICharacterService characterService,
+                                   ICharacterRules characterRules,
+                                   IEquipmentRules equipmentRules) : ControllerBase {
     [HttpGet]
     [SwaggerOperation(Summary = "Retrieve All Characters", Description = "Gets a list of all characters")]
     [SwaggerResponse(200, "Successful Response", typeof(List<CharacterResponse>))]
@@ -18,7 +22,7 @@ namespace RPGCharacterService.Controllers {
       var characters = await characterService.GetAllCharactersAsync();
       return Ok(characters
                 .Select(x => {
-                  var derivedProps = CalculateDerivedProperties(x, characterRules);
+                  var derivedProps = CalculateDerivedProperties(x, characterRules, equipmentRules);
                   return CharacterMapper.ToResponse(x, derivedProps);
                 })
                 .ToList());
@@ -33,7 +37,7 @@ namespace RPGCharacterService.Controllers {
       [SwaggerParameter("Character identifier", Required = true)] Guid id) {
       try {
         var character = await characterService.GetCharacterAsync(id);
-        var derivedProps = CalculateDerivedProperties(character, characterRules);
+        var derivedProps = CalculateDerivedProperties(character, characterRules, equipmentRules);
         var characterResponse = CharacterMapper.ToResponse(character, derivedProps);
         return Ok(characterResponse);
       } catch (KeyNotFoundException) {
@@ -78,10 +82,11 @@ namespace RPGCharacterService.Controllers {
     }
 
     private static CharacterDerivedProperties CalculateDerivedProperties(Character character,
-                                                                         ICharacterRules characterRules) {
+                                                                         ICharacterRules characterRules,
+                                                                         IEquipmentRules equipmentRules) {
       var derivedProperties = new CharacterDerivedProperties {
         MaxHitPoints = characterRules.CalculateMaxHitPoints(character),
-        ArmorClass = characterRules.CalculateArmorClass(character),
+        ArmorClass = equipmentRules.CalculateArmorClass(character),
         ProficiencyBonus = characterRules.CalculateProficiencyBonus(character),
         AbilityModifiers = characterRules.CalculateAbilityModifiers(character)
       };

@@ -25,31 +25,34 @@ namespace RPGCharacterService.Services {
       // check that the character exists
       var character = await characterRepository.GetByIdOrThrowAsync(characterId);
 
-
       // Possible Scenarios:
       // 1. Two-handed weapon: Equip it in the main hand and unequip any off-hand item
       // 2. One-handed weapon: Equip it in the main hand or off-hand (depending on the offhand flag)
       //    2.1: Player has a 2 handed weapon equipped: Unequip it and equip the new one
+      Item? mainHandItem = character.Equipment.MainHand;
+      Item? offHandItem = character.Equipment.OffHand;
       if (item.IsTwoHandedWeapon()) {
         // If the weapon is two-handed, unequip any currently equipped weapons or shields
-        character.EquippedItems.MainHand = item.Id;
-        character.EquippedItems.OffHand = null;
-      } else if (character.EquippedItems.MainHand != null) {
+        mainHandItem = item;
+        offHandItem = null;
+      } else if (mainHandItem != null) {
         // If the player has a two-handed weapon equipped, unequip it
-        var mainHandWeapon = await itemRepository.GetByIdOrThrowAsync(character.EquippedItems.MainHand.Value);
-        if (mainHandWeapon.IsTwoHandedWeapon()) {
-          character.EquippedItems.MainHand = null;
-          character.EquippedItems.OffHand = null;
+        if (mainHandItem.IsTwoHandedWeapon()) {
+          mainHandItem = null;
+          offHandItem = null;
         }
 
         // One-handed weapon: Equip it in the main hand or off-hand (depending on the offhand flag)
         if (!offhand) {
-          character.EquippedItems.MainHand = item.Id;
+          mainHandItem = item;
         } else {
-          character.EquippedItems.OffHand = item.Id;
+          offHandItem = item;
         }
       }
 
+      // Update the character's equipment
+      character.Equipment.MainHand = mainHandItem;
+      character.Equipment.OffHand = offHandItem;
       await characterRepository.UpdateAsync(character);
       return character;
     }
@@ -67,7 +70,7 @@ namespace RPGCharacterService.Services {
       var character = await characterRepository.GetByIdOrThrowAsync(characterId);
 
 
-      character.EquippedItems.Armor = item.Id;
+      character.Equipment.Armor = item;
       await characterRepository.UpdateAsync(character);
       return character;
     }
@@ -84,16 +87,14 @@ namespace RPGCharacterService.Services {
       // check that the character exists
       var character = await characterRepository.GetByIdOrThrowAsync(characterId);
 
-      // If the character has a two-handed weapon equipped in the main hand, unequip it
-      if (character.EquippedItems.MainHand != null) {
-        var mainHandWeapon = await itemRepository.GetByIdOrThrowAsync(character.EquippedItems.MainHand.Value);
-        if (mainHandWeapon.IsTwoHandedWeapon()) {
-          character.EquippedItems.MainHand = null;
-        }
+      // If the character has a two-handed weapon equipped, unequip it
+      var mainHandItem = character.Equipment.MainHand;
+      if (mainHandItem?.IsTwoHandedWeapon() ?? false) {
+        character.Equipment.MainHand = null;
       }
 
       // Equip the shield in the off-hand
-      character.EquippedItems.OffHand = item.Id;
+      character.Equipment.OffHand = item;
       await characterRepository.UpdateAsync(character);
       return character;
     }

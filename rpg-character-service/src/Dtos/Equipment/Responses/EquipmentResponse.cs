@@ -32,19 +32,19 @@ namespace RPGCharacterService.Dtos.Equipment.Responses {
     ///   The ID of the armor equipped in the armor slot, if any
     /// </summary>
     [SwaggerSchema(Description = "The ID of the armor equipped in the armor slot, null if nothing equipped")]
-    public int? Armor { get; set; }
+    public int? ArmorId { get; set; }
 
     /// <summary>
     ///   The ID of the weapon equipped in the main hand slot, if any
     /// </summary>
     [SwaggerSchema(Description = "The ID of the weapon equipped in the main hand slot, null if nothing equipped")]
-    public int? MainHand { get; set; }
+    public int? MainHandId { get; set; }
 
     /// <summary>
     ///   The ID of the weapon or shield equipped in the off-hand slot, if any
     /// </summary>
     [SwaggerSchema(Description =
                       "The ID of the weapon or shield equipped in the off-hand slot, null if nothing equipped")]
-    public int? OffHand { get; set; }
+    public int? OffHandId { get; set; }
   }
 }

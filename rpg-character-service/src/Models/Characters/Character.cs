@@ -1,21 +1,23 @@
+using RPGCharacterService.Models.Items;
+
 namespace RPGCharacterService.Models.Characters {
   public class Character {
     public Guid Id { get; } = Guid.NewGuid();
-    public string Name { get; set; }
-    public string Race { get; set; }
-    public string Subrace { get; set; }
-    public string Class { get; set; }
+    public string Name { get; init; }
+    public string Race { get; init; }
+    public string Subrace { get; init; }
+    public string Class { get; init; }
     public int HitPoints { get; set; }
     public int Level { get; set; }
     public CharacterInitializationFlags InitFlags { get; set; } = 0;
     public Dictionary<AbilityScore, int> AbilityScores { get; init; } = new();
-    public EquippedItems EquippedItems { get; init; } = new();
+    public EquippedItems Equipment { get; init; } = new();
     public Wealth Wealth { get; set; } = new();
   }
 
   public class EquippedItems {
-    public int? MainHand { get; set; }
-    public int? OffHand { get; set; }
-    public int? Armor { get; set; }
+    public Item? MainHand { get; set; }
+    public Item? OffHand { get; set; }
+    public Item? Armor { get; set; }
   }
 }
