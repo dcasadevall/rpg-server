@@ -93,7 +93,8 @@ namespace RPGCharacterService.Services {
     /// <returns>The character with updated currency amounts.</returns>
     /// <exception cref="CurrencyNotInitializedException">Thrown when currency has not been initialized for the character.</exception>
     /// <exception cref="NotEnoughCurrencyException">Thrown when the character doesn't have enough currency for the requested changes.</exception>
-    public async Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges) {
+    public async Task<Character>
+      ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges) {
       var character = await repository.GetByIdOrThrowAsync(characterId);
 
       if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
@@ -102,7 +103,7 @@ namespace RPGCharacterService.Services {
 
       // Apply changes
       foreach (var change in currencyChanges) {
-        var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) - change.Value;
+        var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) + change.Value;
         if (currencyAmountAfter < 0) {
           throw new NotEnoughCurrencyException(change.Key,
                                                -change.Value,
@@ -116,65 +117,110 @@ namespace RPGCharacterService.Services {
 
     /// <summary>
     /// Exchanges one type of currency for another using standard D&D 5e conversion rates.
-    /// The exchange rates are:
-    /// - 10 copper = 1 silver
-    /// - 5 silver = 1 electrum
-    /// - 2 electrum = 1 gold
-    /// - 10 gold = 1 platinum
+    /// Uses integer arithmetic based on direct Copper Piece value comparison to avoid floating-point errors.
     /// </summary>
     /// <param name="characterId">The unique identifier of the character.</param>
     /// <param name="from">The currency type to exchange from.</param>
     /// <param name="to">The currency type to exchange to.</param>
-    /// <param name="amount">The amount of currency to exchange.</param>
+    /// <param name="amount">The amount of 'from' currency to exchange. Must result in a whole number of 'to' units.</param>
     /// <returns>The character with updated currency amounts after the exchange.</returns>
     /// <exception cref="CurrencyNotInitializedException">Thrown when currency has not been initialized for the character.</exception>
     /// <exception cref="NotEnoughCurrencyException">Thrown when the character doesn't have enough currency for the exchange.</exception>
-    /// <exception cref="InvalidCurrencyExchangeException">Thrown when attempting an invalid currency exchange.</exception>
-    public async Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount) {
+    /// <exception cref="InvalidCurrencyExchangeException">Thrown when attempting an exchange between the same currency type or unsupported types.</exception>
+    /// <exception cref="InvalidExchangeAmountException">Thrown when the amount is negative or does not result in a whole number of 'to' units.</exception>
+    /// <exception cref="OverflowException">Thrown when the exchange would result in an overflow for the target currency.</exception>
+    public async Task<Character>
+      ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount) {
       var character = await repository.GetByIdOrThrowAsync(characterId);
       if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
         throw new CurrencyNotInitializedException(characterId);
       }
 
-      // Check if character has enough currency to exchange
-      var currentAmount = character.Wealth.GetCurrencyAmount(from);
-      if (currentAmount < amount) {
-        throw new NotEnoughCurrencyException(from, amount, currentAmount);
+      // Prevent exchanging a currency for itself or invalid amounts
+      if (from == to) {
+        throw new InvalidCurrencyExchangeException(from, to, amount);
       }
 
-      // Calculate exchange rate
-      var exchangeRate = GetExchangeRate(from, to);
-      var newAmount = amount * exchangeRate;
+      if (amount <= 0) {
+        throw new InvalidExchangeAmountException(from, to, amount);
+      }
 
-      // Update currency amounts
-      character.Wealth.SetCurrencyAmount(from, currentAmount - amount);
-      character.Wealth.SetCurrencyAmount(to,
-        character.Wealth.GetCurrencyAmount(to) + newAmount);
+      // Check if character has enough currency to exchange
+      var currentAmountFrom = character.Wealth.GetCurrencyAmount(from);
+      if (currentAmountFrom < amount) {
+        throw new NotEnoughCurrencyException(from, amount, currentAmountFrom);
+      }
+
+      // Get Copper Piece values
+      var fromCpValue = GetCpValue(from);
+      var toCpValue = GetCpValue(to);
+
+      // Calculate total offered CP
+      // Use long to prevent potential overflow if amount * fromCpValue exceeds int.MaxValue
+      var totalOfferedCp = (long) amount * fromCpValue;
+
+      // Validate that the offered CP is perfectly divisible by the target CP value
+      if (totalOfferedCp % toCpValue != 0) {
+        // Use the simpler exception constructor
+        throw new InvalidExchangeAmountException(from, to, amount);
+      }
+
+      // Calculate integer amounts
+      var amountToAdd = (int) (totalOfferedCp / toCpValue);
+      var currentAmountTo = character.Wealth.GetCurrencyAmount(to);
+
+      // Check for overflow
+      if (currentAmountTo > int.MaxValue - amountToAdd) {
+        throw new OverflowException("The exchange would result in an overflow for the target currency.");
+      }
+
+      // Update currency amounts using integers
+      character.Wealth.SetCurrencyAmount(from, currentAmountFrom - amount);
+      character.Wealth.SetCurrencyAmount(to, currentAmountTo + amountToAdd);
 
       await repository.UpdateAsync(character);
       return character;
     }
 
     /// <summary>
-    /// Gets the exchange rate between two currency types based on standard D&D 5e conversion rates.
+    /// Gets the Copper Piece (CP) value for a given currency type.
+    /// </summary>
+    private static int GetCpValue(CurrencyType currency) {
+      return currency switch {
+        CurrencyType.Copper => 1,
+        CurrencyType.Silver => 10,
+        CurrencyType.Electrum => 50,
+        CurrencyType.Gold => 100,
+        CurrencyType.Platinum => 1000,
+        _ => throw new ArgumentOutOfRangeException(nameof(currency),
+                                                   $"Invalid currency type: {currency}") // Should be unreachable with enum
+      };
+    }
+  }
+
+  /// <summary>
+  /// Exception class for invalid exchange amounts.
+  /// </summary>
+  public class InvalidExchangeAmountException : Exception {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InvalidExchangeAmountException"/> class.
     /// </summary>
     /// <param name="from">The currency type to exchange from.</param>
     /// <param name="to">The currency type to exchange to.</param>
-    /// <returns>The exchange rate multiplier.</returns>
-    /// <exception cref="InvalidCurrencyExchangeException">Thrown when attempting an invalid currency exchange.</exception>
-    private static int GetExchangeRate(CurrencyType from, CurrencyType to) {
-      // Standard D&D 5e conversion rates
-      return (from, to) switch {
-        (CurrencyType.Copper, CurrencyType.Silver) => 1,
-        (CurrencyType.Silver, CurrencyType.Copper) => 10,
-        (CurrencyType.Silver, CurrencyType.Electrum) => 1,
-        (CurrencyType.Electrum, CurrencyType.Silver) => 5,
-        (CurrencyType.Electrum, CurrencyType.Gold) => 1,
-        (CurrencyType.Gold, CurrencyType.Electrum) => 2,
-        (CurrencyType.Gold, CurrencyType.Platinum) => 1,
-        (CurrencyType.Platinum, CurrencyType.Gold) => 10,
-        _ => throw new InvalidCurrencyExchangeException(from, to)
-      };
+    /// <param name="amount">The amount of currency to exchange.</param>
+    public InvalidExchangeAmountException(CurrencyType from, CurrencyType to, int amount) :
+      base($"Invalid amount {amount} specified for exchange from {from} to {to}. Amount does not result in a whole number of {to} units.") {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InvalidExchangeAmountException"/> class.
+    /// </summary>
+    /// <param name="from">The currency type to exchange from.</param>
+    /// <param name="to">The currency type to exchange to.</param>
+    /// <param name="amount">The amount of currency to exchange.</param>
+    /// <param name="requiredMultiple">The required multiple for the exchange.</param>
+    public InvalidExchangeAmountException(CurrencyType from, CurrencyType to, int amount, int requiredMultiple) :
+      base($"Invalid amount {amount} specified for exchange from {from} to {to}. Amount must be a non-negative multiple of {requiredMultiple}.") {
     }
   }
 }

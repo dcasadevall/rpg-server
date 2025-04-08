@@ -123,6 +123,7 @@ namespace RPGCharacterService.Controllers {
     [SwaggerResponse(404, "Character Not Found")]
     [SwaggerResponse(409, "Currency Not Initialized")]
     [SwaggerResponse(409, "Not Enough Currency")]
+    [SwaggerResponse(500, "Internal Server Error")]
     public async Task<ActionResult<CurrencyResponse>> ExchangeCurrency(
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
       [FromBody] [SwaggerRequestBody("Currency exchange details", Required = true)] ExchangeCurrencyRequest request) {
@@ -158,6 +159,11 @@ namespace RPGCharacterService.Controllers {
       } catch (InvalidCurrencyExchangeException ex) {
         return BadRequest(new {
           error = "INVALID_CURRENCY_EXCHANGE",
+          message = ex.Message
+        });
+      } catch (OverflowException ex) {
+        return StatusCode(500, new {
+          error = "INTERNAL_SERVER_ERROR",
           message = ex.Message
         });
       }
