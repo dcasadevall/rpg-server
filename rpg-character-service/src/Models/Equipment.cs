@@ -108,13 +108,13 @@ namespace RPGCharacterService.Models {
           mainHandItem = null;
           offHandItem = null;
         }
+      }
 
-        // Scenario 2.2: Take over whichever slot this weapon goes into
-        if (!offHand) {
-          mainHandItem = item;
-        } else {
-          offHandItem = item;
-        }
+      // Take over whichever slot this weapon goes into
+      if (!offHand) {
+        mainHandItem = item;
+      } else {
+        offHandItem = item;
       }
 
       // Update the equipped items

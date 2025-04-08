@@ -21,10 +21,16 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task EquipWeapon_WithValidCharacterAndWeapon_ShouldUpdateCharacter() {
       // Arrange
-      var characterId = Guid.NewGuid();
-      var weaponId = Guid.NewGuid();
-      var character = new Character { Id = characterId };
-      var weapon = new Item { Id = weaponId, Type = ItemType.Weapon };
+      var character = new Character();
+      var characterId = character.Id;
+      var weaponId = 1;
+      var weapon = new Item {
+        Id = weaponId,
+        Name = "Test Weapon",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+        }
+      };
 
       characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
         .ReturnsAsync(character);
@@ -32,52 +38,68 @@ namespace RPGCharacterService.UnitTests.Services {
         .ReturnsAsync(weapon);
 
       // Act
-      await equipmentService.EquipWeapon(characterId, weaponId);
+      await equipmentService.EquipWeaponAsync(characterId, weaponId);
 
       // Assert
       characterRepositoryMock.Verify(x => x.UpdateAsync(It.Is<Character>(c =>
         c.Id == characterId &&
-        c.Equipment.Weapon == weapon)), Times.Once);
+        c.Equipment.MainHand != null &&
+        c.Equipment.MainHand.Id == weaponId)), Times.Once);
     }
 
     [Fact]
     public async Task EquipWeapon_WithNonExistentCharacter_ShouldThrowCharacterNotFoundException() {
       // Arrange
       var characterId = Guid.NewGuid();
-      var weaponId = Guid.NewGuid();
+      var weaponId = 1;
+      var weapon = new Item {
+        Id = weaponId,
+        Name = "Test Weapon",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+        }
+      };
 
       characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
-        .ReturnsAsync((Character)null);
+        .ReturnsAsync((Character?)null);
+      itemRepositoryMock.Setup(x => x.GetByIdAsync(weaponId))
+        .ReturnsAsync(weapon);
 
       // Act & Assert
       await Assert.ThrowsAsync<CharacterNotFoundException>(() =>
-        equipmentService.EquipWeapon(characterId, weaponId));
+        equipmentService.EquipWeaponAsync(characterId, weaponId));
     }
 
     [Fact]
     public async Task EquipWeapon_WithNonExistentWeapon_ShouldThrowItemNotFoundException() {
       // Arrange
-      var characterId = Guid.NewGuid();
-      var weaponId = Guid.NewGuid();
-      var character = new Character { Id = characterId };
+      var character = new Character();
+      var characterId = character.Id;
+      var weaponId = 1;
 
       characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
         .ReturnsAsync(character);
       itemRepositoryMock.Setup(x => x.GetByIdAsync(weaponId))
-        .ReturnsAsync((Item)null);
+        .ReturnsAsync((Item?)null);
 
       // Act & Assert
       await Assert.ThrowsAsync<ItemNotFoundException>(() =>
-        equipmentService.EquipWeapon(characterId, weaponId));
+        equipmentService.EquipWeaponAsync(characterId, weaponId));
     }
 
     [Fact]
     public async Task EquipArmor_WithValidCharacterAndArmor_ShouldUpdateCharacter() {
       // Arrange
-      var characterId = Guid.NewGuid();
-      var armorId = Guid.NewGuid();
-      var character = new Character { Id = characterId };
-      var armor = new Item { Id = armorId, Type = ItemType.Armor };
+      var character = new Character();
+      var characterId = character.Id;
+      var armorId = 1;
+      var armor = new Item {
+        Id = armorId,
+        Name = "Test Armor",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Armor,
+        }
+      };
 
       characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
         .ReturnsAsync(character);
@@ -85,21 +107,28 @@ namespace RPGCharacterService.UnitTests.Services {
         .ReturnsAsync(armor);
 
       // Act
-      await equipmentService.EquipArmor(characterId, armorId);
+      await equipmentService.EquipArmorAsync(characterId, armorId);
 
       // Assert
       characterRepositoryMock.Verify(x => x.UpdateAsync(It.Is<Character>(c =>
         c.Id == characterId &&
-        c.Equipment.Armor == armor)), Times.Once);
+        c.Equipment.Armor != null &&
+        c.Equipment.Armor.Id == armorId)), Times.Once);
     }
 
     [Fact]
     public async Task EquipShield_WithValidCharacterAndShield_ShouldUpdateCharacter() {
       // Arrange
-      var characterId = Guid.NewGuid();
-      var shieldId = Guid.NewGuid();
-      var character = new Character { Id = characterId };
-      var shield = new Item { Id = shieldId, Type = ItemType.Shield };
+      var character = new Character();
+      var characterId = character.Id;
+      var shieldId = 1;
+      var shield = new Item {
+        Id = shieldId,
+        Name = "Test Shield",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Shield,
+        }
+      };
 
       characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
         .ReturnsAsync(character);
@@ -107,12 +136,46 @@ namespace RPGCharacterService.UnitTests.Services {
         .ReturnsAsync(shield);
 
       // Act
-      await equipmentService.EquipShield(characterId, shieldId);
+      await equipmentService.EquipShieldAsync(characterId, shieldId);
 
       // Assert
       characterRepositoryMock.Verify(x => x.UpdateAsync(It.Is<Character>(c =>
         c.Id == characterId &&
-        c.Equipment.Shield == shield)), Times.Once);
+        c.Equipment.OffHand != null &&
+        c.Equipment.OffHand.Id == shieldId &&
+        c.Equipment.OffHand.IsShield())), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(false)] // Main hand
+    [InlineData(true)]  // Off-hand
+    public async Task EquipWeapon_WithValidCharacterAndWeapon_ShouldUpdateCorrectHand(bool isOffHand) {
+      // Arrange
+      var character = new Character();
+      var characterId = character.Id;
+      var weaponId = 1;
+      var weapon = new Item {
+        Id = weaponId,
+        Name = "Test Weapon",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+        }
+      };
+
+      characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
+        .ReturnsAsync(character);
+      itemRepositoryMock.Setup(x => x.GetByIdAsync(weaponId))
+        .ReturnsAsync(weapon);
+
+      // Act
+      await equipmentService.EquipWeaponAsync(characterId, weaponId, isOffHand);
+
+      // Assert
+      characterRepositoryMock.Verify(x => x.UpdateAsync(It.Is<Character>(c =>
+        c.Id == characterId &&
+        (isOffHand ?
+          (c.Equipment.OffHand != null && c.Equipment.OffHand.Id == weaponId) :
+          (c.Equipment.MainHand != null && c.Equipment.MainHand.Id == weaponId)))), Times.Once);
     }
   }
 }

@@ -117,7 +117,7 @@ namespace RPGCharacterService.Models.Items {
     /// <param name="item">The item to check.</param>
     /// <returns>True if the item is a two-handed weapon, false otherwise.</returns>
     public static bool IsTwoHandedWeapon(this Item item) {
-      return item.IsWeapon() && (item.EquipmentStats?.WeaponStats?.WeaponProperties & WeaponProperty.TwoHanded) != 0;
+      return item.IsWeapon() && ((item.EquipmentStats?.WeaponStats?.WeaponProperties ?? 0) & WeaponProperty.TwoHanded) != 0;
     }
   }
 }

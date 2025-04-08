@@ -33,7 +33,7 @@ namespace RPGCharacterService.UnitTests.Models {
 
     [Theory]
     [InlineData(false)] // Main hand
-    [InlineData(true)]  // Off hand
+    [InlineData(true)]  // Offhand
     public void EquipWeapon_WithNonWeaponItem_ShouldThrowEquipmentTypeMismatchException(bool isOffHand) {
       // Arrange
       var equipment = new Equipment();
@@ -122,7 +122,7 @@ namespace RPGCharacterService.UnitTests.Models {
 
     [Theory]
     [InlineData(false)] // Main hand
-    [InlineData(true)]  // Off hand
+    [InlineData(true)]  // Offhand
     public void EquipWeapon_WithExistingWeapon_ShouldReplaceWeapon(bool isOffHand) {
       // Arrange
       var equipment = new Equipment();
@@ -179,12 +179,15 @@ namespace RPGCharacterService.UnitTests.Models {
         Name = "TwoHanded",
         EquipmentStats = new EquipmentStats {
           EquipmentType = EquipmentType.Weapon,
+          WeaponStats = new WeaponStats {
+            WeaponProperties = WeaponProperty.TwoHanded
+          }
         }
       };
 
-      // Act & Assert (Equip old weapons)
+      // Arrange: Set Up previous state
       equipment.EquipWeapon(oldMainHand);
-      equipment.EquipWeapon(oldOffHand, true);
+      equipment.EquipShield(oldOffHand);
       Assert.Equal(oldMainHand.Id, equipment.MainHand?.Id);
       Assert.Equal(oldOffHand.Id, equipment.OffHand?.Id);
 
@@ -205,11 +208,87 @@ namespace RPGCharacterService.UnitTests.Models {
         Name = "TwoHanded",
         EquipmentStats = new EquipmentStats {
           EquipmentType = EquipmentType.Weapon,
+          WeaponStats = new WeaponStats {
+            WeaponProperties = WeaponProperty.TwoHanded
+          }
         }
       };
 
       // Act & Assert
       Assert.Throws<IllegalEquipmentStateException>(() => equipment.EquipWeapon(twoHandedWeapon, true));
+    }
+
+    [Fact]
+    public void EquipShield_WithTwoHandedWeaponEquipped__ShouldClearMainHand() {
+      // Arrange
+      var equipment = new Equipment();
+      var twoHandedWeapon = new Item {
+        Id = 1,
+        Name = "TwoHanded",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+          WeaponStats = new WeaponStats {
+            WeaponProperties = WeaponProperty.TwoHanded
+          }
+        }
+      };
+
+      var shield = new Item {
+        Id = 2,
+        Name = "Shield",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Shield,
+        }
+      };
+      // Arrange: Set Up previous state
+      equipment.EquipWeapon(twoHandedWeapon);
+      Assert.Equal(twoHandedWeapon.Id, equipment.MainHand?.Id);
+
+      // Act
+      equipment.EquipShield(shield);
+
+      // Assert
+      Assert.Null(equipment.MainHand);
+      Assert.Equal(shield.Id, equipment.OffHand?.Id);
+    }
+
+    [Fact]
+    public void EquipShield_WithOffHandWeapon_ShouldReplaceOffHand() {
+      // Arrange
+      var equipment = new Equipment();
+      var oldOffHand = new Item {
+        Id = 1,
+        Name = "Test Item",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+        }
+      };
+      var oldMainHand = new Item {
+        Id = 2,
+        Name = "Test Item 2",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+        }
+      };
+      var newShield = new Item {
+        Id = 2,
+        Name = "Test Item 2",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Shield,
+        }
+      };
+
+      // Arrange: Set Up previous state
+      equipment.EquipWeapon(oldMainHand);
+      equipment.EquipWeapon(oldOffHand, true);
+      Assert.Equal(oldMainHand.Id, equipment.MainHand?.Id);
+      Assert.Equal(oldOffHand.Id, equipment.OffHand?.Id);
+
+      // Act
+      equipment.EquipShield(newShield);
+
+      // Assert
+      Assert.Equal(newShield.Id, equipment.OffHand?.Id);
     }
   }
 }
