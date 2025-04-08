@@ -20,7 +20,7 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(400, "Invalid ID Format")]
         [SwaggerResponse(404, "Character Not Found")]
         [SwaggerResponse(409, "Currency Already Initialized")]
-        public ActionResult<CurrencyResponse> InitializeCurrency(
+        public async Task<ActionResult<CurrencyResponse>> InitializeCurrency(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId)
         {
             if (!ModelState.IsValid)
@@ -33,7 +33,7 @@ namespace RPGCharacterService.Controllers
 
             try
             {
-                var character = currencyService.GenerateInitialCurrency(characterId);
+                var character = await currencyService.GenerateInitialCurrencyAsync(characterId);
                 return Ok(new
                 {
                     currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
@@ -62,7 +62,7 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(400, "Invalid Request")]
         [SwaggerResponse(404, "Character Not Found")]
         [SwaggerResponse(409, "Currency Not Initialized")]
-        public ActionResult<CurrencyResponse> ModifyCurrency(
+        public async Task<ActionResult<CurrencyResponse>> ModifyCurrency(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
             [FromBody][SwaggerRequestBody("Currency modification details", Required = true)] ModifyCurrencyRequest request)
         {
@@ -87,7 +87,7 @@ namespace RPGCharacterService.Controllers
                 }
 
                 var currencyChanges = CurrencyMapper.ToDictionary(request);
-                var character = currencyService.ModifyCurrencies(characterId, currencyChanges);
+                var character = await currencyService.ModifyCurrenciesAsync(characterId, currencyChanges);
                 return Ok(new
                 {
                     currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
@@ -118,7 +118,7 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(404, "Character Not Found")]
         [SwaggerResponse(409, "Currency Not Initialized")]
         [SwaggerResponse(409, "Not Enough Currency")]
-        public ActionResult<CurrencyResponse> ExchangeCurrency(
+        public async Task<ActionResult<CurrencyResponse>> ExchangeCurrency(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
             [FromBody][SwaggerRequestBody("Currency exchange details", Required = true)] ExchangeCurrencyRequest request)
         {
@@ -142,7 +142,7 @@ namespace RPGCharacterService.Controllers
                     });
                 }
 
-                var character = currencyService.ExchangeCurrency(characterId, request.From, request.To, request.Amount);
+                var character = await currencyService.ExchangeCurrencyAsync(characterId, request.From, request.To, request.Amount);
                 return Ok(new
                 {
                     currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)

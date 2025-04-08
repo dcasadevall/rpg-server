@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using RPGCharacterService.Exceptions;
+using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Models.Equipment;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -7,7 +10,7 @@ namespace RPGCharacterService.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/characters/{characterId:guid}/equipment")]
-    public class EquipmentController(ICharacterService characterService) : ControllerBase
+    public class EquipmentController(IEquipmentService equipmentService) : ControllerBase
     {
         [HttpPatch("armor/{armorId:int}")]
         [SwaggerOperation(Summary = "Equip Armor to a Character", 
@@ -15,32 +18,31 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(200, "Armor Equipped", typeof(object))]
         [SwaggerResponse(400, "Invalid ID or Armor ID")]
         [SwaggerResponse(404, "Character or Armor Not Found")]
-        public ActionResult<object> EquipArmor(
+        public async Task<ActionResult<object>> EquipArmor(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
-            [SwaggerParameter("Armor item identifier", Required = true)] int armorId)
+            [SwaggerParameter("Armor item identifier", Required = true)] uint armorId)
         {
             try
             {
-                // TODO: Implement armor equipping logic
+                var character = await equipmentService.EquipItemAsync(characterId, armorId, EquipmentSlot.Armor);
                 return Ok(new 
                 { 
-                    armorClass = 15,
-                    attackModifier = "DEX",
+                    armorClass = character.ArmorClass,
                     equipment = new 
                     {
-                        armor = armorId,
-                        mainHand = 0,
-                        offHand = 0
+                        armor = character.EquippedItems.ArmorId,
+                        mainHand = character.EquippedItems.MainHandId,
+                        offHand = character.EquippedItems.OffHandId
                     }
                 });
             }
-            catch (KeyNotFoundException)
+            catch (CharacterNotFoundException)
             {
                 return NotFound(new { error = "CHARACTER_NOT_FOUND", message = "Character not found." });
             }
-            catch (Exception)
+            catch (InvalidEquipmentOperationException)
             {
-                return NotFound(new { error = "ARMOR_NOT_FOUND", message = "Armor not found." });
+                return NotFound(new { error = "ARMOR_NOT_FOUND", message = "Armor not found or cannot be equipped." });
             }
         }
         
@@ -50,34 +52,34 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(200, "Weapon Equipped", typeof(object))]
         [SwaggerResponse(400, "Invalid ID or Weapon ID")]
         [SwaggerResponse(404, "Character or Weapon Not Found")]
-        public ActionResult<object> EquipWeapon(
+        public async Task<ActionResult<object>> EquipWeapon(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
-            [SwaggerParameter("Weapon item identifier", Required = true)] int weaponId, 
+            [SwaggerParameter("Weapon item identifier", Required = true)] uint weaponId, 
             [FromBody, SwaggerRequestBody("Off-hand weapon details", Required = false)] EquipWeaponRequest request)
         {
             try
             {
                 var isOffHand = request?.OffHand ?? false;
+                var slot = isOffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
                 
-                // TODO: Implement weapon equipping logic
+                var character = await equipmentService.EquipItemAsync(characterId, weaponId, slot);
                 return Ok(new 
                 { 
-                    attackModifier = "STR",
-                    armorClass = 12,
+                    armorClass = character.ArmorClass,
                     equipment = new 
                     {
-                        mainHand = isOffHand ? 0 : weaponId,
-                        offHand = isOffHand ? weaponId : 0
+                        mainHand = character.EquippedItems.MainHandId,
+                        offHand = character.EquippedItems.OffHandId
                     }
                 });
             }
-            catch (KeyNotFoundException)
+            catch (CharacterNotFoundException)
             {
                 return NotFound(new { error = "CHARACTER_NOT_FOUND", message = "Character not found." });
             }
-            catch (Exception)
+            catch (InvalidEquipmentOperationException)
             {
-                return NotFound(new { error = "WEAPON_NOT_FOUND", message = "Weapon not found." });
+                return NotFound(new { error = "WEAPON_NOT_FOUND", message = "Weapon not found or cannot be equipped." });
             }
         }
     

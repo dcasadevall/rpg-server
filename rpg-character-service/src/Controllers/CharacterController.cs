@@ -16,9 +16,10 @@ namespace RPGCharacterService.Controllers
         [HttpGet]
         [SwaggerOperation(Summary = "Retrieve All Characters", Description = "Gets a list of all characters")]
         [SwaggerResponse(200, "Successful Response", typeof(List<CharacterResponse>))]
-        public ActionResult<List<CharacterResponse>> GetAllCharacters()
+        public async Task<ActionResult<List<CharacterResponse>>> GetAllCharacters()
         {
-            return Ok(characterService.GetAllCharacters().Select(x => 
+            var characters = await characterService.GetAllCharactersAsync();
+            return Ok(characters.Select(x => 
             {
                 var derivedProps = CalculateDerivedProperties(x, characterRules);
                 return CharacterMapper.ToResponse(x, derivedProps);
@@ -30,12 +31,12 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(200, "Successful Response", typeof(CharacterResponse))]
         [SwaggerResponse(400, "Invalid ID Format")]
         [SwaggerResponse(404, "Character Not Found")]
-        public ActionResult<CharacterResponse> GetCharacterById(
+        public async Task<ActionResult<CharacterResponse>> GetCharacterById(
             [SwaggerParameter("Character identifier", Required = true)] Guid id)
         {
             try
             {
-                var character = characterService.GetCharacter(id);
+                var character = await characterService.GetCharacterAsync(id);
                 var derivedProps = CalculateDerivedProperties(character, characterRules);
                 var characterResponse = CharacterMapper.ToResponse(character, derivedProps);
                 return Ok(characterResponse);
@@ -50,7 +51,7 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(201, "Character created successfully")]
         [SwaggerResponse(400, "Bad Request - Invalid input format")]
         [SwaggerResponse(409, "Conflict - Name already taken or other conflict")]
-        public ActionResult<CharacterResponse> CreateCharacter(
+        public async Task<ActionResult<CharacterResponse>> CreateCharacter(
             [FromBody][SwaggerRequestBody("Character creation details", Required = true)]
             CreateCharacterRequest characterRequest)
         {
@@ -62,7 +63,7 @@ namespace RPGCharacterService.Controllers
 
             try
             {
-                var newCharacter = characterService.CreateCharacter(characterRequest);
+                var newCharacter = await characterService.CreateCharacterAsync(characterRequest);
                 return CreatedAtAction(nameof(GetCharacterById), new {id = newCharacter.Id}, newCharacter);
             } catch (Exception ex)
             {
@@ -75,11 +76,11 @@ namespace RPGCharacterService.Controllers
         [SwaggerResponse(204, "No Content - Character successfully deleted")]
         [SwaggerResponse(400, "Invalid ID Format")]
         [SwaggerResponse(404, "Character Not Found")]
-        public ActionResult DeleteCharacter([SwaggerParameter("Character identifier", Required = true)] Guid id)
+        public async Task<ActionResult> DeleteCharacter([SwaggerParameter("Character identifier", Required = true)] Guid id)
         {
             try
             {
-                characterService.DeleteCharacter(id);
+                await characterService.DeleteCharacterAsync(id);
                 return NoContent();
             } catch (KeyNotFoundException)
             {

@@ -13,10 +13,10 @@ namespace RPGCharacterService.Controllers
         [HttpPatch("hitpoints")]
         [SwaggerOperation(Summary = "Update Character Hit Points", 
                          Description = "Adds or subtracts the specified delta from the character's current hit points")]
-        [SwaggerResponse(200, "Hit Points Updated", typeof(object))]
+        [SwaggerResponse(200, "Hit Points Updated", typeof(HitPointUpdateResponse))]
         [SwaggerResponse(400, "Invalid ID or Delta")]
         [SwaggerResponse(404, "Character Not Found")]
-        public ActionResult<object> ModifyHitPoints(
+        public async Task<ActionResult<HitPointUpdateResponse>> ModifyHitPoints(
             [SwaggerParameter("Character identifier", Required = true)] Guid characterId, 
             [FromBody][SwaggerRequestBody("Hit points modification details", Required = true)] HitPointUpdateRequest request)
         {
@@ -27,8 +27,8 @@ namespace RPGCharacterService.Controllers
                     return BadRequest(new { errors = ModelState });
                 }
                 
-                var character = statsService.ModifyHitPoints(characterId, request.Delta);
-                return Ok(new { hitPoints = character.HitPoints });
+                var character = await statsService.ModifyHitPointsAsync(characterId, request.Delta);
+                return Ok(new HitPointUpdateResponse { HitPoints = character.HitPoints });
             }
             catch (KeyNotFoundException)
             {
@@ -45,5 +45,10 @@ namespace RPGCharacterService.Controllers
     {
         [Required]
         public int Delta { get; set; }
+    }
+
+    public class HitPointUpdateResponse
+    {
+        public int HitPoints { get; set; }
     }
 } 

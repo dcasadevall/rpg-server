@@ -9,16 +9,16 @@ namespace RPGCharacterService.Services
 {
     public interface ICurrencyService
     {
-        Character GenerateInitialCurrency(Guid characterId);
-        Character ModifyCurrencies(Guid characterId, Dictionary<CurrencyType, int> currencyChanges);
-        Character ExchangeCurrency(Guid characterId, CurrencyType from, CurrencyType to, int amount);
+        Task<Character> GenerateInitialCurrencyAsync(Guid characterId);
+        Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges);
+        Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount);
     }
 
     public class CurrencyService(ICharacterRepository repository, IDiceService diceService) : ICurrencyService
     {
-        public Character GenerateInitialCurrency(Guid characterId)
+        public async Task<Character> GenerateInitialCurrencyAsync(Guid characterId)
         {
-            var character = repository.GetById(characterId);
+            var character = await repository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
@@ -39,13 +39,13 @@ namespace RPGCharacterService.Services
             character.Wealth.SetCurrencyAmount(CurrencyType.Copper, copperAmount);
             character.InitFlags |= CharacterInitializationFlags.CurrencyInitialized;
             
-            repository.Update(character);
+            await repository.UpdateAsync(character);
             return character;
         }
 
-        public Character ExchangeCurrency(Guid characterId, CurrencyType from, CurrencyType to, int amount)
+        public async Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount)
         {
-            var character = repository.GetById(characterId);
+            var character = await repository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
@@ -83,13 +83,13 @@ namespace RPGCharacterService.Services
             character.Wealth.SetCurrencyAmount(from, fromAmount - amount);
             character.Wealth.SetCurrencyAmount(to, toAmount + (amount * rate));
             
-            repository.Update(character);
+            await repository.UpdateAsync(character);
             return character;
         }
         
-        public Character ModifyCurrencies(Guid characterId, Dictionary<CurrencyType, int> currencyChanges)
+        public async Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges)
         {
-            var character = repository.GetById(characterId);
+            var character = await repository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
@@ -111,7 +111,7 @@ namespace RPGCharacterService.Services
                 character.Wealth.SetCurrencyAmount(change.Key, currencyAmountAfter);
             }
             
-            repository.Update(character);
+            await repository.UpdateAsync(character);
             return character;
         }
     }

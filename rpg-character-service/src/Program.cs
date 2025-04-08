@@ -10,9 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to DI container
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ICharacterRepository, InMemoryCharacterRepository>();
+builder.Services.AddSingleton<IEquipmentRepository, InMemoryEquipmentRepository>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
+builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddSingleton<IDiceService, DiceService>();
 builder.Services.AddSingleton<ICharacterRules, DndFifthEditionCharacterRules>();
 

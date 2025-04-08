@@ -7,9 +7,8 @@ namespace RPGCharacterService.Services
 {
     public interface IEquipmentService
     {
-        Character EquipItem(Guid characterId, uint itemId, EquipmentSlot slot);
-        Character UnequipItem(Guid characterId, EquipmentSlot slot);
-        int CalculateArmorClass(Character character);
+        Task<Character> EquipItemAsync(Guid characterId, uint itemId, EquipmentSlot slot);
+        Task<Character> UnequipItemAsync(Guid characterId, EquipmentSlot slot);
     }
 
     public class EquipmentService : IEquipmentService
@@ -19,7 +18,7 @@ namespace RPGCharacterService.Services
         private readonly ICharacterRules _characterRules;
 
         public EquipmentService(
-            IEquipmentRepository equipmentRepository, 
+            IEquipmentRepository equipmentRepository,
             ICharacterRepository characterRepository,
             ICharacterRules characterRules)
         {
@@ -28,15 +27,15 @@ namespace RPGCharacterService.Services
             _characterRules = characterRules;
         }
 
-        public Character EquipItem(Guid characterId, uint itemId, EquipmentSlot slot)
+        public async Task<Character> EquipItemAsync(Guid characterId, uint itemId, EquipmentSlot slot)
         {
-            var character = _characterRepository.GetById(characterId);
+            var character = await _characterRepository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
             }
 
-            var item = _equipmentRepository.GetById(itemId);
+            var item = await _equipmentRepository.GetByIdAsync(itemId);
             if (item == null)
             {
                 throw new InvalidEquipmentOperationException(itemId, slot);
@@ -71,7 +70,7 @@ namespace RPGCharacterService.Services
                     // Check if main hand is two-handed
                     if (character.EquippedItems.MainHandId.HasValue)
                     {
-                        var mainHandItem = _equipmentRepository.GetById(character.EquippedItems.MainHandId.Value);
+                        var mainHandItem = await _equipmentRepository.GetByIdAsync(character.EquippedItems.MainHandId.Value);
                         if (mainHandItem?.IsTwoHanded == true)
                         {
                             throw new InvalidEquipmentOperationException(itemId, slot);
@@ -91,14 +90,17 @@ namespace RPGCharacterService.Services
                 default:
                     throw new InvalidEquipmentOperationException(itemId, slot);
             }
+
+            // Update character's armor class
+            character.ArmorClass = CalculateArmorClass(character);
             
-            _characterRepository.Update(character);
+            await _characterRepository.UpdateAsync(character);
             return character;
         }
 
-        public Character UnequipItem(Guid characterId, EquipmentSlot slot)
+        public async Task<Character> UnequipItemAsync(Guid characterId, EquipmentSlot slot)
         {
-            var character = _characterRepository.GetById(characterId);
+            var character = await _characterRepository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
@@ -120,7 +122,10 @@ namespace RPGCharacterService.Services
                     break;
             }
 
-            _characterRepository.Update(character);
+            // Update character's armor class
+            character.ArmorClass = CalculateArmorClass(character);
+            
+            await _characterRepository.UpdateAsync(character);
             return character;
         }
 

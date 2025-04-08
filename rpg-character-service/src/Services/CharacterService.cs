@@ -8,10 +8,10 @@ namespace RPGCharacterService.Services
 {
     public interface ICharacterService
     {
-        IEnumerable<Character> GetAllCharacters();
-        Character GetCharacter(Guid characterId);
-        Character CreateCharacter(CreateCharacterRequest request);
-        void DeleteCharacter(Guid characterId);
+        Task<IEnumerable<Character>> GetAllCharactersAsync();
+        Task<Character> GetCharacterAsync(Guid characterId);
+        Task<Character> CreateCharacterAsync(CreateCharacterRequest request);
+        Task DeleteCharacterAsync(Guid characterId);
     }
 
     public class CharacterService(
@@ -19,14 +19,14 @@ namespace RPGCharacterService.Services
         IDiceService diceService,
         ICharacterRules characterRules) : ICharacterService
     {
-        public IEnumerable<Character> GetAllCharacters()
+        public async Task<IEnumerable<Character>> GetAllCharactersAsync()
         {
-            return repository.GetAll();
+            return await repository.GetAllAsync();
         }
 
-        public Character GetCharacter(Guid characterId)
+        public async Task<Character> GetCharacterAsync(Guid characterId)
         {
-            var character = repository.GetById(characterId);
+            var character = await repository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
@@ -35,11 +35,12 @@ namespace RPGCharacterService.Services
             return character;
         }
 
-        public Character CreateCharacter(CreateCharacterRequest request)
+        public async Task<Character> CreateCharacterAsync(CreateCharacterRequest request)
         {
-            // Check if character with same name exists
-            // TODO: Transaction
-            var existingCharacter = repository.GetByName(request.Name);
+            // NOTE: For the scope of this prompt, we are not using transactions.
+            // In a production environment these kind of checks before creation need to be atomic,
+            // and would require a transaction to be created and used for both GetByNameAsync and AddAsync.
+            var existingCharacter = await repository.GetByNameAsync(request.Name);
             if (existingCharacter != null)
             {
                 throw new CharacterAlreadyExistsException(request.Name);
@@ -69,19 +70,19 @@ namespace RPGCharacterService.Services
             };
             character.HitPoints = characterRules.CalculateMaxHitPoints(character);
 
-            repository.AddAsync(character);
+            await repository.AddAsync(character);
             return character;
         }
 
-        public void DeleteCharacter(Guid characterId)
+        public async Task DeleteCharacterAsync(Guid characterId)
         {
-            var character = repository.GetById(characterId);
+            var character = await repository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
             }
 
-            repository.Delete(characterId);
+            await repository.DeleteAsync(characterId);
         }
     }
 }

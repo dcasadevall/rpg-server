@@ -6,14 +6,14 @@ namespace RPGCharacterService.Services
 {
     public interface IStatsService
     {
-        Character ModifyHitPoints(Guid characterId, int delta);
+        Task<Character> ModifyHitPointsAsync(Guid characterId, int delta);
     }
 
     public class StatsService(ICharacterRepository repository, ICharacterRules characterRules) : IStatsService
     {
-        public Character ModifyHitPoints(Guid characterId, int delta)
+        public async Task<Character> ModifyHitPointsAsync(Guid characterId, int delta)
         {
-            var character = repository.GetById(characterId);
+            var character = await repository.GetByIdAsync(characterId);
             if (character == null)
             {
                 throw new CharacterNotFoundException(characterId);
@@ -21,7 +21,7 @@ namespace RPGCharacterService.Services
 
             var maxHitPoints = characterRules.CalculateMaxHitPoints(character);
             character.HitPoints = Math.Clamp(character.HitPoints + delta, 0, maxHitPoints);
-            repository.Update(character);
+            await repository.UpdateAsync(character);
 
             return character;
         }
