@@ -1,8 +1,7 @@
 using RPGCharacterService.Exceptions.Equipment;
-using RPGCharacterService.Models;
 using RPGCharacterService.Models.Items;
 
-namespace RPGCharacterService.UnitTests.Models {
+namespace RPGCharacterService.UnitTests.Models.Equipment {
   public class EquipmentTests {
     [Theory]
     [InlineData(false)] // Main hand

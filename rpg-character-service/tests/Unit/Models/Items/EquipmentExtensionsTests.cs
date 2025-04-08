@@ -1,6 +1,6 @@
 using RPGCharacterService.Models.Items;
 
-namespace RPGCharacterService.UnitTests.Models {
+namespace RPGCharacterService.UnitTests.Models.Items {
   public class EquipmentExtensionsTests {
     [Fact]
     public void IsWeapon_WithWeaponItem_ShouldReturnTrue() {

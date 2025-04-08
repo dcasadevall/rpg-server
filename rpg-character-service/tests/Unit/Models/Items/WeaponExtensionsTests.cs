@@ -1,6 +1,6 @@
 using RPGCharacterService.Models.Items;
 
-namespace RPGCharacterService.UnitTests.Models {
+namespace RPGCharacterService.UnitTests.Models.Items {
   public class WeaponExtensionsTests {
     [Fact]
     public void IsTwoHandedWeapon_WithTwoHandedWeapon_ShouldReturnTrue() {
