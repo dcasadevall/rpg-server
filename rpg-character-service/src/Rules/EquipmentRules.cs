@@ -13,14 +13,17 @@ namespace RPGCharacterService.Rules {
       var armorType = character.Equipment.Armor?.EquipmentStats?.ArmorStats?.ArmorType ?? ArmorType.None;
       var baseArmorClass = character.Equipment.Armor?.EquipmentStats?.ArmorStats?.BaseArmorClass ?? 0;
       var dexterityModifier = abilityModifiers[AbilityScore.Dexterity];
+      var armorBonus = character.Equipment.Armor?.EquipmentStats?.ArmorBonus ?? 0;
 
-      return armorType switch {
+      var acBeforeBonus = armorType switch {
         ArmorType.Light => baseArmorClass + dexterityModifier,
         ArmorType.Medium => baseArmorClass + Math.Min(dexterityModifier, 2),
         ArmorType.Heavy => baseArmorClass,
         ArmorType.None => 10 + dexterityModifier,
         _ => throw new NotSupportedException($"Unknown armor type: {armorType}")
       };
+
+      return acBeforeBonus + armorBonus;
     }
 
     public AbilityScore CalculateWeaponDamageModifier(Character character) {
