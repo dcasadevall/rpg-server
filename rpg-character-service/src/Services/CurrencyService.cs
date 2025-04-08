@@ -1,119 +1,95 @@
-using RPGCharacterService.Exceptions;
-using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
-using RPGCharacterService.Persistence;
 using RPGCharacterService.Persistence.Characters;
 
-namespace RPGCharacterService.Services
-{
-    public interface ICurrencyService
-    {
-        Task<Character> GenerateInitialCurrencyAsync(Guid characterId);
-        Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges);
-        Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount);
+namespace RPGCharacterService.Services {
+  public interface ICurrencyService {
+    Task<Character> GenerateInitialCurrencyAsync(Guid characterId);
+    Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges);
+    Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount);
+  }
+
+  public class CurrencyService(ICharacterRepository repository, IDiceService diceService) : ICurrencyService {
+    public async Task<Character> GenerateInitialCurrencyAsync(Guid characterId) {
+      var character = await repository.GetByIdOrThrowAsync(characterId);
+
+      if (character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
+        throw new CurrencyAlreadyInitializedException(characterId);
+      }
+
+      // Generate currency using dice rolls
+      var goldAmount = diceService
+                       .Roll(DiceSides.Twenty, 1)
+                       .Sum();
+      var silverAmount = diceService
+                         .Roll(DiceSides.Twenty, 3)
+                         .Sum();
+      var copperAmount = diceService
+                         .Roll(DiceSides.Twelve, 5)
+                         .Sum();
+
+      character.Wealth.SetCurrencyAmount(CurrencyType.Gold, goldAmount);
+      character.Wealth.SetCurrencyAmount(CurrencyType.Silver, silverAmount);
+      character.Wealth.SetCurrencyAmount(CurrencyType.Copper, copperAmount);
+      character.InitFlags |= CharacterInitializationFlags.CurrencyInitialized;
+
+      await repository.UpdateAsync(character);
+      return character;
     }
 
-    public class CurrencyService(ICharacterRepository repository, IDiceService diceService) : ICurrencyService
-    {
-        public async Task<Character> GenerateInitialCurrencyAsync(Guid characterId)
-        {
-            var character = await repository.GetByIdAsync(characterId);
-            if (character == null)
-            {
-                throw new CharacterNotFoundException(characterId);
-            }
+    public async Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount) {
+      var character = await repository.GetByIdOrThrowAsync(characterId);
 
-            if (character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
-            {
-                throw new CurrencyAlreadyInitializedException(characterId);
-            }
+      if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
+        throw new CurrencyNotInitializedException(characterId);
+      }
 
-            // Generate currency using dice rolls
-            var goldAmount = diceService.Roll(DiceSides.Twenty, 1).Sum();
-            var silverAmount = diceService.Roll(DiceSides.Twenty, 3).Sum();
-            var copperAmount = diceService.Roll(DiceSides.Twelve, 5).Sum();
+      if (character.Wealth.GetCurrencyAmount(from) < amount) {
+        throw new NotEnoughCurrencyException(from, amount, character.Wealth.GetCurrencyAmount(from));
+      }
 
-            character.Wealth.SetCurrencyAmount(CurrencyType.Gold, goldAmount);
-            character.Wealth.SetCurrencyAmount(CurrencyType.Silver, silverAmount);
-            character.Wealth.SetCurrencyAmount(CurrencyType.Copper, copperAmount);
-            character.InitFlags |= CharacterInitializationFlags.CurrencyInitialized;
-            
-            await repository.UpdateAsync(character);
-            return character;
-        }
+      // Hardcoded exchange rates. If needed, inject this mapping or load from a config file.
+      var exchangeRates = new Dictionary<(CurrencyType, CurrencyType), int> {
+        {(CurrencyType.Copper, CurrencyType.Silver), 10},
+        {(CurrencyType.Silver, CurrencyType.Gold), 10},
+        {(CurrencyType.Gold, CurrencyType.Platinum), 10},
+        {(CurrencyType.Silver, CurrencyType.Copper), 1},
+        {(CurrencyType.Gold, CurrencyType.Silver), 1},
+        {(CurrencyType.Platinum, CurrencyType.Gold), 1}
+      };
 
-        public async Task<Character> ExchangeCurrencyAsync(Guid characterId, CurrencyType from, CurrencyType to, int amount)
-        {
-            var character = await repository.GetByIdAsync(characterId);
-            if (character == null)
-            {
-                throw new CharacterNotFoundException(characterId);
-            }
-            
-            if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
-            {
-                throw new CurrencyNotInitializedException(characterId);
-            }
-            
-            if (character.Wealth.GetCurrencyAmount(from) < amount)
-            {
-                throw new NotEnoughCurrencyException(from, amount, character.Wealth.GetCurrencyAmount(from));
-            }
+      if (!exchangeRates.TryGetValue((from, to), out var rate)) {
+        throw new InvalidCurrencyExchangeException(from, to);
+      }
 
-            // Hardcoded exchange rates. If needed, inject this mapping or load from a config file.
-            var exchangeRates = new Dictionary<(CurrencyType, CurrencyType), int>
-            {
-                { (CurrencyType.Copper, CurrencyType.Silver), 10 },
-                { (CurrencyType.Silver, CurrencyType.Gold), 10 },
-                { (CurrencyType.Gold, CurrencyType.Platinum), 10 },
-                { (CurrencyType.Silver, CurrencyType.Copper), 1 },
-                { (CurrencyType.Gold, CurrencyType.Silver), 1 },
-                { (CurrencyType.Platinum, CurrencyType.Gold), 1 }
-            };
+      var fromAmount = character.Wealth.GetCurrencyAmount(from);
+      var toAmount = character.Wealth.GetCurrencyAmount(to);
 
-            if (!exchangeRates.TryGetValue((from, to), out var rate))
-            {
-                throw new InvalidCurrencyExchangeException(from, to);
-            }
+      character.Wealth.SetCurrencyAmount(from, fromAmount - amount);
+      character.Wealth.SetCurrencyAmount(to, toAmount + amount * rate);
 
-            var fromAmount = character.Wealth.GetCurrencyAmount(from);
-            var toAmount = character.Wealth.GetCurrencyAmount(to);
-            
-            character.Wealth.SetCurrencyAmount(from, fromAmount - amount);
-            character.Wealth.SetCurrencyAmount(to, toAmount + (amount * rate));
-            
-            await repository.UpdateAsync(character);
-            return character;
-        }
-        
-        public async Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges)
-        {
-            var character = await repository.GetByIdAsync(characterId);
-            if (character == null)
-            {
-                throw new CharacterNotFoundException(characterId);
-            }
-            
-            if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
-            {
-                throw new CurrencyNotInitializedException(characterId);
-            }
-            
-            foreach (var change in currencyChanges)
-            {
-                var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) - change.Value;
-                if (currencyAmountAfter < 0)
-                {
-                    throw new NotEnoughCurrencyException(change.Key, -change.Value, character.Wealth.GetCurrencyAmount(change.Key));
-                }
-                
-                character.Wealth.SetCurrencyAmount(change.Key, currencyAmountAfter);
-            }
-            
-            await repository.UpdateAsync(character);
-            return character;
-        }
+      await repository.UpdateAsync(character);
+      return character;
     }
-} 
+
+    public async Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges) {
+      var character = await repository.GetByIdOrThrowAsync(characterId);
+      if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
+        throw new CurrencyNotInitializedException(characterId);
+      }
+
+      foreach (var change in currencyChanges) {
+        var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) - change.Value;
+        if (currencyAmountAfter < 0) {
+          throw new NotEnoughCurrencyException(change.Key, -change.Value, character.Wealth.GetCurrencyAmount(change.Key));
+        }
+
+        character.Wealth.SetCurrencyAmount(change.Key, currencyAmountAfter);
+      }
+
+      await repository.UpdateAsync(character);
+      return character;
+    }
+  }
+}
