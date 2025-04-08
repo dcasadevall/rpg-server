@@ -16,6 +16,11 @@ namespace RPGCharacterService.Persistence
         {
             return characters.GetValueOrDefault(id);
         }
+        
+        public Character? GetByName(string name)
+        {
+            return characters.Values.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
 
         public void Add(Character character)
         {

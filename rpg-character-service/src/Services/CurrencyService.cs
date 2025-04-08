@@ -1,3 +1,6 @@
+using RPGCharacterService.Exceptions;
+using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence;
@@ -7,7 +10,7 @@ namespace RPGCharacterService.Services
     public interface ICurrencyService
     {
         Character GenerateInitialCurrency(Guid characterId);
-        Character ModifyCurrencies(Guid characterId, Wealth currencies);
+        Character ModifyCurrencies(Guid characterId, Dictionary<CurrencyType, int> currencyChanges);
         Character ExchangeCurrency(Guid characterId, CurrencyType from, CurrencyType to, int amount);
     }
 
@@ -18,12 +21,12 @@ namespace RPGCharacterService.Services
             var character = repository.GetById(characterId);
             if (character == null)
             {
-                throw new KeyNotFoundException($"Character with ID {characterId} not found");
+                throw new CharacterNotFoundException(characterId);
             }
 
             if (character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
             {
-                throw new InvalidOperationException("Currency already initialized for this character");
+                throw new CurrencyAlreadyInitializedException(characterId);
             }
 
             // Generate currency using dice rolls
@@ -45,20 +48,20 @@ namespace RPGCharacterService.Services
             var character = repository.GetById(characterId);
             if (character == null)
             {
-                throw new KeyNotFoundException($"Character with ID {characterId} not found");
+                throw new CharacterNotFoundException(characterId);
             }
             
             if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
             {
-                throw new InvalidOperationException("Character's currency must be initialized before exchanging");
+                throw new CurrencyNotInitializedException(characterId);
             }
             
             if (character.Wealth.GetCurrencyAmount(from) < amount)
             {
-                throw new InvalidOperationException($"Not enough {from} currency");
+                throw new NotEnoughCurrencyException(from, amount, character.Wealth.GetCurrencyAmount(from));
             }
 
-            // Exchange rates (simplified for this implementation)
+            // Hardcoded exchange rates. If needed, inject this mapping or load from a config file.
             var exchangeRates = new Dictionary<(CurrencyType, CurrencyType), int>
             {
                 { (CurrencyType.Copper, CurrencyType.Silver), 10 },
@@ -71,7 +74,7 @@ namespace RPGCharacterService.Services
 
             if (!exchangeRates.TryGetValue((from, to), out var rate))
             {
-                throw new InvalidOperationException($"Cannot exchange {from} to {to}");
+                throw new InvalidCurrencyExchangeException(from, to);
             }
 
             var fromAmount = character.Wealth.GetCurrencyAmount(from);
@@ -84,24 +87,28 @@ namespace RPGCharacterService.Services
             return character;
         }
         
-        public Character ModifyCurrencies(Guid characterId, Wealth currencies)
+        public Character ModifyCurrencies(Guid characterId, Dictionary<CurrencyType, int> currencyChanges)
         {
             var character = repository.GetById(characterId);
             if (character == null)
             {
-                throw new KeyNotFoundException($"Character with ID {characterId} not found");
+                throw new CharacterNotFoundException(characterId);
             }
             
             if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized))
             {
-                throw new InvalidOperationException("Character's currency must be initialized before modifying");
+                throw new CurrencyNotInitializedException(characterId);
             }
             
-            foreach (var currencyType in Enum.GetValues<CurrencyType>())
+            foreach (var change in currencyChanges)
             {
-                var currentAmount = character.Wealth.GetCurrencyAmount(currencyType);
-                var newAmount = Math.Max(0, currentAmount + currencies.GetCurrencyAmount(currencyType));
-                character.Wealth.SetCurrencyAmount(currencyType, newAmount);
+                var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) - change.Value;
+                if (currencyAmountAfter < 0)
+                {
+                    throw new NotEnoughCurrencyException(change.Key, -change.Value, character.Wealth.GetCurrencyAmount(change.Key));
+                }
+                
+                character.Wealth.SetCurrencyAmount(change.Key, currencyAmountAfter);
             }
             
             repository.Update(character);

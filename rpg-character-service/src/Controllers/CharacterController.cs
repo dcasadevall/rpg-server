@@ -35,7 +35,7 @@ namespace RPGCharacterService.Controllers
         {
             try
             {
-                var character = characterService.GetCharacterById(id);
+                var character = characterService.GetCharacter(id);
                 var derivedProps = CalculateDerivedProperties(character, characterRules);
                 var characterResponse = CharacterMapper.ToResponse(character, derivedProps);
                 return Ok(characterResponse);

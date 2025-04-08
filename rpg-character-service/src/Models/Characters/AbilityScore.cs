@@ -1,6 +1,6 @@
 namespace RPGCharacterService.Models.Characters
 {
-    public enum StatType
+    public enum AbilityScore
     {
         Strength,
         Dexterity,

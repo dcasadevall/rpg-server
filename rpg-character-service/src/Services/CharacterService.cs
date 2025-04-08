@@ -2,13 +2,14 @@ using RPGCharacterService.Dtos.Character.Requests;
 using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence;
+using RPGCharacterService.Exceptions.Character;
 
 namespace RPGCharacterService.Services
 {
     public interface ICharacterService
     {
         IEnumerable<Character> GetAllCharacters();
-        Character GetCharacterById(Guid characterId);
+        Character GetCharacter(Guid characterId);
         Character CreateCharacter(CreateCharacterRequest request);
         void DeleteCharacter(Guid characterId);
     }
@@ -23,25 +24,33 @@ namespace RPGCharacterService.Services
             return repository.GetAll();
         }
 
-        public Character GetCharacterById(Guid characterId)
+        public Character GetCharacter(Guid characterId)
         {
             var character = repository.GetById(characterId);
             if (character == null)
             {
-                throw new KeyNotFoundException($"Character with ID {characterId} not found");
+                throw new CharacterNotFoundException(characterId);
             }
-
+            
             return character;
         }
 
         public Character CreateCharacter(CreateCharacterRequest request)
         {
-            // First, roll for all stats
-            var stats = new Dictionary<StatType, int>();
-            foreach (var stat in Enum.GetValues<StatType>())
+            // Check if character with same name exists
+            // TODO: Transaction
+            var existingCharacter = repository.GetByName(request.Name);
+            if (existingCharacter != null)
+            {
+                throw new CharacterAlreadyExistsException(request.Name);
+            }
+
+            // First, roll for all ability scores
+            var abilityScores = new Dictionary<AbilityScore, int>();
+            foreach (var stat in Enum.GetValues<AbilityScore>())
             {
                 // Roll 4d6 and take the highest 3
-                stats[stat] = diceService
+                abilityScores[stat] = diceService
                               .Roll(DiceSides.Six, 4)
                               .OrderByDescending(x => x)
                               .Take(3)
@@ -56,7 +65,7 @@ namespace RPGCharacterService.Services
                 Subrace = request?.Subrace ?? "",
                 Class = request.Class,
                 Level = 1,
-                Stats = stats,
+                AbilityScores = abilityScores,
             };
             character.HitPoints = characterRules.CalculateMaxHitPoints(character);
 
@@ -69,7 +78,7 @@ namespace RPGCharacterService.Services
             var character = repository.GetById(characterId);
             if (character == null)
             {
-                throw new KeyNotFoundException($"Character with ID {characterId} not found");
+                throw new CharacterNotFoundException(characterId);
             }
 
             repository.Delete(characterId);

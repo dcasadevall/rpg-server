@@ -1,4 +1,4 @@
-using RPGCharacterService.Models;
+using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence;
 
@@ -16,7 +16,7 @@ namespace RPGCharacterService.Services
             var character = repository.GetById(characterId);
             if (character == null)
             {
-                throw new KeyNotFoundException($"Character with ID {characterId} not found");
+                throw new CharacterNotFoundException(characterId);
             }
 
             var maxHitPoints = characterRules.CalculateMaxHitPoints(character);

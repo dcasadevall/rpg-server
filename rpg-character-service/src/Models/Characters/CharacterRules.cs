@@ -7,7 +7,7 @@ namespace RPGCharacterService.Models.Characters
         int CalculateMaxHitPoints(Character character);
         int CalculateArmorClass(Character character);
         int CalculateProficiencyBonus(Character character);
-        Dictionary<StatType, int> CalculateAbilityModifiers(Character character);
+        Dictionary<AbilityScore, int> CalculateAbilityModifiers(Character character);
     }
 
     public class DndFifthEditionCharacterRules : ICharacterRules
@@ -17,7 +17,7 @@ namespace RPGCharacterService.Models.Characters
             var abilityModifiers = CalculateAbilityModifiers(character);
             var armorType = character.EquippedItems.ArmorType;
             var baseArmorClass = character.EquippedItems.BaseArmorClass;
-            var dexterityModifier = abilityModifiers[StatType.Dexterity];
+            var dexterityModifier = abilityModifiers[AbilityScore.Dexterity];
 
             return armorType switch
             {
@@ -38,12 +38,12 @@ namespace RPGCharacterService.Models.Characters
             return 2;
         }
         
-        public Dictionary<StatType, int> CalculateAbilityModifiers(Character character)
+        public Dictionary<AbilityScore, int> CalculateAbilityModifiers(Character character)
         {
-            var modifiers = new Dictionary<StatType, int>();
-            foreach (var stat in character.Stats)
+            var modifiers = new Dictionary<AbilityScore, int>();
+            foreach (var abilityScore in character.AbilityScores)
             {
-                modifiers[stat.Key] = (stat.Value - 10) / 2;
+                modifiers[abilityScore.Key] = (abilityScore.Value - 10) / 2;
             }
             
             return modifiers;
@@ -52,7 +52,7 @@ namespace RPGCharacterService.Models.Characters
         public int CalculateMaxHitPoints(Character character)
         {
             var abilityModifiers = CalculateAbilityModifiers(character);
-            var constitutionModifier = abilityModifiers[StatType.Constitution];
+            var constitutionModifier = abilityModifiers[AbilityScore.Constitution];
             return 10 + constitutionModifier * character.Level;
         }
     }

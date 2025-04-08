@@ -12,7 +12,7 @@ namespace RPGCharacterService.Models.Characters
         public int HitPoints { get; set; }
         public int Level { get; set; }
         public CharacterInitializationFlags InitFlags { get; set; } = 0;
-        public Dictionary<StatType, int> Stats { get; init; } = new();
+        public Dictionary<AbilityScore, int> AbilityScores { get; init; } = new();
         public EquippedItems EquippedItems { get; init; } = new();
         public Wealth Wealth { get; set; } = new();
     }

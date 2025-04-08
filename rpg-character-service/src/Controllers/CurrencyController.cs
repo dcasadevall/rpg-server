@@ -86,11 +86,8 @@ namespace RPGCharacterService.Controllers
                     });
                 }
 
-                var wealth = CurrencyMapper.ToWealth(request);
-                
-                // TODO: Try/ catch. Services should throw concrete exceptions.
-                // Controllers should validate basic input (null and required fields)
-                var character = currencyService.ModifyCurrencies(characterId, wealth);
+                var currencyChanges = CurrencyMapper.ToDictionary(request);
+                var character = currencyService.ModifyCurrencies(characterId, currencyChanges);
                 return Ok(new
                 {
                     currencies = CurrencyMapper.ToCurrencyResponse(character.Wealth)
@@ -135,6 +132,7 @@ namespace RPGCharacterService.Controllers
                     });
                 }
 
+                // TODO: Handle exception and dont return here
                 if (request.From == request.To)
                 {
                     return BadRequest(new

@@ -18,43 +18,16 @@ namespace RPGCharacterService.Mappers
             };
         }
         
-        public static Wealth ToWealth(CurrencyResponse response)
+        public static Dictionary<CurrencyType, int> ToDictionary(ModifyCurrencyRequest request)
         {
-            var wealth = new Wealth();
-            wealth.SetCurrencyAmount(CurrencyType.Copper, response.Copper);
-            wealth.SetCurrencyAmount(CurrencyType.Silver, response.Silver);
-            wealth.SetCurrencyAmount(CurrencyType.Electrum, response.Electrum);
-            wealth.SetCurrencyAmount(CurrencyType.Gold, response.Gold);
-            wealth.SetCurrencyAmount(CurrencyType.Platinum, response.Platinum);
-            return wealth;
-        }
-        
-        public static Wealth ToWealth(ModifyCurrencyRequest request)
-        {
-            var wealth = new Wealth();
-            
-            if (request.Gold.HasValue)
+            return new Dictionary<CurrencyType, int>
             {
-                wealth.SetCurrencyAmount(CurrencyType.Gold, request.Gold.Value);
-            }
-            if (request.Silver.HasValue)
-            {
-                wealth.SetCurrencyAmount(CurrencyType.Silver, request.Silver.Value);
-            }
-            if (request.Copper.HasValue)
-            {
-                wealth.SetCurrencyAmount(CurrencyType.Copper, request.Copper.Value);
-            }
-            if (request.Electrum.HasValue)
-            {
-                wealth.SetCurrencyAmount(CurrencyType.Electrum, request.Electrum.Value);
-            }
-            if (request.Platinum.HasValue)
-            {
-                wealth.SetCurrencyAmount(CurrencyType.Platinum, request.Platinum.Value);
-            }
-
-            return wealth;
+                { CurrencyType.Copper, request.Copper ?? 0 },
+                { CurrencyType.Silver, request.Silver ?? 0 },
+                { CurrencyType.Electrum, request.Electrum ?? 0 },
+                { CurrencyType.Gold, request.Gold ?? 0 },
+                { CurrencyType.Platinum, request.Platinum ?? 0 }
+            };
         }
     }
 }

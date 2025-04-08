@@ -1,3 +1,4 @@
+using RPGCharacterService.Exceptions;
 using RPGCharacterService.Models;
 
 namespace RPGCharacterService.Services
@@ -15,7 +16,12 @@ namespace RPGCharacterService.Services
         {
             if (count <= 0)
             {
-                throw new ArgumentException("Count must be greater than 1.");
+                throw new InvalidDiceRollException(count, (int)sides);
+            }
+
+            if (sides <= 0)
+            {
+                throw new InvalidDiceRollException(count, (int)sides);
             }
 
             return Enumerable.Range(0, count)

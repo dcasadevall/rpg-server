@@ -17,7 +17,7 @@ namespace RPGCharacterService.Mappers
                 Subrace = character.Subrace,
                 Class = character.Class,
                 HitPoints = character.HitPoints,
-                Stats = character.Stats,
+                AbilityScores = character.AbilityScores,
                 Wealth = character.Wealth,
                 
                 // Derived Properties
