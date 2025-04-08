@@ -5,10 +5,24 @@ using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Controllers {
+  /// <summary>
+  /// Controller responsible for handling dice rolling operations.
+  /// Provides functionality to roll various types of dice commonly used in tabletop RPGs.
+  /// </summary>
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:apiVersion}/dice")]
   public class DiceController(IDiceService diceService) : ControllerBase {
+    /// <summary>
+    /// Rolls one or more dice of a specified type.
+    /// Supports standard RPG dice types: d4, d6, d8, d10, d12, and d20.
+    /// </summary>
+    /// <param name="request">The dice rolling request containing the number of sides and count of dice to roll.</param>
+    /// <returns>A response containing the results of each die roll.</returns>
+    /// <remarks>
+    /// The dice sides must be one of the following values: 4, 6, 8, 10, 12, or 20.
+    /// Each die roll will return a random integer between 1 and the number of sides (inclusive).
+    /// </remarks>
     [HttpGet("roll")]
     [SwaggerOperation(Summary = "Roll a Dice",
                        Description = "Rolls one or more dice. Allowed sides: 4, 6, 8, 10, 12, 20." +

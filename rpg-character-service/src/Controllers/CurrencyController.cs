@@ -6,10 +6,20 @@ using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Controllers {
+  /// <summary>
+  /// Controller responsible for managing character currency operations.
+  /// Handles initialization, modification, and exchange of different currency types (gold, silver, copper, etc.).
+  /// </summary>
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:ApiVersion}/characters/{characterId:guid}/currency")]
   public class CurrencyController(ICurrencyService currencyService, ICharacterService characterService) : ControllerBase {
+    /// <summary>
+    /// Initializes a character's currency by randomly generating starting amounts.
+    /// This operation can only be performed once per character.
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character.</param>
+    /// <returns>The initialized currency amounts for the character.</returns>
     [HttpPost("init")]
     [SwaggerOperation(Summary = "Initialize a Character's Currency",
                        Description = "Randomly sets the character's starting currency by rolling dice")]
@@ -42,6 +52,13 @@ namespace RPGCharacterService.Controllers {
       }
     }
 
+    /// <summary>
+    /// Modifies a character's currency by adding or subtracting specified amounts.
+    /// Allows for changes to multiple currency types in a single operation.
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character.</param>
+    /// <param name="request">The currency modification details including amounts to add or subtract.</param>
+    /// <returns>The updated currency amounts for the character.</returns>
     [HttpPatch]
     [SwaggerOperation(Summary = "Modify Character Currency",
                        Description = "Adds or subtracts the specified values from the character's current currency")]
@@ -87,6 +104,13 @@ namespace RPGCharacterService.Controllers {
       }
     }
 
+    /// <summary>
+    /// Exchanges one type of currency for another using standard D&D 5e conversion rates.
+    /// Allows characters to convert between different currency types (e.g., gold to silver).
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character.</param>
+    /// <param name="request">The currency exchange details including source and target currency types and amount.</param>
+    /// <returns>The updated currency amounts after the exchange.</returns>
     [HttpPatch("exchange")]
     [SwaggerOperation(Summary = "Exchange Character Currency",
                        Description =
@@ -119,14 +143,19 @@ namespace RPGCharacterService.Controllers {
           await currencyService.ExchangeCurrencyAsync(characterId, request.From, request.To, request.Amount);
         var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
         return Ok(currencyResponse);
-      } catch (KeyNotFoundException) {
+      } catch (CharacterNotFoundException) {
         return NotFound(new {
           error = "CHARACTER_NOT_FOUND",
           message = "Character not found."
         });
-      } catch (Exception ex) {
+      } catch (NotEnoughCurrencyException ex) {
         return BadRequest(new {
-          error = "INVALID_CURRENCY_VALUE",
+          error = "NOT_ENOUGH_CURRENCY",
+          message = ex.Message
+        });
+      } catch (InvalidCurrencyExchangeException ex) {
+        return BadRequest(new {
+          error = "INVALID_CURRENCY_EXCHANGE",
           message = ex.Message
         });
       }

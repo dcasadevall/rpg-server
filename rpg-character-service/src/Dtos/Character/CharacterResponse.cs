@@ -4,7 +4,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Dtos.Character {
   /// <summary>
-  ///   Response object for character information
+  ///   Response object for returning character information to the client.
   /// </summary>
   public record CharacterResponse {
     /// <summary>
