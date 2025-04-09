@@ -220,7 +220,41 @@ namespace RPGCharacterService.UnitTests.Models {
     }
 
     [Fact]
-    public void EquipShield_WithTwoHandedWeaponEquipped__ShouldClearMainHand() {
+    public void EquipWeapon_WithTwoHandedWeaponEquipped_ShouldClearMainHand() {
+      // Arrange
+      var equipment = new Equipment();
+      var twoHandedWeapon = new Item {
+        Id = 1,
+        Name = "TwoHanded",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+          WeaponStats = new WeaponStats {
+            WeaponProperties = WeaponProperty.TwoHanded
+          }
+        }
+      };
+
+      var newWeapon = new Item {
+        Id = 2,
+        Name = "Test Item 2",
+        EquipmentStats = new EquipmentStats {
+          EquipmentType = EquipmentType.Weapon,
+        }
+      };
+      // Arrange: Set Up previous state
+      equipment.EquipWeapon(twoHandedWeapon);
+      Assert.Equal(twoHandedWeapon.Id, equipment.MainHand?.Id);
+
+      // Act
+      equipment.EquipWeapon(newWeapon);
+
+      // Assert
+      Assert.Equal(newWeapon.Id, equipment.MainHand?.Id);
+      Assert.Null(equipment.OffHand);
+    }
+
+    [Fact]
+    public void EquipShield_WithTwoHandedWeaponEquipped_ShouldClearMainHand() {
       // Arrange
       var equipment = new Equipment();
       var twoHandedWeapon = new Item {
