@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "tests\Integr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rpg-character-service.unit-tests", "tests\Unit\rpg-character-service.unit-tests.csproj", "{9B1C76FF-CE0C-4264-9FBC-D62FE7D30089}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rpg-character-service.integration-tests", "tests\Integration\rpg-character-service.integration-tests.csproj", "{184090D2-B91A-4099-87D6-FB81EB4FEDE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +31,15 @@ Global
 		{9B1C76FF-CE0C-4264-9FBC-D62FE7D30089}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B1C76FF-CE0C-4264-9FBC-D62FE7D30089}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B1C76FF-CE0C-4264-9FBC-D62FE7D30089}.Release|Any CPU.Build.0 = Release|Any CPU
+		{184090D2-B91A-4099-87D6-FB81EB4FEDE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{184090D2-B91A-4099-87D6-FB81EB4FEDE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{184090D2-B91A-4099-87D6-FB81EB4FEDE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{184090D2-B91A-4099-87D6-FB81EB4FEDE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7B1C76FF-CE0C-4264-9FBC-D62FE7D30089} = {6DF6A6C9-6B25-4ABD-BCA3-C1B03B5DD3AB}
 		{8B1C76FF-CE0C-4264-9FBC-D62FE7D30089} = {6DF6A6C9-6B25-4ABD-BCA3-C1B03B5DD3AB}
 		{9B1C76FF-CE0C-4264-9FBC-D62FE7D30089} = {7B1C76FF-CE0C-4264-9FBC-D62FE7D30089}
+		{184090D2-B91A-4099-87D6-FB81EB4FEDE0} = {8B1C76FF-CE0C-4264-9FBC-D62FE7D30089}
 	EndGlobalSection
 EndGlobal

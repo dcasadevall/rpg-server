@@ -13,7 +13,7 @@ namespace RPGCharacterService.Dtos.Character {
     [StringLength(15, MinimumLength = 3)]
     [RegularExpression(@"^[a-zA-Z]+$")]
     [SwaggerSchema(Description = "The name of the character (3-15 characters, letters only)")]
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     ///   The character's race (e.g., Human, Elf, Dwarf)
@@ -21,7 +21,7 @@ namespace RPGCharacterService.Dtos.Character {
     [Required]
     [StringLength(50)]
     [SwaggerSchema(Description = "The character's race (e.g., Human, Elf, Dwarf)")]
-    public string Race { get; init; }
+    public required string Race { get; init; }
 
     /// <summary>
     ///   The character's optional subrace (e.g., High, Mountain)
@@ -36,6 +36,6 @@ namespace RPGCharacterService.Dtos.Character {
     [Required]
     [StringLength(50)]
     [SwaggerSchema(Description = "The character's class (e.g., Fighter, Wizard, Cleric)")]
-    public string Class { get; init; }
+    public required string Class { get; init; }
   }
 }

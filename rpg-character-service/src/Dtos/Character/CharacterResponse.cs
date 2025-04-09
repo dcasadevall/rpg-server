@@ -38,6 +38,12 @@ namespace RPGCharacterService.Dtos.Character {
     public string Class { get; init; }
 
     /// <summary>
+    /// The character's level
+    /// </summary>
+    [SwaggerSchema(Description = "The character's level")]
+    public int Level { get; init; }
+
+    /// <summary>
     ///   The character's current hit points
     /// </summary>
     [SwaggerSchema(Description = "The character's current hit points")]
