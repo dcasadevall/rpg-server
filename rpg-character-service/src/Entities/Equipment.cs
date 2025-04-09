@@ -1,8 +1,8 @@
+using RPGCharacterService.Entities.Characters;
+using RPGCharacterService.Entities.Items;
 using RPGCharacterService.Exceptions.Equipment;
-using RPGCharacterService.Models.Characters;
-using RPGCharacterService.Models.Items;
 
-namespace RPGCharacterService.Models {
+namespace RPGCharacterService.Entities {
   /// <summary>
   /// Represents the items currently equipped by a character, including weapons, armor, and shields.
   /// This class handles calculations related to equipment, such as armor class and weapon damage modifiers.
@@ -25,6 +25,27 @@ namespace RPGCharacterService.Models {
     /// If null, no armor is equipped.
     /// </summary>
     public Item? Armor { get; private set; }
+
+    /// <summary>
+    /// Default constructor for the Equipment class.
+    /// </summary>
+    public Equipment() {
+      MainHand = null;
+      OffHand = null;
+      Armor = null;
+    }
+
+    /// <summary>
+    /// Constructor used to initialize the Equipment class with specific items.
+    /// </summary>
+    /// <param name="mainHand"></param>
+    /// <param name="offHand"></param>
+    /// <param name="armor"></param>
+    public Equipment(Item? mainHand, Item? offHand, Item? armor) {
+      MainHand = mainHand;
+      OffHand = offHand;
+      Armor = armor;
+    }
 
     /// <summary>
     /// Calculates the total armor class based on equipped armor and the character's dexterity modifier.

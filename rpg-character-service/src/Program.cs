@@ -23,19 +23,6 @@ builder.Services.AddControllers(options => {
   options.Filters.Add(typeof(ExceptionFilterAttribute));
 });
 
-// Get database configuration from environment variables
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "rpg_character_service";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
-
-if (string.IsNullOrEmpty(dbPassword)) {
-  throw new InvalidOperationException("Database password is not configured. Please set DB_PASSWORD in your .env file.");
-}
-
-var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
-
 // Add database services based on environment
 if (builder.Environment.IsDevelopment()) {
   // Use in-memory repositories for development
@@ -43,7 +30,7 @@ if (builder.Environment.IsDevelopment()) {
   builder.Services.AddSingleton<IItemRepository, InMemoryItemRepository>();
 } else {
   // Use database repositories for staging / production
-  builder.Services.AddInfrastructureDependencies(connectionString);
+  builder.Services.AddDynamoDb();
 }
 
 // Add Domain dependencies

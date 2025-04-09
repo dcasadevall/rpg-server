@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models.Items {
+namespace RPGCharacterService.Entities.Items {
   /// <summary>
   /// Represents an item, which at the moment can be a weapon, armor, or shield.
   /// In the future, this could be expanded to include other item types, such as potions, scrolls, etc.

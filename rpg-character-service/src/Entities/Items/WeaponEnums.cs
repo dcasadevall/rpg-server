@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models.Items {
+namespace RPGCharacterService.Entities.Items {
   /// <summary>
   /// Represents the properties that a weapon can have.
   /// These properties affect how the weapon can be used and what modifiers apply to it.

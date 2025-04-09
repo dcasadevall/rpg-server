@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models.Items {
+namespace RPGCharacterService.Entities.Items {
   /// <summary>
   /// Represents the different types of equipment.
   /// </summary>

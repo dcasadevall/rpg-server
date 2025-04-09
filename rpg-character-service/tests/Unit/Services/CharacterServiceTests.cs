@@ -1,7 +1,7 @@
 using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Exceptions.Character;
-using RPGCharacterService.Models;
-using RPGCharacterService.Models.Characters;
+using RPGCharacterService.Entities;
+using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Services;
 

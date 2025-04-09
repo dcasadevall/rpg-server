@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Dice;
 using RPGCharacterService.Exceptions;
-using RPGCharacterService.Models;
+using RPGCharacterService.Entities;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 

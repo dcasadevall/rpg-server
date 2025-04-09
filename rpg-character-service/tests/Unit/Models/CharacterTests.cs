@@ -1,5 +1,5 @@
-using RPGCharacterService.Models.Characters;
-using RPGCharacterService.Models.Items;
+using RPGCharacterService.Entities.Characters;
+using RPGCharacterService.Entities.Items;
 
 namespace RPGCharacterService.UnitTests.Models {
   public class CharacterTests {

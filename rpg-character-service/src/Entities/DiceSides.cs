@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models {
+namespace RPGCharacterService.Entities {
   /// <summary>
   /// Represents the standard dice types used in tabletop role-playing games.
   /// Each value corresponds to the number of sides on the die.

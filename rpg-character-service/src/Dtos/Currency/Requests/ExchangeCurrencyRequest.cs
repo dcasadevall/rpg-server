@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using RPGCharacterService.Models;
+using RPGCharacterService.Entities;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Dtos.Currency.Requests {

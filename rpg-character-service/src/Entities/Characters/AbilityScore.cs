@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models.Characters {
+namespace RPGCharacterService.Entities.Characters {
   /// <summary>
   /// Represents the six ability scores.
   /// These scores determine a character's basic capabilities and affect various game mechanics.

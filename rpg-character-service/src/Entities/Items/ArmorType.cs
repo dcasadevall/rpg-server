@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models.Items {
+namespace RPGCharacterService.Entities.Items {
   /// <summary>
   /// Represents the different types of armor that can be equipped by characters.
   /// Note: Shields are not included in this enum as they are treated as a separate equipment type,

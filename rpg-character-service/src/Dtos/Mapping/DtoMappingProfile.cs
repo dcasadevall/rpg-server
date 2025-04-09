@@ -3,7 +3,7 @@ using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Dtos.Currency.Requests;
 using RPGCharacterService.Dtos.Currency.Responses;
 using RPGCharacterService.Dtos.Equipment;
-using RPGCharacterService.Models;
+using RPGCharacterService.Entities;
 
 namespace RPGCharacterService.Dtos.Mapping {
   /// <summary>
@@ -12,7 +12,7 @@ namespace RPGCharacterService.Dtos.Mapping {
   public class DtoMappingProfile : Profile {
     public DtoMappingProfile() {
       // Character to CharacterResponse mapping
-      CreateMap<Models.Characters.Character, CharacterResponse>()
+      CreateMap<Entities.Characters.Character, CharacterResponse>()
         .ForMember(dest => dest.MaxHitPoints, opt => opt.MapFrom(src => src.CalculateMaxHitPoints()))
         .ForMember(dest => dest.ArmorClass, opt => opt.MapFrom(src => src.CalculateArmorClass()))
         .ForMember(dest => dest.ProficiencyBonus, opt => opt.MapFrom(src => src.CalculateProficiencyBonus()))
@@ -32,7 +32,7 @@ namespace RPGCharacterService.Dtos.Mapping {
         });
 
       // Character to EquipmentResponse mapping
-      CreateMap<Models.Characters.Character, EquipmentResponse>()
+      CreateMap<Entities.Characters.Character, EquipmentResponse>()
         .ForMember(dest => dest.ArmorClass, opt => opt.MapFrom(src => src.CalculateArmorClass()))
         .ForMember(dest => dest.WeaponDamageModifier, opt => opt.MapFrom(src => src.CalculateWeaponDamageModifier()))
         .ForMember(dest => dest.Equipment,

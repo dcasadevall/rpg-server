@@ -1,7 +1,7 @@
 using RPGCharacterService.Exceptions.Equipment;
-using RPGCharacterService.Models;
-using RPGCharacterService.Models.Items;
-using RPGCharacterService.Models.Characters;
+using RPGCharacterService.Entities;
+using RPGCharacterService.Entities.Items;
+using RPGCharacterService.Entities.Characters;
 
 namespace RPGCharacterService.UnitTests.Models {
   public class EquipmentTests {

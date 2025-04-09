@@ -1,5 +1,5 @@
 using RPGCharacterService.Exceptions.Items;
-using RPGCharacterService.Models.Items;
+using RPGCharacterService.Entities.Items;
 
 namespace RPGCharacterService.Persistence.Items {
   /// <summary>

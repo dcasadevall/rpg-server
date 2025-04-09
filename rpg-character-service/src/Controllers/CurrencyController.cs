@@ -4,7 +4,7 @@ using RPGCharacterService.Dtos.Currency.Requests;
 using RPGCharacterService.Dtos.Currency.Responses;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Currency;
-using RPGCharacterService.Models;
+using RPGCharacterService.Entities;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 

@@ -1,4 +1,4 @@
-using RPGCharacterService.Models.Items;
+using RPGCharacterService.Entities.Items;
 
 namespace RPGCharacterService.UnitTests.Models.Items {
   public class EquipmentExtensionsTests {

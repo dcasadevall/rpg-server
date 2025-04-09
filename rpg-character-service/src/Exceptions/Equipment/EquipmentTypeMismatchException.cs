@@ -1,4 +1,4 @@
-using RPGCharacterService.Models.Items;
+using RPGCharacterService.Entities.Items;
 
 namespace RPGCharacterService.Exceptions.Equipment {
   /// <summary>

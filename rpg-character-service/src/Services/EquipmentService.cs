@@ -1,8 +1,8 @@
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Exceptions.Items;
-using RPGCharacterService.Models.Characters;
-using RPGCharacterService.Models.Items;
+using RPGCharacterService.Entities.Characters;
+using RPGCharacterService.Entities.Items;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
 

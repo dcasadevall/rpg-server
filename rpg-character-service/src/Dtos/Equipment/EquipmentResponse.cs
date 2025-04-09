@@ -1,4 +1,4 @@
-using RPGCharacterService.Models.Characters;
+using RPGCharacterService.Entities.Characters;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Dtos.Equipment {

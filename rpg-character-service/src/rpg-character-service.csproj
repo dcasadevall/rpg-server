@@ -23,9 +23,11 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.0"/>
         <PackageReference Include="DotNetEnv" Version="2.5.0"/>
+        <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.301.16"/>
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Infrastructure\Data\Mapping\" />
         <Folder Include="wwwroot\"/>
     </ItemGroup>
 

@@ -1,4 +1,4 @@
-using RPGCharacterService.Models;
+using RPGCharacterService.Entities;
 
 namespace RPGCharacterService.Exceptions.Currency {
   /// <summary>

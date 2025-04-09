@@ -1,8 +1,8 @@
 using Moq;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Currency;
-using RPGCharacterService.Models;
-using RPGCharacterService.Models.Characters;
+using RPGCharacterService.Entities;
+using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Services;
 

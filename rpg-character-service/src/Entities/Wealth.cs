@@ -1,4 +1,4 @@
-namespace RPGCharacterService.Models {
+namespace RPGCharacterService.Entities {
   /// <summary>
   /// Represents the different types of currency.
   /// </summary>
@@ -58,6 +58,25 @@ namespace RPGCharacterService.Models {
     /// Gets or sets the amount of platinum pieces.
     /// </summary>
     public int Platinum { get; private set; }
+
+    /// <summary>
+    /// Default constructor for the Wealth class.
+    /// </summary>
+    public Wealth() {
+    }
+
+    /// <summary>
+    /// Constructor for the Wealth class that initializes the currency amounts with
+    /// the provided dictionary.
+    /// </summary>
+    /// <param name="currencyAmounts"></param>
+    public Wealth(Dictionary<CurrencyType, int> currencyAmounts) {
+      Copper = currencyAmounts.GetValueOrDefault(CurrencyType.Copper, 0);
+      Silver = currencyAmounts.GetValueOrDefault(CurrencyType.Silver, 0);
+      Electrum = currencyAmounts.GetValueOrDefault(CurrencyType.Electrum, 0);
+      Gold = currencyAmounts.GetValueOrDefault(CurrencyType.Gold, 0);
+      Platinum = currencyAmounts.GetValueOrDefault(CurrencyType.Platinum, 0);
+    }
 
     /// <summary>
     /// Gets the amount of a specific currency type.

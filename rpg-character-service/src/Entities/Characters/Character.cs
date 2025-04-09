@@ -1,6 +1,6 @@
-using RPGCharacterService.Models.Items;
+using RPGCharacterService.Entities.Items;
 
-namespace RPGCharacterService.Models.Characters {
+namespace RPGCharacterService.Entities.Characters {
   /// <summary>
   /// Represents a D&D character, containing all character attributes, equipment, and wealth.
   /// This class implements core D&D 5e character mechanics including hit points, ability scores, and armor class calculations.
@@ -60,7 +60,7 @@ namespace RPGCharacterService.Models.Characters {
     /// <summary>
     /// Gets or sets the character's wealth in various currency types (gold, silver, copper, etc.).
     /// </summary>
-    public Wealth Wealth { get; set; } = new();
+    public Wealth Wealth { get; init; } = new();
 
     /// <summary>
     /// Calculates the character's maximum hit points based on their constitution modifier and level.

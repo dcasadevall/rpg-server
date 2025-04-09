@@ -1,5 +1,5 @@
 using RPGCharacterService.Exceptions;
-using RPGCharacterService.Models;
+using RPGCharacterService.Entities;
 using RPGCharacterService.Services;
 
 namespace RPGCharacterService.UnitTests.Services {

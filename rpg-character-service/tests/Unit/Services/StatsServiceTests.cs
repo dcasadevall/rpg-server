@@ -1,4 +1,4 @@
-using RPGCharacterService.Models.Characters;
+using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Services;
 
