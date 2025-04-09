@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RPGCharacterService.Infrastructure.Data;
 using RPGCharacterService.Infrastructure.Data.Mapping;
-using RPGCharacterService.Infrastructure.Data.Repositories;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
 

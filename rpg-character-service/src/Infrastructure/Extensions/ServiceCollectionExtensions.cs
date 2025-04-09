@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RPGCharacterService.Infrastructure.Data;
-using RPGCharacterService.Infrastructure.Data.Repositories;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
 
@@ -17,13 +16,10 @@ namespace RPGCharacterService.Infrastructure.Extensions
         /// Adds database services to the service collection.
         /// </summary>
         /// <param name="services">The service collection.</param>
-        /// <param name="configuration">The configuration.</param>
+        /// <param name="connectionString">The db connection string.</param>
         /// <returns>The service collection.</returns>
-        public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDatabase(this IServiceCollection services, string connectionString)
         {
-            // Get the connection string from configuration
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-
             // Add the DbContext
             services.AddDbContext<RpgDbContext>(options =>
                 options.UseNpgsql(connectionString, npgsqlOptions =>

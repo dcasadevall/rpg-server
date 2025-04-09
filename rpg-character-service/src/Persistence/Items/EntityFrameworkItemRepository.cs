@@ -1,10 +1,9 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using RPGCharacterService.Infrastructure.Data.Entities;
+using RPGCharacterService.Infrastructure.Data;
 using RPGCharacterService.Models.Items;
-using RPGCharacterService.Persistence.Items;
 
-namespace RPGCharacterService.Infrastructure.Data.Repositories
+namespace RPGCharacterService.Persistence.Items
 {
     /// <summary>
     /// Entity Framework Core implementation of the item repository.

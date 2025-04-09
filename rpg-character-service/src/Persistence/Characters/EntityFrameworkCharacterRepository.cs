@@ -1,13 +1,11 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Infrastructure.Data;
 using RPGCharacterService.Infrastructure.Data.Entities;
-using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
-using RPGCharacterService.Models.Items;
-using RPGCharacterService.Persistence.Characters;
 
-namespace RPGCharacterService.Infrastructure.Data.Repositories
+namespace RPGCharacterService.Persistence.Characters
 {
     /// <summary>
     /// Entity Framework Core implementation of the character repository.
