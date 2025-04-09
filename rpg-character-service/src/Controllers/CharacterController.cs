@@ -2,6 +2,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Mapping;
+using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -14,7 +16,7 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:apiVersion}/characters")]
-  public class CharacterController(ICharacterService characterService, IMapper mapper) : ControllerBase {
+  public class CharacterController(ICharacterService characterService, LoggedMapper mapper) : ControllerBase {
     /// <summary>
     /// Retrieves a list of all characters.
     /// </summary>

@@ -4,6 +4,8 @@ using RPGCharacterService.Dtos.Equipment;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Exceptions.Items;
+using RPGCharacterService.Mapping;
+using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -15,7 +17,7 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:apiVersion}/characters/{characterId:guid}/equipment")]
-  public class EquipmentController(IEquipmentService equipmentService, IMapper mapper) : ControllerBase {
+  public class EquipmentController(IEquipmentService equipmentService, LoggedMapper mapper) : ControllerBase {
     /// <summary>
     /// Equips a piece of armor to a character.
     /// </summary>

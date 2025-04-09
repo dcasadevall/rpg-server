@@ -5,6 +5,8 @@ using RPGCharacterService.Controllers.Filters;
 using RPGCharacterService.Services;
 using DotNetEnv;
 using RPGCharacterService.Dtos.Mapping;
+using RPGCharacterService.Mapping;
+using RPGCharacterService.Persistence;
 using RPGCharacterService.Persistence.DynamoDb.Configuration;
 using RPGCharacterService.Persistence.InMemory;
 
@@ -39,7 +41,8 @@ builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
-builder.Services.AddSingleton<IDiceService, DiceService>();
+builder.Services.AddScoped<IDiceService, DiceService>();
+builder.Services.AddScoped<LoggedMapper>();
 
 // Add Dto Automapper
 builder.Services.AddAutoMapper(typeof(DtoMappingProfile).Assembly);

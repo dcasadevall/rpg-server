@@ -5,6 +5,8 @@ using RPGCharacterService.Dtos.Currency.Responses;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Entities;
+using RPGCharacterService.Mapping;
+using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,7 +18,7 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:ApiVersion}/characters/{characterId:guid}/currency")]
-  public class CurrencyController(ICurrencyService currencyService, IMapper mapper)
+  public class CurrencyController(ICurrencyService currencyService, LoggedMapper mapper)
     : ControllerBase {
     /// <summary>
     /// Initializes a character's currency by randomly generating starting amounts.

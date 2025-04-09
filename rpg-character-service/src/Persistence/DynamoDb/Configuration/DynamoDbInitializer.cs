@@ -6,7 +6,6 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
   /// Service for initializing DynamoDB tables.
   /// </summary>
   public class DynamoDbInitializer(IAmazonDynamoDB client,
-                                   DynamoDbSettings settings,
                                    DynamoDbSeeder seeder,
                                    ILogger<DynamoDbInitializer> logger) {
     /// <summary>
