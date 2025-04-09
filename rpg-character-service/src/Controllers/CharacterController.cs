@@ -49,7 +49,7 @@ namespace RPGCharacterService.Controllers {
         var character = await characterService.GetCharacterAsync(id);
         var characterResponse = CharacterMapper.ToResponse(character);
         return Ok(characterResponse);
-      } catch (KeyNotFoundException) {
+      } catch (CharacterNotFoundException ex) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       }
     }
@@ -70,22 +70,15 @@ namespace RPGCharacterService.Controllers {
     [SwaggerResponse(409, "Conflict - Name already taken or other conflict")]
     public async Task<ActionResult<CharacterResponse>> CreateCharacter(
       [FromBody] [SwaggerRequestBody("Character creation details", Required = true)]
-      CreateCharacterRequest characterRequest) {
-      if (!ModelState.IsValid) {
-        // TODO: Do not dump ModelState directly
-        return BadRequest(new {errors = ModelState});
-      }
-
+      CreateCharacterRequest request) {
       try {
-        var newCharacter = await characterService.CreateCharacterAsync(characterRequest);
+        var newCharacter = await characterService.CreateCharacterAsync(request);
         var characterResponse = CharacterMapper.ToResponse(newCharacter);
         return CreatedAtAction(nameof(GetCharacterById), new {id = newCharacter.Id}, characterResponse);
       } catch (InappropriateNameException) {
         return BadRequest(new {error = "NAME_INAPPROPRIATE", message = "The provided name is inappropriate and cannot be used."});
       } catch (CharacterAlreadyExistsException) {
         return Conflict(new {error = "NAME_ALREADY_TAKEN", message = "A character with this name already exists."});
-      } catch (Exception ex) {
-        return BadRequest(new {error = "INVALID_INPUT", message = ex.Message});
       }
     }
 

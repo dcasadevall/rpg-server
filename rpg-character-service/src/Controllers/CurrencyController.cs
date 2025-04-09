@@ -15,7 +15,8 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:ApiVersion}/characters/{characterId:guid}/currency")]
-  public class CurrencyController(ICurrencyService currencyService, ICharacterService characterService) : ControllerBase {
+  public class CurrencyController(ICurrencyService currencyService, ICharacterService characterService)
+    : ControllerBase {
     /// <summary>
     /// Initializes a character's currency by randomly generating starting amounts.
     /// This operation can only be performed once per character.
@@ -31,23 +32,17 @@ namespace RPGCharacterService.Controllers {
     [SwaggerResponse(409, "Currency Already Initialized")]
     public async Task<ActionResult<CurrencyResponse>> InitializeCurrency(
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId) {
-      if (!ModelState.IsValid) {
-        return BadRequest(new {
-          errors = ModelState
-        });
-      }
-
       try {
         var character = await currencyService.GenerateInitialCurrencyAsync(characterId);
         var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
         return Ok(currencyResponse);
-      } catch (KeyNotFoundException) {
+      } catch (CharacterNotFoundException) {
         return NotFound(new {
           error = "CHARACTER_NOT_FOUND",
           message = "Character not found."
         });
-      } catch (InvalidOperationException ex) {
-        return BadRequest(new {
+      } catch (CurrencyAlreadyInitializedException ex) {
+        return Conflict(new {
           error = "CURRENCY_ALREADY_INITIALIZED",
           message = ex.Message
         });
@@ -68,82 +63,24 @@ namespace RPGCharacterService.Controllers {
     [SwaggerResponse(400, "Invalid Request")]
     [SwaggerResponse(404, "Character Not Found")]
     [SwaggerResponse(409, "Currency Not Initialized")]
+    [SwaggerResponse(409, "Not enough currency")]
     public async Task<ActionResult<CurrencyResponse>> ModifyCurrency(
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
       [FromBody] [SwaggerRequestBody("Currency modification details", Required = true)] ModifyCurrencyRequest request) {
-      try {
-        if (!ModelState.IsValid) {
-          return BadRequest(new {
-            errors = ModelState
-          });
-        }
-
-        if (request.Gold == null &&
-            request.Silver == null &&
-            request.Copper == null &&
-            request.Electrum == null &&
-            request.Platinum == null) {
-          return BadRequest(new {
-            error = "NO_CURRENCY_PROVIDED",
-            message = "At least one currency must be specified."
-          });
-        }
-
-        var currencyChanges = CurrencyMapper.ToDictionary(request);
-        var character = await currencyService.ModifyCurrenciesAsync(characterId, currencyChanges);
-        var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
-        return Ok(currencyResponse);
-      } catch (KeyNotFoundException) {
-        return NotFound(new {
-          error = "CHARACTER_NOT_FOUND",
-          message = "Character not found."
-        });
-      } catch (Exception ex) {
+      if (request.Gold == null &&
+          request.Silver == null &&
+          request.Copper == null &&
+          request.Electrum == null &&
+          request.Platinum == null) {
         return BadRequest(new {
-          error = "INVALID_CURRENCY",
-          message = ex.Message
+          error = "NO_CURRENCY_PROVIDED",
+          message = "At least one currency must be specified."
         });
       }
-    }
 
-    /// <summary>
-    /// Exchanges one type of currency for another using standard D&D 5e conversion rates.
-    /// Allows characters to convert between different currency types (e.g., gold to silver).
-    /// </summary>
-    /// <param name="characterId">The unique identifier of the character.</param>
-    /// <param name="request">The currency exchange details including source and target currency types and amount.</param>
-    /// <returns>The updated currency amounts after the exchange.</returns>
-    [HttpPatch("exchange")]
-    [SwaggerOperation(Summary = "Exchange Character Currency",
-                       Description =
-                         "Converts the specified amount of currency from one type to another using standard D&D 5e conversions")]
-    [SwaggerResponse(200, "Currency Exchanged", typeof(CurrencyResponse))]
-    [SwaggerResponse(400, "Invalid Request")]
-    [SwaggerResponse(400, "Invalid Exchange")]
-    [SwaggerResponse(404, "Character Not Found")]
-    [SwaggerResponse(409, "Currency Not Initialized")]
-    [SwaggerResponse(409, "Not Enough Currency")]
-    [SwaggerResponse(500, "Internal Server Error")]
-    public async Task<ActionResult<CurrencyResponse>> ExchangeCurrency(
-      [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
-      [FromBody] [SwaggerRequestBody("Currency exchange details", Required = true)] ExchangeCurrencyRequest request) {
       try {
-        if (!ModelState.IsValid) {
-          return BadRequest(new {
-            errors = ModelState
-          });
-        }
-
-        // TODO: Handle exception and dont return here
-        if (request.From == request.To) {
-          return BadRequest(new {
-            error = "INVALID_CURRENCY_CONVERSION",
-            message = "Cannot convert between the same currency."
-          });
-        }
-
-        var character =
-          await currencyService.ExchangeCurrencyAsync(characterId, request.From, request.To, request.Amount);
+        var currencyChanges = CurrencyMapper.ToDictionary(request);
+        var character = await currencyService.ModifyCurrenciesAsync(characterId, currencyChanges);
         var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
         return Ok(currencyResponse);
       } catch (CharacterNotFoundException) {
@@ -151,8 +88,75 @@ namespace RPGCharacterService.Controllers {
           error = "CHARACTER_NOT_FOUND",
           message = "Character not found."
         });
+      } catch (CurrencyNotInitializedException) {
+        return Conflict(new {
+          error = "CURRENCY_NOT_INITIALIZED",
+          message = "Currency has not been initialized for this character."
+        });
+      } catch (NotEnoughCurrencyException) {
+        return Conflict(new {
+          error = "NOT_ENOUGH_CURRENCY",
+          message = "Not enough currency to perform the operation."
+        });
+      } catch (OverflowException) {
+        return StatusCode(500,
+                          new {
+                            error = "INTERNAL_SERVER_ERROR",
+                            message = "An unexpected error occurred during currency exchange."
+                          });
+      }
+    }
+
+    /// <summary>
+    /// Exchanges a specified amount of one type of currency ('from') for another ('to')
+    /// using standard D&D 5e conversion rates (flooring any fractional results).
+    /// For example, exchanging 1 Gold ('from') with 'amount' 1 for Silver ('to')
+    /// will deduct 1 Gold and add 10 Silver (1 GP = 10 SP).
+    /// Exchanging 11 Silver ('from') with 'amount' 1 for Gold ('to')
+    /// will deduct 10 Silver and add 1 Gold.
+    /// </summary>
+    /// <param name="characterId">The unique identifier of the character.</param>
+    /// <param name="request">Details for the exchange, specifying the currency type to pay with ('From'),
+    /// the currency type to receive ('To'), and the exact amount of the 'From' currency to spend ('Amount').</param>
+    /// <returns>The updated currency amounts after the exchange.</returns>
+    [HttpPatch("exchange")]
+    [SwaggerOperation(Summary = "Exchange Character Currency (Spend 'From' Amount)",
+                       Description =
+                         "Converts a specified `Amount` of the `From` currency into the `To` currency, based on standard D&D 5e" +
+                         " conversion rates. Any fractional results for the `To` currency are not converted.\n\n" +
+                         "Example 1: Spend 2 Gold for Silver\n" +
+                         "Request Body: `{ \"from\": \"gold\", \"to\": \"silver\", \"amount\": 2 }`\n" +
+                         "Result: Deduct 2 Gold, Add 20 Silver.\n\n" +
+                         "Example 2: Spend 15 Silver for Gold\n" +
+                         "Request Body: `{ \"from\": \"silver\", \"to\": \"gold\", \"amount\": 15 }`\n" +
+                         "Result: Deduct 10 Silver, Add 1 Gold.")]
+    [SwaggerResponse(200, "Currency Exchanged", typeof(CurrencyResponse))]
+    [SwaggerResponse(400, "Invalid Request / Invalid Argument (e.g., negative amount)", typeof(object))]
+    [SwaggerResponse(400, "Invalid Exchange (e.g., same currency type)", typeof(object))]
+    [SwaggerResponse(404, "Character Not Found", typeof(object))]
+    [SwaggerResponse(400, "Not Enough 'From' Currency", typeof(object))]
+    public async Task<ActionResult<CurrencyResponse>> ExchangeCurrency(
+      [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
+      [FromBody]
+      [SwaggerRequestBody("Currency exchange details (specify amount of 'From' currency to spend)", Required = true)]
+      ExchangeCurrencyRequest request) {
+      try {
+        var character =
+          await currencyService.ExchangeCurrencyAsync(characterId, request.From, request.To, request.Amount);
+        var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
+        return Ok(currencyResponse);
+      } catch (CharacterNotFoundException ex) {
+        return NotFound(new {
+          error = "CHARACTER_NOT_FOUND",
+          message = ex.Message
+        });
+      } catch (CurrencyNotInitializedException ex) {
+        return Conflict(new {
+          error = "CURRENCY_NOT_INITIALIZED",
+          message = ex.Message
+        });
       } catch (NotEnoughCurrencyException ex) {
-        return BadRequest(new {
+        return Conflict(new {
           error = "NOT_ENOUGH_CURRENCY",
           message = ex.Message
         });
@@ -161,11 +165,12 @@ namespace RPGCharacterService.Controllers {
           error = "INVALID_CURRENCY_EXCHANGE",
           message = ex.Message
         });
-      } catch (OverflowException ex) {
-        return StatusCode(500, new {
-          error = "INTERNAL_SERVER_ERROR",
-          message = ex.Message
-        });
+      } catch (OverflowException) {
+        return StatusCode(500,
+                          new {
+                            error = "INTERNAL_SERVER_ERROR",
+                            message = "An unexpected error occurred during currency exchange."
+                          });
       }
     }
   }

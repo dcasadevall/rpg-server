@@ -1,6 +1,8 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
+using RPGCharacterService.Controllers;
+using RPGCharacterService.Controllers.Filters;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
 using RPGCharacterService.Services;
@@ -8,7 +10,14 @@ using RPGCharacterService.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to DI container
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => {
+  // Ensures model state is valid for all requests,
+  // and returns 400 Bad Request if not.
+  options.Filters.Add(typeof(ValidateModelFilterAttribute));
+  // Ensures unhandled exceptions return 500 Internal Server Error
+  options.Filters.Add(typeof(ExceptionFilterAttribute));
+});
+
 builder.Services.AddSingleton<ICharacterRepository, InMemoryCharacterRepository>();
 builder.Services.AddScoped<IItemRepository, InMemoryItemRepository>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();

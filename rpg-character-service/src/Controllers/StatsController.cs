@@ -32,19 +32,11 @@ namespace RPGCharacterService.Controllers {
     [SwaggerResponse(404, "Character Not Found")]
     public async Task<ActionResult<HitPointUpdateResponse>> ModifyHitPoints(
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
-      [FromBody] [SwaggerRequestBody("Hit points modification details", Required = true)] HitPointUpdateRequest request) {
-      try {
-        if (!ModelState.IsValid) {
-          return BadRequest(new {errors = ModelState});
-        }
-
-        var character = await statsService.ModifyHitPointsAsync(characterId, request.Delta);
-        return Ok(new HitPointUpdateResponse {HitPoints = character.HitPoints});
-      } catch (KeyNotFoundException) {
-        return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
-      } catch (Exception ex) {
-        return BadRequest(new {error = "INVALID_DELTA", message = ex.Message});
-      }
+      [FromBody]
+      [SwaggerRequestBody("Hit points modification details", Required = true)]
+      HitPointUpdateRequest request) {
+      var character = await statsService.ModifyHitPointsAsync(characterId, request.Delta);
+      return Ok(new HitPointUpdateResponse {HitPoints = character.HitPoints});
     }
   }
 }

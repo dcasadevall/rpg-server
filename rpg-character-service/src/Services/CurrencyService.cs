@@ -2,7 +2,8 @@ using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Models;
 using RPGCharacterService.Models.Characters;
 using RPGCharacterService.Persistence.Characters;
-using System; // Needed for Math and ArgumentOutOfRangeException
+using System;
+using RPGCharacterService.Exceptions.Character; // Needed for Math and ArgumentOutOfRangeException
 
 namespace RPGCharacterService.Services {
   /// <summary>
@@ -25,7 +26,9 @@ namespace RPGCharacterService.Services {
     /// <param name="characterId">The unique identifier of the character.</param>
     /// <param name="currencyChanges">Dictionary of currency types and their respective changes (positive for adding, negative for subtracting).</param>
     /// <returns>The character with updated currency amounts.</returns>
+    /// <exception cref="CharacterNotFoundException">Thrown when the character is not found.</exception>
     /// <exception cref="CurrencyNotInitializedException">Thrown when currency has not been initialized for the character.</exception>
+    /// <exception cref="OverflowException">Thrown if the resulting 'to' balance exceeds integer limits.</exception>
     /// <exception cref="NotEnoughCurrencyException">Thrown when the character doesn't have enough currency for the requested changes.</exception>
     Task<Character> ModifyCurrenciesAsync(Guid characterId, Dictionary<CurrencyType, int> currencyChanges);
 
@@ -38,6 +41,7 @@ namespace RPGCharacterService.Services {
     /// <param name="to">The currency type to exchange to.</param>
     /// <param name="amount">The amount of 'from' currency to exchange.</param>
     /// <returns>The character with updated currency amounts.</returns>
+    /// <exception cref="CharacterNotFoundException">Thrown when the character is not found.</exception>
     /// <exception cref="CurrencyNotInitializedException">...</exception>
     /// <exception cref="NotEnoughCurrencyException">Thrown when the character doesn't have enough 'from' currency.</exception>
     /// <exception cref="InvalidCurrencyExchangeException">Thrown for invalid exchanges (e.g., same type).</exception>
@@ -107,12 +111,22 @@ namespace RPGCharacterService.Services {
 
       // Apply changes
       foreach (var change in currencyChanges) {
-        var currencyAmountAfter = character.Wealth.GetCurrencyAmount(change.Key) + change.Value;
+        var currentAmount = character.Wealth.GetCurrencyAmount(change.Key);
+        // Check for overflow before applying changes
+        if (int.MaxValue - change.Value < currentAmount) {
+          throw new OverflowException($"Resulting amount of {change.Key} exceeds integer limits.");
+        }
+
+        // Check for negative balance
+        var currencyAmountAfter = currentAmount + change.Value;
         if (currencyAmountAfter < 0) {
           throw new NotEnoughCurrencyException(change.Key,
-                                               -change.Value,
-                                               character.Wealth.GetCurrencyAmount(change.Key));
+                                               change.Value,
+                                               currentAmount);
         }
+
+        // Apply the change
+        character.Wealth.SetCurrencyAmount(change.Key, currencyAmountAfter);
       }
 
       await repository.UpdateAsync(character);
