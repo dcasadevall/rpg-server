@@ -11,6 +11,7 @@ using RPGCharacterService.Persistence.InMemory;
 // Load environment variables from .env file
 Env.Load();
 
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to DI container
@@ -23,7 +24,7 @@ builder.Services.AddControllers(options => {
 });
 
 // Add database services based on environment
-if (builder.Environment.IsDevelopment()) {
+if (environment == "Local") {
   // Use in-memory repositories for development
   Console.WriteLine("Using InMemory for persistence");
   builder.Services.ConfigureInMemoryPersistence();
@@ -86,7 +87,7 @@ builder.Services.AddVersionedApiExplorer(options => {
 var app = builder.Build();
 
 // Initialize DynamoDB tables in non-development environments
-if (!app.Environment.IsDevelopment()) {
+if (environment != "Local") {
   using var scope = app.Services.CreateScope();
   var dynamoDbInitializer = scope.ServiceProvider.GetRequiredService<DynamoDbInitializationService>();
   await dynamoDbInitializer.InitializeTablesAsync();

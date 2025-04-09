@@ -30,7 +30,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
       });
 
       // Register DB Context
-      services.AddScoped<DynamoDBContext>(sp => {
+      services.AddScoped<IDynamoDBContext>(sp => {
         var db = sp.GetRequiredService<IAmazonDynamoDB>();
         return new DynamoDBContext(db);
       });
