@@ -364,7 +364,6 @@ namespace RPGCharacterService.UnitTests.Models {
         equipment.EquipShield(new Item {
           EquipmentStats = new EquipmentStats {
             EquipmentType = EquipmentType.Shield,
-            ArmorBonus = shieldBonus
           }
         });
       }
