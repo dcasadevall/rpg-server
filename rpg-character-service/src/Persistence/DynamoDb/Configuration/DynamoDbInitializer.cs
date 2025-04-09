@@ -15,11 +15,11 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
     public async Task InitializeTablesAsync() {
       // Initialize characters table
       logger.LogInformation("Initializing characters table");
-      await InitializeTableAsync($"{settings.TablePrefix}characters");
+      await InitializeTableAsync("characters");
 
       // Initialize items table
       logger.LogInformation("Initializing items table");
-      await InitializeTableAsync($"{settings.TablePrefix}items");
+      await InitializeTableAsync("items");
 
       // Seed data if necessary
       logger.LogInformation("Seeding items");

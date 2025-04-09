@@ -8,6 +8,5 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
     public string ServiceUrl => Environment.GetEnvironmentVariable("DYNAMODB_SERVICE_URL") ?? "http://localhost:8000";
     public string AccessKey => Environment.GetEnvironmentVariable("DYNAMODB_ACCESS_KEY") ?? "dumm";
     public string SecretKey => Environment.GetEnvironmentVariable("DYNAMODB_SECRET_KEY") ?? "dummy";
-    public string TablePrefix => Environment.GetEnvironmentVariable("DYNAMODB_TABLE_PREFIX") ?? "rpg-character-service-";
   }
 }

@@ -542,11 +542,7 @@
     {
       "id": "50",
       "name": "Shield",
-      "equipmentType": "Armor",
-      "armorStats": {
-        "baseArmorClass": 2,
-        "armorType": "Shield"
-      }
+      "equipmentType": "Shield"
     }
   ]
 }
