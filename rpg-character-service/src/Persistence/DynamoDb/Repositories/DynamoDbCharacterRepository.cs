@@ -9,13 +9,21 @@ namespace RPGCharacterService.Persistence.DynamoDb;
 /// <summary>
 /// DynamoDB implementation of the character repository.
 /// </summary>
-public class DynamoDbCharacterRepository(IDynamoDBContext context, IMapper mapper) : ICharacterRepository {
+public class DynamoDbCharacterRepository(IDynamoDBContext context,
+                                         IMapper mapper,
+                                         ILogger<DynamoDbCharacterRepository> logger) : ICharacterRepository {
   /// <inheritdoc/>
   public async Task<IEnumerable<Character>> GetAllAsync() {
-    var items = await context
-                      .ScanAsync<CharacterDocument>([])
-                      .GetRemainingAsync();
-    return mapper.Map<IEnumerable<Character>>(items);
+    var documents = await context
+                          .ScanAsync<CharacterDocument>([])
+                          .GetRemainingAsync();
+
+    try {
+      return mapper.Map<IEnumerable<Character>>(documents);
+    } catch (AutoMapperMappingException ex) {
+      logger.LogError(ex, "Error mapping DynamoDB documents to characters");
+      throw new Exception("Error mapping DynamoDB documents to characters", ex);
+    }
   }
 
   /// <inheritdoc/>

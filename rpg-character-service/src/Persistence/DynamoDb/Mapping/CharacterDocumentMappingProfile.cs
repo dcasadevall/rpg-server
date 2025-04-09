@@ -3,6 +3,7 @@ using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Entities.Items;
 using RPGCharacterService.Persistence.DynamoDb.Models;
+using System;
 
 namespace RPGCharacterService.Persistence.DynamoDb.Mapping {
   /// <summary>
@@ -10,6 +11,10 @@ namespace RPGCharacterService.Persistence.DynamoDb.Mapping {
   /// </summary>
   public class CharacterDocumentMappingProfile : Profile {
     public CharacterDocumentMappingProfile() {
+      // Add mapping from Guid to CharacterDocument
+      CreateMap<Guid, CharacterDocument>()
+        .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ToString()));
+
       CreateMap<Character, CharacterDocument>()
         .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
         .ForMember(dest => dest.AbilityScores,
