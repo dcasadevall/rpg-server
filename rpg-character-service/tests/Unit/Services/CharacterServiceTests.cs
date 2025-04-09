@@ -10,11 +10,13 @@ namespace RPGCharacterService.UnitTests.Services {
     private readonly Mock<ICharacterRepository> repositoryMock;
     private readonly Mock<IDiceService> diceServiceMock;
     private readonly CharacterService characterService;
+    private readonly Mock<ICharacterValidator> characterValidator;
 
     public CharacterServiceTests() {
       repositoryMock = new Mock<ICharacterRepository>();
       diceServiceMock = new Mock<IDiceService>();
-      characterService = new CharacterService(repositoryMock.Object, diceServiceMock.Object);
+      characterValidator = new Mock<ICharacterValidator>();
+      characterService = new CharacterService(repositoryMock.Object, diceServiceMock.Object, characterValidator.Object);
     }
 
     [Fact]

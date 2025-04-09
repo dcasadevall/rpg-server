@@ -29,6 +29,11 @@ It is structured as a **monorepo** to support easier local development, deployme
 - **Endpoints:** RESTful APIs documented with Swagger.
 
 > **Local Dev:**
+
+First time only:
+> `cp rpg-character-service/src/.env.local rpg-character-service/src/.env`
+
+Run the service. Uses in-memory database.
 > `cd rpg-character-service && dotnet run`
 
 ---
