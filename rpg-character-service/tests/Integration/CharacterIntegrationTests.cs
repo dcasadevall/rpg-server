@@ -34,7 +34,7 @@ public class CharacterIntegrationTests {
       var response = await client.GetAsync($"{baseUrl}/api/v1/characters");
 
       // Assert
-      response.EnsureSuccessStatusCode();
+      await response.EnsureSuccessStatusCodeWithLogging();
       response
         .StatusCode
         .Should()
@@ -46,15 +46,21 @@ public class CharacterIntegrationTests {
 
   [Fact]
   public async Task CharacterLifecycle_ShouldWorkCorrectly() {
-    // Create a character
+    // Create a character With a random 15 character name
+    var random = new Random();
+    const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    var name = new string(Enumerable
+                          .Repeat(chars, 15)
+                          .Select(s => s[random.Next(s.Length)])
+                          .ToArray());
     var createRequest = new CreateCharacterRequest {
-      Name = "PykeySimplyTheBest",
+      Name = name,
       Race = "Human",
       Class = "Fighter",
     };
 
     var createResponse = await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters", createRequest);
-    createResponse.EnsureSuccessStatusCode();
+    await createResponse.EnsureSuccessStatusCodeWithLogging();
     var createdCharacter = await createResponse.Content.ReadFromJsonAsync<CharacterResponse>();
     var characterId = createdCharacter!.Id;
 
@@ -67,11 +73,11 @@ public class CharacterIntegrationTests {
     };
 
     var modifyCurrencyResponse =
-      await client.PutAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
     modifyCurrencyResponse
       .StatusCode
       .Should()
-      .Be(HttpStatusCode.BadRequest);
+      .Be(HttpStatusCode.Conflict);
 
     // Try to exchange currency (should error)
     var exchangeCurrencyRequest = new ExchangeCurrencyRequest {
@@ -81,30 +87,30 @@ public class CharacterIntegrationTests {
     };
 
     var exchangeCurrencyResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
-                                   exchangeCurrencyRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
+                                    exchangeCurrencyRequest);
     exchangeCurrencyResponse
       .StatusCode
       .Should()
-      .Be(HttpStatusCode.BadRequest);
+      .Be(HttpStatusCode.Conflict);
 
     // Initialize currency. Empty body
     var initCurrencyResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/initialize", new object());
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/init", new object());
     initCurrencyResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify we have some currency and store it for later verifications after modify / exchange
 
     // Modify currency
     var modifyResponse =
-      await client.PutAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
     modifyResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify state
 
     // Exchange currency
-    var exchangeResponse = await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
-                                                        exchangeCurrencyRequest);
+    var exchangeResponse = await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
+                                                         exchangeCurrencyRequest);
     exchangeResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify state
@@ -173,7 +179,7 @@ public class CharacterIntegrationTests {
     var updateHitPointsRequest = new {HitPoints = -5};
     var expectedHitPointsAfter = Math.Max(0, expectedMaxHitPoints - 5);
     var updateHitPointsResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/hit-points", updateHitPointsRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/hit-points", updateHitPointsRequest);
     updateHitPointsResponse.EnsureSuccessStatusCode();
 
     // Read response and verify that we have the proper hit points
@@ -210,16 +216,16 @@ public class CharacterIntegrationTests {
       OffHand = false
     };
     var addMainHandResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{mainHandId}",
-                                   equipMainHandRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{mainHandId}",
+                                    equipMainHandRequest);
     addMainHandResponse.EnsureSuccessStatusCode();
 
     var equipOffHandRequest = new EquipWeaponRequest {
       OffHand = true
     };
     var equipOffHandResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{offHandId}",
-                                   equipOffHandRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{offHandId}",
+                                    equipOffHandRequest);
     equipOffHandResponse.EnsureSuccessStatusCode();
 
     // Read response and verify that we have the proper main / offhand equipped
@@ -237,8 +243,8 @@ public class CharacterIntegrationTests {
 
     var shieldId = 50;
     var equipShieldResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/shield/{shieldId}",
-                                   new object());
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/shield/{shieldId}",
+                                    new object());
     equipShieldResponse.EnsureSuccessStatusCode();
 
     // Read response and verify we have a shield
@@ -256,8 +262,8 @@ public class CharacterIntegrationTests {
 
     var armorId = 40;
     var equipArmorResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/armor/{armorId}",
-                                   new object());
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/armor/{armorId}",
+                                    new object());
     equipArmorResponse.EnsureSuccessStatusCode();
 
     // Read response and verify we have armor
