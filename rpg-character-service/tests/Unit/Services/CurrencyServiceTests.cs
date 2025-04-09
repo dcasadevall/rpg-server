@@ -1,4 +1,3 @@
-using Moq;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Entities;
@@ -138,9 +137,6 @@ namespace RPGCharacterService.UnitTests.Services {
                                                                   currencyService.ModifyCurrenciesAsync(character.Id,
                                                                    changes));
     }
-
-
-    // --- ExchangeCurrencyAsync Tests --- Reverted Logic ---
 
     [Theory]
     // Standard Rates (From -> To)
