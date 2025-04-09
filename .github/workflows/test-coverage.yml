@@ -19,14 +19,14 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore rpg-character-service/rpg-character-service.sln
 
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build rpg-character-service/rpg-character-service.sln --no-restore
 
     - name: Test with coverage
       run: |
-        dotnet test --collect:"XPlat Code Coverage" --results-directory:"${{ github.workspace }}/TestResults" --logger:"trx;LogFileName=test-results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="${{ github.workspace }}/TestResults/coverage.cobertura.xml"
+        dotnet test rpg-character-service/rpg-character-service.sln --collect:"XPlat Code Coverage" --results-directory:"${{ github.workspace }}/TestResults" --logger:"trx;LogFileName=test-results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="${{ github.workspace }}/TestResults/coverage.cobertura.xml"
 
     - name: Generate coverage report
       run: |
