@@ -26,7 +26,7 @@ namespace RPGCharacterService.Controllers {
     public async Task<ActionResult<List<CharacterResponse>>> GetAllCharacters() {
       var characters = await characterService.GetAllCharactersAsync();
       return Ok(characters
-                .Select(c => mapper.Map<CharacterResponse>(c))
+                .Select(mapper.Map<CharacterResponse>)
                 .ToList());
     }
 
