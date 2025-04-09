@@ -46,7 +46,7 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    // Use database repositories for production
+    // Use database repositories for staging / production
     builder.Services.AddDatabase(connectionString);
 }
 
