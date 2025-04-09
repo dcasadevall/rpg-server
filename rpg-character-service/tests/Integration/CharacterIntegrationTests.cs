@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Dtos.Currency.Requests;
+using RPGCharacterService.Dtos.Currency.Responses;
 using RPGCharacterService.Dtos.Dice;
 using RPGCharacterService.Dtos.Equipment;
 using RPGCharacterService.Dtos.Stats.Responses;
@@ -113,21 +114,39 @@ public class CharacterIntegrationTests : IDisposable {
       await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency/init", new object());
     initCurrencyResponse.EnsureSuccessStatusCode();
 
-    // TODO: Verify we have some currency and store it for later verifications after modify / exchange
+    // Verify we have some currency and store it for later verifications after modify / exchange
+    var initialCurrency = await initCurrencyResponse.Content.ReadFromJsonAsync<CurrencyResponse>();
+    initialCurrency.Should().NotBeNull();
+    initialCurrency!.Copper.Should().BeGreaterThan(0);
+    initialCurrency.Silver.Should().BeGreaterThan(0);
+    initialCurrency.Gold.Should().BeGreaterThan(0);
+    initialCurrency.Electrum.Should().Be(0);
+    initialCurrency.Platinum.Should().Be(0);
 
     // Modify currency
     var modifyResponse =
       await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency", modifyCurrencyRequest);
     modifyResponse.EnsureSuccessStatusCode();
 
-    // TODO: Verify state
+    // Verify state after currency modification
+    var modifiedCurrency = await modifyResponse.Content.ReadFromJsonAsync<CurrencyResponse>();
+    modifiedCurrency.Should().NotBeNull();
+    modifiedCurrency!.Copper.Should().Be(initialCurrency.Copper + modifyCurrencyRequest.Copper);
+    modifiedCurrency.Silver.Should().Be(initialCurrency.Silver + modifyCurrencyRequest.Silver);
+    modifiedCurrency.Gold.Should().Be(initialCurrency.Gold + modifyCurrencyRequest.Gold);
+    modifiedCurrency.Platinum.Should().Be(initialCurrency.Platinum + modifyCurrencyRequest.Platinum);
 
     // Exchange currency
     var exchangeResponse = await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency/exchange",
                                                          exchangeCurrencyRequest);
     exchangeResponse.EnsureSuccessStatusCode();
 
-    // TODO: Verify state
+    // Verify state after currency exchange
+    var exchangedCurrency = await exchangeResponse.Content.ReadFromJsonAsync<CurrencyResponse>();
+    exchangedCurrency.Should().NotBeNull();
+    // Gold to Silver exchange rate is 1:10
+    exchangedCurrency!.Gold.Should().Be(modifiedCurrency.Gold - exchangeCurrencyRequest.Amount);
+    exchangedCurrency.Silver.Should().Be(modifiedCurrency.Silver + (exchangeCurrencyRequest.Amount * 10));
 
     // Get character and verify stats
     var getCharacterResponse =
@@ -224,7 +243,7 @@ public class CharacterIntegrationTests : IDisposable {
     }
 
     // Add Main Hand
-    var mainHandId = 2;
+    var mainHandId = 22; // Rapier - Finesse
     var offHandId = 4;
     var equipMainHandRequest = new EquipWeaponRequest {
       OffHand = false
@@ -323,7 +342,27 @@ public class CharacterIntegrationTests : IDisposable {
       .ArmorId
       .Should()
       .Be(armorId);
-    // TODO: Verify armor class and weapon damage bonus
+
+    // Base AC from studded leather (12) + shield (2) + Dex modifier
+    var dexterityModifier = characterWithEquipment.AbilityModifiers[AbilityScore.Dexterity];
+    characterWithEquipment.ArmorClass.Should().Be(12 + 2 + dexterityModifier);
+
+    // Verify weapon damage modifier
+    var strengthModifier = characterWithEquipment.AbilityModifiers[AbilityScore.Strength];
+    // Rapier is a finesse weapon, so it should use the higher of Strength or Dexterity
+    var expectedWeaponModifier = Math.Max(strengthModifier, dexterityModifier);
+    if (strengthModifier > dexterityModifier) {
+      characterWithEquipment
+        .WeaponDamageModifier
+        .Should()
+        .Be(AbilityScore.Strength);
+    }
+    else {
+      characterWithEquipment
+        .WeaponDamageModifier
+        .Should()
+        .Be(AbilityScore.Dexterity);
+    }
 
     // Delete character
     var deleteResponse = await client.DeleteAsync($"{baseUrl}/api/v1/characters/{testCharacterId}");

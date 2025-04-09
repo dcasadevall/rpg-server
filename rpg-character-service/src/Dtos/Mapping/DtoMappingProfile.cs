@@ -17,6 +17,7 @@ namespace RPGCharacterService.Dtos.Mapping {
         .ForMember(dest => dest.ArmorClass, opt => opt.MapFrom(src => src.CalculateArmorClass()))
         .ForMember(dest => dest.ProficiencyBonus, opt => opt.MapFrom(src => src.CalculateProficiencyBonus()))
         .ForMember(dest => dest.AbilityModifiers, opt => opt.MapFrom(src => src.CalculateAllAbilityModifiers()))
+        .ForMember(dest => dest.WeaponDamageModifier, opt => opt.MapFrom(src => src.CalculateWeaponDamageModifier()))
         .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => src.Equipment));
 
       // Wealth to CurrencyResponse mapping

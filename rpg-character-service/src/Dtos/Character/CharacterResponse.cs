@@ -89,6 +89,12 @@ namespace RPGCharacterService.Dtos.Character {
     public int ProficiencyBonus { get; init; }
 
     /// <summary>
+    /// The character's weapon damage modifier based on ability score and weapon properties
+    /// </summary>
+    [SwaggerSchema(Description = "The character's weapon damage modifier based on ability score and weapon properties")]
+    public AbilityScore WeaponDamageModifier { get; init; }
+
+    /// <summary>
     ///   The character's ability modifiers derived from ability scores
     /// </summary>
     [SwaggerSchema(Description = "The character's ability modifiers derived from ability scores")]

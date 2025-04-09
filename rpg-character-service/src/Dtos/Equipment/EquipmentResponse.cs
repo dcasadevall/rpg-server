@@ -15,7 +15,7 @@ namespace RPGCharacterService.Dtos.Equipment {
     /// <summary>
     ///   The ability score used for damage calculations
     /// </summary>
-    [SwaggerSchema(Description = "The ability score used for weapon damage calculations")]
+    [SwaggerSchema(Description = "The character's weapon damage modifier based on ability score and weapon properties")]
     public AbilityScore WeaponDamageModifier { get; set; }
 
     /// <summary>
