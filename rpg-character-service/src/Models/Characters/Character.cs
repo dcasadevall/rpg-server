@@ -10,7 +10,7 @@ namespace RPGCharacterService.Models.Characters {
     /// <summary>
     /// Gets the unique identifier for this character.
     /// </summary>
-    public Guid Id { get; } = Guid.NewGuid();
+    public Guid Id { get; init; } = Guid.NewGuid();
 
     /// <summary>
     /// Gets or initializes the character's name.
