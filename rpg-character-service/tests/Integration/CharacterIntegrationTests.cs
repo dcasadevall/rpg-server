@@ -46,12 +46,6 @@ public class CharacterIntegrationTests {
 
   [Fact]
   public async Task CharacterLifecycle_ShouldWorkCorrectly() {
-    // List characters (empty)
-    var characters = await client.GetFromJsonAsync<List<CharacterResponse>>($"{baseUrl}/api/v1/characters");
-    characters
-      .Should()
-      .BeEmpty();
-
     // Create a character
     var createRequest = new CreateCharacterRequest {
       Name = "Test Character",
@@ -322,10 +316,10 @@ public class CharacterIntegrationTests {
       .Should()
       .Be(HttpStatusCode.NotFound);
 
-    // List characters should be empty
+    // List characters should not contain deleted character
     var finalCharacters = await client.GetFromJsonAsync<List<CharacterResponse>>($"{baseUrl}/api/v1/characters");
     finalCharacters
       .Should()
-      .BeEmpty();
+      .NotContain(c => c.Id == characterId);
   }
 }

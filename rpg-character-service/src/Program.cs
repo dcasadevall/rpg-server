@@ -1,4 +1,5 @@
 using System.Reflection;
+using DotNetEnv;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using RPGCharacterService.Controllers.Filters;
@@ -12,8 +13,6 @@ namespace RPGCharacterService;
 
 public class Program {
   public static async Task Main(string[] args) {
-    DotNetEnv.Env.Load();
-
     var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
@@ -46,15 +45,15 @@ public class Program {
       c.IncludeXmlComments(xmlPath);
     });
 
-    // Configure persistence based on environment
-    var env = builder.Environment.EnvironmentName;
-    Console.WriteLine($"Environment: {env}");
-
     // Configure in-memory database for local development
     // Otherwise use dynamo db
-    if (env == "Local") {
+    Env.Load();
+    var inMemoryDb = Env.GetString("DB_TYPE", "in-memory") == "in-memory";
+    if (inMemoryDb) {
+      Console.WriteLine("Configuring in-memory database");
       builder.Services.ConfigureInMemoryPersistence();
     } else {
+      Console.WriteLine("Configuring DynamoDB database");
       builder.Services.ConfigureDynamoDbPersistence();
     }
 
@@ -90,7 +89,7 @@ public class Program {
     var app = builder.Build();
 
     // Initialize DynamoDB tables and seed data in non-development environments
-    if (env != "Local") {
+    if (!inMemoryDb) {
       using var scope = app.Services.CreateScope();
       var dynamoDbInitializer = scope.ServiceProvider.GetRequiredService<DynamoDbInitializer>();
       await dynamoDbInitializer.InitializeTablesAsync();

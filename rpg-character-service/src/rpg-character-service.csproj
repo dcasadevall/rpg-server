@@ -36,6 +36,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Include=".env" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Update="Persistence\DynamoDb\Configuration\seed-data.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
