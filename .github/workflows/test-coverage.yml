@@ -44,9 +44,3 @@ jobs:
       with:
         name: coverage-report
         path: ${{ github.workspace }}/TestResults/CoverageReport
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ${{ github.workspace }}/TestResults/coverage.cobertura.xml
-        fail_ci_if_error: true
