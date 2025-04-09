@@ -63,6 +63,7 @@ public class Program {
     builder.Services.AddScoped<IStatsService, StatsService>();
     builder.Services.AddScoped<IEquipmentService, EquipmentService>();
     builder.Services.AddScoped<IDiceService, DiceService>();
+    builder.Services.AddScoped<ICharacterValidator, HardcodedCharacterValidator>();
     builder.Services.AddScoped<LoggedMapper>();
 
     // Add Dto Automapper

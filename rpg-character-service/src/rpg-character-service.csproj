@@ -36,7 +36,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include=".env" CopyToOutputDirectory="PreserveNewest" />
+        <None Update=".env">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Condition>Exists('.env')</Condition>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

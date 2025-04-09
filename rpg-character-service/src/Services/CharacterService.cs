@@ -41,12 +41,9 @@ namespace RPGCharacterService.Services {
   /// Provides functionality for managing characters.
   /// This service handles character creation, retrieval, and deletion, including validation and initialization.
   /// </summary>
-  public class CharacterService(ICharacterRepository repository, IDiceService diceService)
-    : ICharacterService {
-    private static readonly HashSet<string> InappropriateNames = new(StringComparer.OrdinalIgnoreCase) {
-      "admin", "moderator", "gamemaster", "dungeonmaster",
-    };
-
+  public class CharacterService(ICharacterRepository repository,
+                                IDiceService diceService,
+                                ICharacterValidator characterValidator) : ICharacterService {
     /// <summary>
     /// Retrieves all characters from the system.
     /// </summary>
@@ -70,13 +67,12 @@ namespace RPGCharacterService.Services {
     /// </summary>
     /// <param name="request">The request containing the character's details.</param>
     /// <returns>The newly created character.</returns>
-    /// <exception cref="InappropriateNameException">Thrown when the character name is inappropriate.</exception>
     /// <exception cref="CharacterAlreadyExistsException">Thrown when a character with the same name already exists.</exception>
+    /// <exception cref="InvalidRaceException">Thrown when the race is invalid.</exception>
+    /// <exception cref="InappropriateNameException">Thrown when the character name is inappropriate.</exception>
     public async Task<Character> CreateCharacterAsync(CreateCharacterRequest request) {
-      // Check for inappropriate names
-      if (InappropriateNames.Contains(request.Name)) {
-        throw new InappropriateNameException(request.Name);
-      }
+      // Additional validation that is specific to the character domain
+      characterValidator.ValidateCharacterDetails(request.Name, request.Race, request.Subrace, request.Class);
 
       // NOTE: For the scope of this prompt, we are not using transactions.
       // In a production environment these kind of checks before creation need to be atomic,
