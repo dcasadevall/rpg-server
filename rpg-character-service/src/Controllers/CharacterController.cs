@@ -1,9 +1,7 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Mapping;
-using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -41,7 +39,8 @@ namespace RPGCharacterService.Controllers {
     /// <response code="400">If the ID format is invalid.</response>
     /// <response code="404">If the character with the specified ID is not found.</response>
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Retrieve Character Information", Description = "Gets a specific character by their ID")]
+    [SwaggerOperation(Summary = "Retrieve Character Information",
+                       Description = "Gets a specific character by their ID")]
     [SwaggerResponse(200, "Successful Response", typeof(CharacterResponse))]
     [SwaggerResponse(400, "Invalid ID Format")]
     [SwaggerResponse(404, "Character Not Found")]
@@ -73,16 +72,37 @@ namespace RPGCharacterService.Controllers {
     [SwaggerResponse(400, "Bad Request - Invalid input format")]
     [SwaggerResponse(409, "Conflict - Name already taken or other conflict")]
     public async Task<ActionResult<CharacterResponse>> CreateCharacter(
-      [FromBody] [SwaggerRequestBody("Character creation details", Required = true)]
-      CreateCharacterRequest request) {
+      [FromBody] [SwaggerRequestBody("Character creation details", Required = true)] CreateCharacterRequest request) {
       try {
         var newCharacter = await characterService.CreateCharacterAsync(request);
         var characterResponse = mapper.Map<CharacterResponse>(newCharacter);
         return CreatedAtAction(nameof(GetCharacterById), new {id = newCharacter.Id}, characterResponse);
-      } catch (InappropriateNameException) {
-        return BadRequest(new {error = "NAME_INAPPROPRIATE", message = "The provided name is inappropriate and cannot be used."});
-      } catch (CharacterAlreadyExistsException) {
-        return Conflict(new {error = "NAME_ALREADY_TAKEN", message = "A character with this name already exists."});
+      } catch (InvalidCharacterNameException ex) {
+        return BadRequest(new {
+          error = "INVALID_NAME",
+          message = ex.Message
+        });
+      } catch (InappropriateNameException ex) {
+        return BadRequest(new {
+          error = "NAME_INAPPROPRIATE",
+          message = ex.Message
+        });
+      } catch (CharacterAlreadyExistsException ex) {
+        return Conflict(new {
+          error = "CHARACTER_ALREADY_EXISTS",
+          message = ex.Message
+        });
+      } catch (InvalidCharacterClassException ex) {
+        return BadRequest(new {
+          error = "INVALID_CLASS",
+          message = ex.Message
+        });
+
+      } catch (InvalidRaceException ex) {
+        return BadRequest(new {
+          error = "INVALID_RACE",
+          message = ex.Message
+        });
       }
     }
 
@@ -99,7 +119,8 @@ namespace RPGCharacterService.Controllers {
     [SwaggerResponse(204, "No Content - Character successfully deleted")]
     [SwaggerResponse(400, "Invalid ID Format")]
     [SwaggerResponse(404, "Character Not Found")]
-    public async Task<ActionResult> DeleteCharacter([SwaggerParameter("Character identifier", Required = true)] Guid id) {
+    public async Task<ActionResult> DeleteCharacter(
+      [SwaggerParameter("Character identifier", Required = true)] Guid id) {
       try {
         await characterService.DeleteCharacterAsync(id);
         return NoContent();
