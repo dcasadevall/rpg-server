@@ -10,9 +10,21 @@ using RPGCharacterService.Entities.Characters;
 
 namespace RPGCharacterService.IntegrationTests;
 
-public class CharacterIntegrationTests(CustomWebApplicationFactory factory)
-  : IClassFixture<CustomWebApplicationFactory> {
+public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory> {
   private readonly HttpClient client = factory.CreateClient();
+
+  [Fact]
+  public async Task GetCharacters_ReturnsSuccessStatusCode() {
+    // Arrange & Act
+    var response = await client.GetAsync("/api/characters");
+
+    // Assert
+    response.EnsureSuccessStatusCode();
+    response
+      .StatusCode
+      .Should()
+      .Be(HttpStatusCode.OK);
+  }
 
   [Fact]
   public async Task CharacterLifecycle_ShouldWorkCorrectly() {
@@ -71,7 +83,8 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory)
     // TODO: Verify we have some currency and store it for later verifications after modify / exchange
 
     // Modify currency
-    var modifyResponse = await client.PutAsJsonAsync($"/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
+    var modifyResponse =
+      await client.PutAsJsonAsync($"/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
     modifyResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify state
@@ -131,7 +144,7 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory)
     // Verify Max Hit Points and Hitpoints
     // This is the kind of logic that makes integration tests harder to maintain (they are still worth having)
     var constitution = getCharacterResponse.AbilityScores[AbilityScore.Constitution];
-    var constitutionModifier = (int)Math.Floor((decimal) (constitution - 10)) / 2;
+    var constitutionModifier = (int) Math.Floor((decimal) (constitution - 10)) / 2;
     var expectedMaxHitPoints = 10 + constitutionModifier * getCharacterResponse.Level;
     getCharacterResponse
       .MaxHitPoints
@@ -168,7 +181,8 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory)
         .Should()
         .NotBeNull();
       rollResult!
-        .Results.Sum()
+        .Results
+        .Sum()
         .Should()
         .BeGreaterThanOrEqualTo(2)
         .And
@@ -182,14 +196,16 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory)
       OffHand = false
     };
     var addMainHandResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/weapon/{mainHandId}", equipMainHandRequest);
+      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/weapon/{mainHandId}",
+                                    equipMainHandRequest);
     addMainHandResponse.EnsureSuccessStatusCode();
 
     var equipOffHandRequest = new EquipWeaponRequest {
       OffHand = true
     };
     var equipOffHandResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/weapon/{offHandId}", equipOffHandRequest);
+      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/weapon/{offHandId}",
+                                    equipOffHandRequest);
     equipOffHandResponse.EnsureSuccessStatusCode();
 
     // Read response and verify that we have the proper main / offhand equipped

@@ -44,7 +44,7 @@ Content-Type: application/json
 
 ### Equip armor
 @armorId = 40
-PATCH http://localhost:5266/api/v1/characters/{{characterId}}/equipment/armo/{{armorId}}
+PATCH http://localhost:5266/api/v1/characters/{{characterId}}/equipment/armor/{{armorId}}
 
 ###
 
