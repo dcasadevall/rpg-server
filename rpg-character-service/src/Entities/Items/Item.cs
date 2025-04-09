@@ -7,12 +7,12 @@ namespace RPGCharacterService.Entities.Items {
     /// <summary>
     /// Gets the unique identifier for this item.
     /// </summary>
-    public int Id { get; init; }
+    public required int Id { get; init; }
 
     /// <summary>
     /// Gets the name of the item.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     /// Gets the equipment-specific stats for this item, if it is equipment.
@@ -27,7 +27,7 @@ namespace RPGCharacterService.Entities.Items {
     /// <summary>
     /// Gets the type of equipment (Armor, Weapon, or Shield).
     /// </summary>
-    public EquipmentType EquipmentType { get; init; }
+    public EquipmentType EquipmentType { get; init; } = EquipmentType.Armor;
 
     /// <summary>
     /// Gets the armor-specific statistics, if this is an armor item.
@@ -47,7 +47,7 @@ namespace RPGCharacterService.Entities.Items {
     /// <summary>
     /// Gets the base armor class value for this armor.
     /// </summary>
-    public int BaseArmorClass { get; init; } = 0;
+    public int BaseArmorClass { get; init; }
 
     /// <summary>
     /// Gets the type of armor (Light, Medium, Heavy, or None).

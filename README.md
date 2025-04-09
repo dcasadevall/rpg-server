@@ -57,10 +57,10 @@ It is structured as a **monorepo** to support easier local development, deployme
 
 ## Local Development Setup
 
-1. **Start a local DynamoDb database**
+1. **Start a local DynamoDB instance**
    (Docker recommended):
    ```
-   docker run --name postgres-rpg -e POSTGRES_PASSWORD=yourpassword -p 5432:5432 -d postgres
+   docker run --name dynamodb-local -p 8000:8000 -d amazon/dynamodb-local
    ```
 
 2. **Clone the repository:**
@@ -69,20 +69,23 @@ It is structured as a **monorepo** to support easier local development, deployme
    cd rpg-server
    ```
 
-3. **Update the connection string** in `character-manager/appsettings.Development.json`.
+3. **Update the AWS configuration** in `rpg-character-service/appsettings.Development.json`:
+   ```json
+   {
+     "AWS": {
+       "Region": "us-west-2",
+       "ServiceURL": "http://localhost:8000"
+     }
+   }
+   ```
 
-4. **Apply database migrations:**
+4. **Run the Character Service API:**
    ```
-   cd character-manager
-   dotnet ef database update
-   ```
-
-5. **Run the Character Manager API:**
-   ```
+   cd rpg-character-service
    dotnet run
    ```
 
-6. **Access Swagger UI:**
+5. **Access Swagger UI:**
    - https://localhost:5001/swagger/index.html
 
 ---

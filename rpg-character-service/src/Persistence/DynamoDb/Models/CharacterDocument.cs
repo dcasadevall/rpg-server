@@ -7,47 +7,47 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
   [DynamoDBTable("characters")]
   public class CharacterDocument {
     [DynamoDBHashKey]
-    public string Id { get; set; } = string.Empty;
+    public required string Id { get; init; }
 
     [DynamoDBProperty]
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; init; }
 
     [DynamoDBProperty]
-    public string Race { get; set; } = string.Empty;
+    public required string Race { get; init; }
 
     [DynamoDBProperty]
-    public string Subrace { get; set; } = string.Empty;
+    public string Subrace { get; init; } = string.Empty;
 
     [DynamoDBProperty]
-    public string Class { get; set; } = string.Empty;
+    public required string Class { get; init; }
 
     [DynamoDBProperty]
-    public int Level { get; set; }
+    public int Level { get; init; } = 1;
 
     [DynamoDBProperty]
-    public int HitPoints { get; set; }
+    public required int HitPoints { get; init; }
 
     [DynamoDBProperty]
-    public Dictionary<string, int> AbilityScores { get; set; } = new();
+    public Dictionary<string, int> AbilityScores { get; init; } = new();
 
     [DynamoDBProperty]
-    public EquipmentDocument Equipment { get; set; } = new();
+    public EquipmentDocument Equipment { get; init; } = new();
 
     [DynamoDBProperty]
-    public WealthDocument Wealth { get; set; } = new();
+    public WealthDocument Wealth { get; init; } = new();
   }
   /// <summary>
   /// DynamoDB representation of a character's equipment.
   /// </summary>
   public class EquipmentDocument {
     [DynamoDBProperty]
-    public ItemDocument? MainHand { get; set; }
+    public ItemDocument? MainHand { get; init; }
 
     [DynamoDBProperty]
-    public ItemDocument? OffHand { get; set; }
+    public ItemDocument? OffHand { get; init; }
 
     [DynamoDBProperty]
-    public ItemDocument? Armor { get; set; }
+    public ItemDocument? Armor { get; init; }
   }
 
   /// <summary>
@@ -55,18 +55,18 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// </summary>
   public class WealthDocument {
     [DynamoDBProperty]
-    public int Copper { get; set; }
+    public int Copper { get; init; }
 
     [DynamoDBProperty]
-    public int Silver { get; set; }
+    public int Silver { get; init; }
 
     [DynamoDBProperty]
-    public int Electrum { get; set; }
+    public int Electrum { get; init; }
 
     [DynamoDBProperty]
-    public int Gold { get; set; }
+    public int Gold { get; init; }
 
     [DynamoDBProperty]
-    public int Platinum { get; set; }
+    public int Platinum { get; init; }
   }
 }

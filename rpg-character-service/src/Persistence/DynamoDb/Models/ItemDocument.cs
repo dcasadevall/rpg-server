@@ -8,13 +8,13 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
   [DynamoDBTable("items")]
   public class ItemDocument {
     [DynamoDBHashKey]
-    public string Id { get; set; } = string.Empty;
+    public required string Id { get; init; }
 
     [DynamoDBProperty]
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; init; }
 
     [DynamoDBProperty]
-    public EquipmentStatsDocument? EquipmentStats { get; set; }
+    public EquipmentStatsDocument? EquipmentStats { get; init; }
   }
 
   /// <summary>
@@ -22,13 +22,13 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// </summary>
   public class EquipmentStatsDocument {
     [DynamoDBProperty]
-    public EquipmentType EquipmentType { get; set; }
+    public EquipmentType EquipmentType { get; init; }
 
     [DynamoDBProperty]
-    public ArmorStatsDocument? ArmorStats { get; set; }
+    public ArmorStatsDocument? ArmorStats { get; init; }
 
     [DynamoDBProperty]
-    public WeaponStatsDocument? WeaponStats { get; set; }
+    public WeaponStatsDocument? WeaponStats { get; init; }
   }
 
   /// <summary>
@@ -36,10 +36,10 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// </summary>
   public class ArmorStatsDocument {
     [DynamoDBProperty]
-    public int BaseArmorClass { get; set; }
+    public int BaseArmorClass { get; init; }
 
     [DynamoDBProperty]
-    public ArmorType ArmorType { get; set; }
+    public ArmorType ArmorType { get; init; }
   }
 
   /// <summary>
@@ -47,9 +47,9 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// </summary>
   public class WeaponStatsDocument {
     [DynamoDBProperty]
-    public WeaponProperty WeaponProperties { get; set; }
+    public WeaponProperty WeaponProperties { get; init; } = WeaponProperty.None;
 
     [DynamoDBProperty]
-    public WeaponRangeType RangeType { get; set; }
+    public WeaponRangeType RangeType { get; init; } = WeaponRangeType.Melee;
   }
 }

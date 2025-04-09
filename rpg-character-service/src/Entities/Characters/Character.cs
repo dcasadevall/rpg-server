@@ -15,22 +15,22 @@ namespace RPGCharacterService.Entities.Characters {
     /// <summary>
     /// Gets or initializes the character's name.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     /// Gets or initializes the character's race (e.g., Human, Elf, Dwarf).
     /// </summary>
-    public string Race { get; init; }
+    public required string Race { get; init; }
 
     /// <summary>
     /// Gets or initializes the character's subrace (e.g., High, Mountain, Deep, etc.).
     /// </summary>
-    public string Subrace { get; init; }
+    public string Subrace { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or initializes the character's class (e.g., Fighter, Wizard, Rogue).
     /// </summary>
-    public string Class { get; init; }
+    public required string Class { get; init; }
 
     /// <summary>
     /// Gets or sets the character's current hit points.
@@ -40,12 +40,12 @@ namespace RPGCharacterService.Entities.Characters {
     /// <summary>
     /// Gets or sets the character's level, which affects proficiency bonus and other level-dependent calculations.
     /// </summary>
-    public int Level { get; set; }
+    public int Level { get; set; } = 1;
 
     /// <summary>
     /// Gets or sets the initialization flags that track which aspects of the character have been initialized.
     /// </summary>
-    public CharacterInitializationFlags InitFlags { get; set; } = 0;
+    public CharacterInitializationFlags InitFlags { get; set; } = CharacterInitializationFlags.None;
 
     /// <summary>
     /// Gets or initializes the character's ability scores (Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma).
