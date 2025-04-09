@@ -113,7 +113,7 @@ namespace RPGCharacterService.Services {
       foreach (var change in currencyChanges) {
         var currentAmount = character.Wealth.GetCurrencyAmount(change.Key);
         // Check for overflow before applying changes
-        if (int.MaxValue - change.Value < currentAmount) {
+        if (change.Value > 0 && int.MaxValue - change.Value < currentAmount) {
           throw new OverflowException($"Resulting amount of {change.Key} exceeds integer limits.");
         }
 
@@ -140,7 +140,7 @@ namespace RPGCharacterService.Services {
     /// <param name="characterId">The unique identifier of the character.</param>
     /// <param name="from">The currency type to exchange from.</param>
     /// <param name="to">The currency type to exchange to.</param>
-    /// <param name="amount">The amount of 'from' currency to exchange.</param>
+    /// <param name="fromAmount">The amount of 'from' currency to exchange.</param>
     /// <returns>The character with updated currency amounts.</returns>
     /// <exception cref="CurrencyNotInitializedException">...</exception>
     /// <exception cref="NotEnoughCurrencyException">Thrown when the character doesn't have enough 'from' currency.</exception>
@@ -151,39 +151,44 @@ namespace RPGCharacterService.Services {
       Guid characterId,
       CurrencyType from,
       CurrencyType to,
-      int amount) {
+      int fromAmount) {
       var character = await repository.GetByIdOrThrowAsync(characterId);
       if (!character.InitFlags.HasFlag(CharacterInitializationFlags.CurrencyInitialized)) {
         throw new CurrencyNotInitializedException(characterId);
       }
 
       if (from == to) {
-        throw new InvalidCurrencyExchangeException(from, to, amount);
+        throw new InvalidCurrencyExchangeException(from, to, fromAmount);
       }
 
-      if (amount <= 0) {
-        throw new InvalidCurrencyExchangeException(from, to, amount);
+      if (fromAmount <= 0) {
+        throw new InvalidCurrencyExchangeException(from, to, fromAmount);
       }
 
       // Check if character has enough 'from' currency
       var currentAmountFrom = character.Wealth.GetCurrencyAmount(from);
-      if (currentAmountFrom < amount) {
-        throw new NotEnoughCurrencyException(from, amount, currentAmountFrom);
+      if (currentAmountFrom < fromAmount) {
+        throw new NotEnoughCurrencyException(from, fromAmount, currentAmountFrom);
       }
 
       // Calculate exchange rate using float
-      // Calculate the theoretical amount to add using float
       float exchangeRate = GetExchangeRate(from, to);
-      float floatAmountToAdd = amount * exchangeRate;
+      // Calculate the theoretical amount to add using float
+      float floatAmountToAdd = fromAmount * exchangeRate;
 
-      // Convert float result back to integer amount, flooring any fractions
-      // Check float bounds before flooring
-      if (int.MaxValue < floatAmountToAdd || int.MinValue > floatAmountToAdd) {
+      // Check for overflow before adding to the wealth
+      // e.g: something close to overflow could be overflown after 10xing it
+      if (floatAmountToAdd > int.MaxValue) {
         throw new OverflowException($"Intermediate exchange result ({floatAmountToAdd} {to}) exceeds integer limits.");
       }
 
       // Floor the float amount to get the integer amount to add
       int amountToAdd = (int) Math.Floor(floatAmountToAdd);
+
+      // If we don't even have a unit to exchange, throw an invalid exchange exception
+      if (amountToAdd == 0) {
+        throw new InvalidCurrencyExchangeException(from, to, fromAmount);
+      }
 
       // Verify that the amount to add + current amount of 'to' does not exceed integer limits
       var currentAmountTo = character.Wealth.GetCurrencyAmount(to);
@@ -192,7 +197,7 @@ namespace RPGCharacterService.Services {
       }
 
       // Apply changes: Subtract 'amount' of 'from', Add 'amountToAdd' of 'to'
-      character.Wealth.SetCurrencyAmount(from, currentAmountFrom - amount);
+      character.Wealth.SetCurrencyAmount(from, currentAmountFrom - fromAmount);
       character.Wealth.SetCurrencyAmount(to, currentAmountTo + amountToAdd);
 
       await repository.UpdateAsync(character);

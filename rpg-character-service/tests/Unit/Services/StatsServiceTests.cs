@@ -16,20 +16,21 @@ namespace RPGCharacterService.UnitTests.Services {
       // Arrange
       var character = new Character {
         AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Constitution, 14} // Modifier: 2
+          {AbilityScore.Constitution, 14} // +2 Con modifier
         },
         Level = 1,
         HitPoints = 10
       };
       repositoryMock
-        .Setup(r => r.GetByIdOrThrowAsync(character.Id))
+        .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
 
       // Act
       var result = await statsService.ModifyHitPointsAsync(character.Id, 5);
 
       // Assert
-      Assert.Equal(15, result.HitPoints);
+      Assert.Equal(12, character.CalculateMaxHitPoints());
+      Assert.Equal(12, result.HitPoints);
       repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
     }
 
@@ -44,13 +45,14 @@ namespace RPGCharacterService.UnitTests.Services {
         HitPoints = 10
       };
       repositoryMock
-        .Setup(r => r.GetByIdOrThrowAsync(character.Id))
+        .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
 
       // Act
       var result = await statsService.ModifyHitPointsAsync(character.Id, -3);
 
       // Assert
+      Assert.Equal(12, result.CalculateMaxHitPoints());
       Assert.Equal(7, result.HitPoints);
       repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
     }
@@ -66,13 +68,14 @@ namespace RPGCharacterService.UnitTests.Services {
         HitPoints = 10
       };
       repositoryMock
-        .Setup(r => r.GetByIdOrThrowAsync(character.Id))
+        .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
 
       // Act
       var result = await statsService.ModifyHitPointsAsync(character.Id, 20);
 
       // Assert
+      Assert.Equal(12, result.CalculateMaxHitPoints());
       Assert.Equal(12, result.HitPoints); // Max HP = 10 + (2 * 1) = 12
       repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
     }
@@ -88,13 +91,14 @@ namespace RPGCharacterService.UnitTests.Services {
         HitPoints = 10
       };
       repositoryMock
-        .Setup(r => r.GetByIdOrThrowAsync(character.Id))
+        .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
 
       // Act
       var result = await statsService.ModifyHitPointsAsync(character.Id, -15);
 
       // Assert
+      Assert.Equal(12, result.CalculateMaxHitPoints());
       Assert.Equal(0, result.HitPoints);
       repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
     }
@@ -110,13 +114,14 @@ namespace RPGCharacterService.UnitTests.Services {
         HitPoints = 15
       };
       repositoryMock
-        .Setup(r => r.GetByIdOrThrowAsync(character.Id))
+        .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
 
       // Act
       var result = await statsService.ModifyHitPointsAsync(character.Id, 10);
 
-      // Assert
+      // Assert (Max hitPoints = 10 + (3 * 3) = 19)
+      Assert.Equal(19, result.CalculateMaxHitPoints());
       Assert.Equal(19, result.HitPoints); // Max HP = 10 + (3 * 3) = 19
       repositoryMock.Verify(r => r.UpdateAsync(It.Is<Character>(c => c.Id == character.Id)), Times.Once);
     }
