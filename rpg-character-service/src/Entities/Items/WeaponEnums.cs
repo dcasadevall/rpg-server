@@ -48,7 +48,17 @@ namespace RPGCharacterService.Entities.Items {
     /// <summary>
     /// Ammunition weapons require ammunition to be used.
     /// </summary>
-    Ammunition = 1 << 7 // 128
+    Ammunition = 1 << 7, // 128
+
+    /// <summary>
+    /// Reach weapons have an extended range for melee attacks.
+    /// </summary>
+    Reach = 1 << 8, // 256
+
+    /// <summary>
+    /// Special weapons have unique properties or rules.
+    /// </summary>
+    Special = 1 << 9 // 512
   }
 
   /// <summary>

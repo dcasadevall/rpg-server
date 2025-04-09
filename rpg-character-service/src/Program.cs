@@ -11,7 +11,7 @@ using RPGCharacterService.Persistence.InMemory;
 // Load environment variables from .env file
 Env.Load();
 
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Local";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to DI container
@@ -86,10 +86,10 @@ builder.Services.AddVersionedApiExplorer(options => {
 
 var app = builder.Build();
 
-// Initialize DynamoDB tables in non-development environments
+// Initialize DynamoDB tables and seed data in non-development environments
 if (environment != "Local") {
   using var scope = app.Services.CreateScope();
-  var dynamoDbInitializer = scope.ServiceProvider.GetRequiredService<DynamoDbInitializationService>();
+  var dynamoDbInitializer = scope.ServiceProvider.GetRequiredService<DynamoDbInitializer>();
   await dynamoDbInitializer.InitializeTablesAsync();
 }
 

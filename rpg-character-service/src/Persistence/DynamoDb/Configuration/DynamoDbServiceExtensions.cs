@@ -40,7 +40,8 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
       services.AddScoped<IItemRepository, DynamoDbItemRepository>();
 
       // Register initialization service
-      services.AddScoped<DynamoDbInitializationService>();
+      services.AddScoped<DynamoDbInitializer>();
+      services.AddScoped<DynamoDbSeeder>();
 
       // Register AutoMapper profiles
       services.AddAutoMapper(typeof(CharacterDocumentMappingProfile));

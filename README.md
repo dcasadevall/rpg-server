@@ -9,7 +9,7 @@ It is structured as a **monorepo** to support easier local development, deployme
 
 | Directory | Description |
 |:---|:---|
-| `character-manager/` | C# ASP.NET Core WebAPI for player character creation and management (REST APIs). |
+| `rpg-character-service/` | C# ASP.NET Core WebAPI for player character creation and management (REST APIs). |
 | `game-simulation/` | Lightweight UDP-based service responsible for simulating real-time game sessions. |
 | `infrastructure/` | Terraform configuration for deploying services and infrastructure into AWS. |
 | `scripts/` | Helper scripts to build, deploy, and manage services locally and remotely. |
@@ -18,18 +18,18 @@ It is structured as a **monorepo** to support easier local development, deployme
 
 ## Components
 
-### 1. **Character Manager**
-- **Tech Stack:** C#, ASP.NET Core WebAPI, PostgreSQL, Entity Framework Core
+### 1. **RPG Character Service**
+- **Tech Stack:** C#, ASP.NET Core WebAPI, DynamoDb
 - **Purpose:** Manages player characters, including:
   - Character creation (race, subrace, class)
   - Rolling ability scores
   - Managing hitpoints, inventory (armor, weapons)
   - Granting and modifying currencies
-- **Persistence:** Characters are stored in a PostgreSQL database.
+- **Persistence:** Characters are stored in a DynamoDb database.
 - **Endpoints:** RESTful APIs documented with Swagger.
 
-> **Local Dev:**  
-> `cd character-manager && dotnet run`
+> **Local Dev:**
+> `cd rpg-character-service && dotnet run`
 
 ---
 
@@ -39,27 +39,25 @@ It is structured as a **monorepo** to support easier local development, deployme
 - **Communication:** Clients connect over **UDP**.
 - **Deployment:** Will scale horizontally based on game session counts.
 
-> **Note:** Initial scaffolding is in place; core session logic will be implemented later.
-
 ---
 
 ### 3. **Infrastructure**
 - **Tool:** Terraform
 - **Purpose:** Provision AWS infrastructure, including:
   - EC2 instances for Character Manager and Game Simulation services
-  - RDS (PostgreSQL) database
+  - DynamoDb database
   - S3 bucket for static assets
   - Application Load Balancer (ALB) for HTTPS traffic
 - **Environment:** Infrastructure as code (IaC) supporting repeatable and reliable deployment.
 
-> **Deploy Infra:**  
+> **Deploy Infra:**
 > `cd infrastructure && terraform init && terraform apply`
 
 ---
 
 ## Local Development Setup
 
-1. **Start a local PostgreSQL database**  
+1. **Start a local DynamoDb database**
    (Docker recommended):
    ```
    docker run --name postgres-rpg -e POSTGRES_PASSWORD=yourpassword -p 5432:5432 -d postgres
@@ -120,5 +118,5 @@ This project is licensed under the MIT License.
 
 # Summary
 
-**This monorepo contains everything needed to run, manage, and deploy an RPG backend system both locally and in AWS.**  
+**This monorepo contains everything needed to run, manage, and deploy an RPG backend system both locally and in AWS.**
 It is designed to be modular, scalable, and easy to extend as the game evolves.

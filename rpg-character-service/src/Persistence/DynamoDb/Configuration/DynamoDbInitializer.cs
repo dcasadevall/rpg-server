@@ -5,16 +5,25 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
   /// <summary>
   /// Service for initializing DynamoDB tables.
   /// </summary>
-  public class DynamoDbInitializationService(IAmazonDynamoDB client, DynamoDbSettings settings) {
+  public class DynamoDbInitializer(IAmazonDynamoDB client,
+                                   DynamoDbSettings settings,
+                                   DynamoDbSeeder seeder,
+                                   ILogger<DynamoDbInitializer> logger) {
     /// <summary>
     /// Initializes the DynamoDB tables.
     /// </summary>
     public async Task InitializeTablesAsync() {
       // Initialize characters table
+      logger.LogInformation("Initializing characters table");
       await InitializeTableAsync($"{settings.TablePrefix}characters");
 
       // Initialize items table
+      logger.LogInformation("Initializing items table");
       await InitializeTableAsync($"{settings.TablePrefix}items");
+
+      // Seed data if necessary
+      logger.LogInformation("Seeding items");
+      await seeder.SeedItemsAsync();
     }
 
     private async Task InitializeTableAsync(string tableName) {
