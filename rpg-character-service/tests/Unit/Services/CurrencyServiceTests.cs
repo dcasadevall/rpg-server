@@ -4,6 +4,7 @@ using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
+using RPGCharacterService.Tests.Unit.Helpers;
 
 namespace RPGCharacterService.UnitTests.Services {
   public class CurrencyServiceTests {
@@ -17,9 +18,9 @@ namespace RPGCharacterService.UnitTests.Services {
 
     // Helper to create a character with initialized currency
     private Character CreateCharacterWithCurrency(Dictionary<CurrencyType, int> initialAmounts) {
-      var character = new Character {
-        InitFlags = CharacterInitializationFlags.CurrencyInitialized
-      };
+      var character = CharacterFactory.CreateCharacter(
+        initFlags: CharacterInitializationFlags.CurrencyInitialized
+      );
       foreach (var kvp in initialAmounts) {
         character.Wealth.SetCurrencyAmount(kvp.Key, kvp.Value);
       }
@@ -29,7 +30,9 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task GenerateInitialCurrencyAsync_WhenNotInitialized_ShouldSetCurrencyAndFlag() {
       // Arrange
-      var character = new Character {InitFlags = CharacterInitializationFlags.None}; // Not initialized
+      var character = CharacterFactory.CreateCharacter(
+        initFlags: CharacterInitializationFlags.None
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
@@ -126,7 +129,9 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task ModifyCurrenciesAsync_WhenNotInitialized_ShouldThrowException() {
       // Arrange
-      var character = new Character {InitFlags = CharacterInitializationFlags.None}; // Not initialized
+      var character = CharacterFactory.CreateCharacter(
+        initFlags: CharacterInitializationFlags.None
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
@@ -241,7 +246,9 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task ExchangeCurrencyAsync_WhenNotInitialized_ShouldThrowException() {
       // Arrange
-      var character = new Character {InitFlags = CharacterInitializationFlags.None};
+      var character = CharacterFactory.CreateCharacter(
+        initFlags: CharacterInitializationFlags.None
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);

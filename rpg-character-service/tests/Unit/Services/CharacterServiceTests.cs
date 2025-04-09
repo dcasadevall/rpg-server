@@ -4,6 +4,7 @@ using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
+using RPGCharacterService.Tests.Unit.Helpers;
 
 namespace RPGCharacterService.UnitTests.Services {
   public class CharacterServiceTests {
@@ -23,8 +24,8 @@ namespace RPGCharacterService.UnitTests.Services {
     public async Task GetAllCharactersAsync_ShouldReturnAllCharacters() {
       // Arrange
       var characters = new List<Character> {
-        new() { Name = "Character 1" },
-        new() { Name = "Character 2" }
+        CharacterFactory.CreateCharacter(name: "Character 1"),
+        CharacterFactory.CreateCharacter(name: "Character 2")
       };
       repositoryMock.Setup(x => x.GetAllAsync())
         .ReturnsAsync(characters);
@@ -39,7 +40,7 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task GetCharacterAsync_WithValidId_ShouldReturnCharacter() {
       // Arrange
-      var character = new Character { Name = "Test Character" };
+      var character = CharacterFactory.CreateCharacter(name: "Test Character");
       repositoryMock.Setup(x => x.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
 
@@ -53,7 +54,7 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task GetCharacterAsync_WithInvalidId_ShouldThrowCharacterNotFoundException() {
       // Arrange
-      var character = new Character { Name = "Test Character" };
+      var character = CharacterFactory.CreateCharacter(name: "Test Character");
       repositoryMock.Setup(x => x.GetByIdAsync(character.Id))
         .ThrowsAsync(new CharacterNotFoundException(character.Id));
 
@@ -99,7 +100,7 @@ namespace RPGCharacterService.UnitTests.Services {
         Class = "Fighter"
       };
 
-      var existingCharacter = new Character { Name = request.Name };
+      var existingCharacter = CharacterFactory.CreateCharacter(name: request.Name);
       repositoryMock.Setup(x => x.GetByNameAsync(request.Name))
         .ReturnsAsync(existingCharacter);
 
@@ -111,7 +112,7 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task DeleteCharacterAsync_WithValidId_ShouldDeleteCharacter() {
       // Arrange
-      var character = new Character { Name = "Test Character" };
+      var character = CharacterFactory.CreateCharacter(name: "Test Character");
       repositoryMock.Setup(x => x.DeleteAsync(character.Id))
         .Returns(Task.CompletedTask);
 
@@ -125,7 +126,7 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task DeleteCharacterAsync_WithInvalidId_ShouldThrowCharacterNotFoundException() {
       // Arrange
-      var character = new Character { Name = "Test Character" };
+      var character = CharacterFactory.CreateCharacter(name: "Test Character");
       repositoryMock.Setup(x => x.DeleteAsync(character.Id))
         .ThrowsAsync(new CharacterNotFoundException(character.Id));
 

@@ -17,25 +17,25 @@ namespace RPGCharacterService.Dtos.Character {
     ///   The name of the character
     /// </summary>
     [SwaggerSchema(Description = "The name of the character")]
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     ///   The character's race
     /// </summary>
     [SwaggerSchema(Description = "The character's race (e.g., Human, Elf, Dwarf)")]
-    public string Race { get; init; }
+    public required string Race { get; init; }
 
     /// <summary>
     ///   The character's subrace, if any
     /// </summary>
     [SwaggerSchema(Description = "The character's subrace, if applicable (e.g., High Elf, Mountain Dwarf)")]
-    public string Subrace { get; init; }
+    public required string Subrace { get; init; }
 
     /// <summary>
     ///   The character's class
     /// </summary>
     [SwaggerSchema(Description = "The character's class (e.g., Fighter, Wizard, Cleric)")]
-    public string Class { get; init; }
+    public required string Class { get; init; }
 
     /// <summary>
     /// The character's level

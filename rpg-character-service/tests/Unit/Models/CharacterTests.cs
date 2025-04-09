@@ -1,5 +1,6 @@
 using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Entities.Items;
+using RPGCharacterService.Tests.Unit.Helpers;
 
 namespace RPGCharacterService.UnitTests.Models {
   public class CharacterTests {
@@ -15,12 +16,10 @@ namespace RPGCharacterService.UnitTests.Models {
       int level,
       int expectedHitPoints) {
       // Arrange
-      var character = new Character {
-        Level = level,
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Constitution, constitution}
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(level: level,
+                                                       abilityScores: new Dictionary<AbilityScore, int> {
+                                                         {AbilityScore.Constitution, constitution}
+                                                       });
 
       // Act
       var result = character.CalculateMaxHitPoints();
@@ -42,7 +41,7 @@ namespace RPGCharacterService.UnitTests.Models {
     [InlineData(20, 6)]
     public void CalculateProficiencyBonus_WithDifferentLevels_ShouldReturnCorrectValue(int level, int expectedBonus) {
       // Arrange
-      var character = new Character {Level = level};
+      var character = CharacterFactory.CreateCharacter(level: level);
 
       // Act
       var result = character.CalculateProficiencyBonus();
@@ -66,11 +65,9 @@ namespace RPGCharacterService.UnitTests.Models {
     [InlineData(20, 5)]
     public void CalculateAbilityModifier_WithDifferentScores_ShouldReturnCorrectValue(int score, int expectedModifier) {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Strength, score}
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Strength, score}
+      });
 
       // Act
       var result = character.CalculateAbilityModifier(AbilityScore.Strength);
@@ -82,16 +79,14 @@ namespace RPGCharacterService.UnitTests.Models {
     [Fact]
     public void CalculateAllAbilityModifiers_WithMultipleScores_ShouldReturnCorrectModifiers() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Strength, 10}, // Modifier: 0
-          {AbilityScore.Dexterity, 12}, // Modifier: 1
-          {AbilityScore.Constitution, 14}, // Modifier: 2
-          {AbilityScore.Intelligence, 8}, // Modifier: -1
-          {AbilityScore.Wisdom, 16}, // Modifier: 3
-          {AbilityScore.Charisma, 18} // Modifier: 4
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Strength, 10}, // Modifier: 0
+        {AbilityScore.Dexterity, 12}, // Modifier: 1
+        {AbilityScore.Constitution, 14}, // Modifier: 2
+        {AbilityScore.Intelligence, 8}, // Modifier: -1
+        {AbilityScore.Wisdom, 16}, // Modifier: 3
+        {AbilityScore.Charisma, 18} // Modifier: 4
+      });
 
       // Act
       var result = character.CalculateAllAbilityModifiers();
@@ -108,20 +103,10 @@ namespace RPGCharacterService.UnitTests.Models {
     [Fact]
     public void CalculateArmorClass_ShouldForwardToEquipment() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Dexterity, 14} // Modifier: 2
-        }
-      };
-      var armor = new Item {
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Armor,
-          ArmorStats = new ArmorStats {
-            ArmorType = ArmorType.Light,
-            BaseArmorClass = 11
-          }
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Dexterity, 14} // Modifier: 2
+      });
+      var armor = ItemFactory.CreateArmor(armorType: ArmorType.Light, baseArmorClass: 11);
       character.Equipment.EquipArmor(armor);
 
       // Act
@@ -134,20 +119,11 @@ namespace RPGCharacterService.UnitTests.Models {
     [Fact]
     public void CalculateWeaponDamageModifier_ShouldForwardToEquipment() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Strength, 16}, // Modifier: 3
-          {AbilityScore.Dexterity, 14} // Modifier: 2
-        }
-      };
-      var weapon = new Item {
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = WeaponProperty.Finesse
-          }
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Strength, 16}, // Modifier: 3
+        {AbilityScore.Dexterity, 14} // Modifier: 2
+      });
+      var weapon = ItemFactory.CreateWeapon(weaponProperties: WeaponProperty.Finesse);
       character.Equipment.EquipWeapon(weapon);
 
       // Act
@@ -160,20 +136,11 @@ namespace RPGCharacterService.UnitTests.Models {
     [Fact]
     public void CalculateWeaponModifier_WithRangedWeapon_ShouldReturnDex() {
       // Arrange
-      var rangedWeapon = new Item {
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            RangeType = WeaponRangeType.Ranged,
-          }
-        }
-      };
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Strength, 10}, // Modifier: 0
-          {AbilityScore.Dexterity, 16} // Modifier: 3
-        },
-      };
+      var rangedWeapon = ItemFactory.CreateWeapon(rangeType: WeaponRangeType.Ranged);
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Strength, 10}, // Modifier: 0
+        {AbilityScore.Dexterity, 16} // Modifier: 3
+      });
       character.Equipment.EquipWeapon(rangedWeapon);
       Assert.NotNull(character.Equipment.MainHand);
       Assert.Equal(rangedWeapon.Id, character.Equipment.MainHand.Id);

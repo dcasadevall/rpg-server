@@ -1,6 +1,7 @@
 using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
+using RPGCharacterService.Tests.Unit.Helpers;
 
 namespace RPGCharacterService.UnitTests.Services {
   public class StatsServiceTests {
@@ -14,13 +15,13 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task ModifyHitPointsAsync_WithPositiveDelta_ShouldIncreaseHitPoints() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
+      var character = CharacterFactory.CreateCharacter(
+        abilityScores: new Dictionary<AbilityScore, int> {
           {AbilityScore.Constitution, 14} // +2 Con modifier
         },
-        Level = 1,
-        HitPoints = 10
-      };
+        level: 1,
+        hitPoints: 10
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
@@ -37,13 +38,13 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task ModifyHitPointsAsync_WithNegativeDelta_ShouldDecreaseHitPoints() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
+      var character = CharacterFactory.CreateCharacter(
+        abilityScores: new Dictionary<AbilityScore, int> {
           {AbilityScore.Constitution, 14} // Modifier: 2
         },
-        Level = 1,
-        HitPoints = 10
-      };
+        level: 1,
+        hitPoints: 10
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
@@ -60,13 +61,13 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task ModifyHitPointsAsync_WithExcessiveHealing_ShouldClampToMaxHitPoints() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
+      var character = CharacterFactory.CreateCharacter(
+        abilityScores: new Dictionary<AbilityScore, int> {
           {AbilityScore.Constitution, 14} // Modifier: 2
         },
-        Level = 1,
-        HitPoints = 10
-      };
+        level: 1,
+        hitPoints: 10
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
@@ -83,13 +84,13 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task ModifyHitPointsAsync_WithExcessiveDamage_ShouldClampToZero() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
+      var character = CharacterFactory.CreateCharacter(
+        abilityScores: new Dictionary<AbilityScore, int> {
           {AbilityScore.Constitution, 14} // Modifier: 2
         },
-        Level = 1,
-        HitPoints = 10
-      };
+        level: 1,
+        hitPoints: 10
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);
@@ -106,13 +107,13 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task ModifyHitPointsAsync_WithDifferentLevels_ShouldRespectMaxHitPoints() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
+      var character = CharacterFactory.CreateCharacter(
+        abilityScores: new Dictionary<AbilityScore, int> {
           {AbilityScore.Constitution, 16} // Modifier: 3
         },
-        Level = 3,
-        HitPoints = 15
-      };
+        level: 3,
+        hitPoints: 15
+      );
       repositoryMock
         .Setup(r => r.GetByIdAsync(character.Id))
         .ReturnsAsync(character);

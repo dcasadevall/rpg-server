@@ -15,22 +15,22 @@ namespace RPGCharacterService.Entities.Characters {
     /// <summary>
     /// Gets or initializes the character's name.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     /// Gets or initializes the character's race (e.g., Human, Elf, Dwarf).
     /// </summary>
-    public string Race { get; init; }
+    public required string Race { get; init; }
 
     /// <summary>
     /// Gets or initializes the character's subrace (e.g., High, Mountain, Deep, etc.).
     /// </summary>
-    public string Subrace { get; init; }
+    public required string Subrace { get; init; }
 
     /// <summary>
     /// Gets or initializes the character's class (e.g., Fighter, Wizard, Rogue).
     /// </summary>
-    public string Class { get; init; }
+    public required string Class { get; init; }
 
     /// <summary>
     /// Gets or sets the character's current hit points.

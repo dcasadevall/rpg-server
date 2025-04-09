@@ -2,6 +2,7 @@ using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Items;
 using RPGCharacterService.Entities.Characters;
+using RPGCharacterService.Tests.Unit.Helpers;
 
 namespace RPGCharacterService.UnitTests.Models {
   public class EquipmentTests {
@@ -11,13 +12,7 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipWeapon_WithValidWeapon_ShouldEquipWeapon(bool isOffHand) {
       // Arrange
       var equipment = new Equipment();
-      var weapon = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
+      var weapon = ItemFactory.CreateWeapon(id: 1);
 
       // Act
       equipment.EquipWeapon(weapon, isOffHand);
@@ -38,13 +33,7 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipWeapon_WithNonWeaponItem_ShouldThrowEquipmentTypeMismatchException(bool isOffHand) {
       // Arrange
       var equipment = new Equipment();
-      var armor = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Armor,
-        }
-      };
+      var armor = ItemFactory.CreateArmor(id: 1);
 
       // Act & Assert
       Assert.Throws<EquipmentTypeMismatchException>(() => equipment.EquipWeapon(armor, isOffHand));
@@ -54,13 +43,7 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipArmor_WithValidArmor_ShouldEquipArmor() {
       // Arrange
       var equipment = new Equipment();
-      var armor = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Armor,
-        }
-      };
+      var armor = ItemFactory.CreateArmor(id: 1);
 
       // Act
       equipment.EquipArmor(armor);
@@ -73,13 +56,7 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipArmor_WithNonArmorItem_ShouldThrowEquipmentTypeMismatchException() {
       // Arrange
       var equipment = new Equipment();
-      var weapon = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
+      var weapon = ItemFactory.CreateWeapon(id: 1);
 
       // Act & Assert
       Assert.Throws<EquipmentTypeMismatchException>(() => equipment.EquipArmor(weapon));
@@ -89,13 +66,7 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipShield_WithValidShield_ShouldEquipShield() {
       // Arrange
       var equipment = new Equipment();
-      var shield = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Shield,
-        }
-      };
+      var shield = ItemFactory.CreateShield(id: 1);
 
       // Act
       equipment.EquipShield(shield);
@@ -109,13 +80,7 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipShield_WithNonShieldItem_ShouldThrowEquipmentTypeMismatchException() {
       // Arrange
       var equipment = new Equipment();
-      var weapon = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
+      var weapon = ItemFactory.CreateWeapon(id: 1);
 
       // Act & Assert
       Assert.Throws<EquipmentTypeMismatchException>(() => equipment.EquipShield(weapon));
@@ -127,21 +92,9 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipWeapon_WithExistingWeapon_ShouldReplaceWeapon(bool isOffHand) {
       // Arrange
       var equipment = new Equipment();
-      var oldWeapon = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
+      var oldWeapon = ItemFactory.CreateWeapon(id: 1);
+      var newWeapon = ItemFactory.CreateWeapon(id: 2);
 
-      var newWeapon = new Item {
-        Id = 2,
-        Name = "Test Item 2",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
 
       // Act
       equipment.EquipWeapon(oldWeapon, isOffHand);
@@ -161,30 +114,9 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipWeapon_WithTwoHandedWeapon_ShouldClearBothHands() {
       // Arrange
       var equipment = new Equipment();
-      var oldMainHand = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
-      var oldOffHand = new Item {
-        Id = 2,
-        Name = "Test Item 2",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Shield,
-        }
-      };
-      var twoHandedWeapon = new Item {
-        Id = 3,
-        Name = "TwoHanded",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = WeaponProperty.TwoHanded
-          }
-        }
-      };
+      var oldMainHand = ItemFactory.CreateWeapon(id: 1);
+      var oldOffHand = ItemFactory.CreateShield(id: 2);
+      var twoHandedWeapon = ItemFactory.CreateWeapon(id: 3, weaponProperties: WeaponProperty.TwoHanded);
 
       // Arrange: Set Up previous state
       equipment.EquipWeapon(oldMainHand);
@@ -204,16 +136,7 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipWeapon_WithTwoHandedWeaponInOffHand_ShouldThrowIllegalEquipmentStateException() {
       // Arrange
       var equipment = new Equipment();
-      var twoHandedWeapon = new Item {
-        Id = 1,
-        Name = "TwoHanded",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = WeaponProperty.TwoHanded
-          }
-        }
-      };
+      var twoHandedWeapon = ItemFactory.CreateWeapon(id: 1, weaponProperties: WeaponProperty.TwoHanded);
 
       // Act & Assert
       Assert.Throws<IllegalEquipmentStateException>(() => equipment.EquipWeapon(twoHandedWeapon, true));
@@ -223,24 +146,9 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipWeapon_WithTwoHandedWeaponEquipped_ShouldClearMainHand() {
       // Arrange
       var equipment = new Equipment();
-      var twoHandedWeapon = new Item {
-        Id = 1,
-        Name = "TwoHanded",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = WeaponProperty.TwoHanded
-          }
-        }
-      };
+      var twoHandedWeapon = ItemFactory.CreateWeapon(id: 1, weaponProperties: WeaponProperty.TwoHanded);
+      var newWeapon = ItemFactory.CreateWeapon(id: 2);
 
-      var newWeapon = new Item {
-        Id = 2,
-        Name = "Test Item 2",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
       // Arrange: Set Up previous state
       equipment.EquipWeapon(twoHandedWeapon);
       Assert.Equal(twoHandedWeapon.Id, equipment.MainHand?.Id);
@@ -257,24 +165,9 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipShield_WithTwoHandedWeaponEquipped_ShouldClearMainHand() {
       // Arrange
       var equipment = new Equipment();
-      var twoHandedWeapon = new Item {
-        Id = 1,
-        Name = "TwoHanded",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = WeaponProperty.TwoHanded
-          }
-        }
-      };
+      var twoHandedWeapon = ItemFactory.CreateWeapon(id: 1, weaponProperties: WeaponProperty.TwoHanded);
+      var shield = ItemFactory.CreateShield(id: 2);
 
-      var shield = new Item {
-        Id = 2,
-        Name = "Shield",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Shield,
-        }
-      };
       // Arrange: Set Up previous state
       equipment.EquipWeapon(twoHandedWeapon);
       Assert.Equal(twoHandedWeapon.Id, equipment.MainHand?.Id);
@@ -291,27 +184,9 @@ namespace RPGCharacterService.UnitTests.Models {
     public void EquipShield_WithOffHandWeapon_ShouldReplaceOffHand() {
       // Arrange
       var equipment = new Equipment();
-      var oldOffHand = new Item {
-        Id = 1,
-        Name = "Test Item",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
-      var oldMainHand = new Item {
-        Id = 2,
-        Name = "Test Item 2",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
-      var newShield = new Item {
-        Id = 2,
-        Name = "Test Item 2",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Shield,
-        }
-      };
+      var oldOffHand = ItemFactory.CreateWeapon(id: 1);
+      var oldMainHand = ItemFactory.CreateWeapon(id: 2);
+      var newShield = ItemFactory.CreateShield(id: 2);
 
       // Arrange: Set Up previous state
       equipment.EquipWeapon(oldMainHand);
@@ -345,27 +220,18 @@ namespace RPGCharacterService.UnitTests.Models {
       // Arrange
       var equipment = new Equipment();
       if (armorType != ArmorType.None) {
-        equipment.EquipArmor(new Item {
-          EquipmentStats = new EquipmentStats {
-            EquipmentType = EquipmentType.Armor,
-            ArmorStats = new ArmorStats {
-              ArmorType = armorType,
-              BaseArmorClass = armorType switch {
-                ArmorType.Light => 11,
-                ArmorType.Medium => 13,
-                ArmorType.Heavy => 18,
-                _ => 0
-              }
-            }
-          }
-        });
+        equipment.EquipArmor(ItemFactory.CreateArmor(id: 1,
+                                                     armorType: armorType,
+                                                     baseArmorClass: armorType switch {
+                                                       ArmorType.Light => 11,
+                                                       ArmorType.Medium => 13,
+                                                       ArmorType.Heavy => 18,
+                                                       _ => 0
+                                                     }));
       }
+
       if (shieldBonus > 0) {
-        equipment.EquipShield(new Item {
-          EquipmentStats = new EquipmentStats {
-            EquipmentType = EquipmentType.Shield,
-          }
-        });
+        equipment.EquipShield(ItemFactory.CreateShield(id: 2, baseArmorClass: shieldBonus));
       }
 
       // Act
@@ -387,15 +253,7 @@ namespace RPGCharacterService.UnitTests.Models {
       AbilityScore expected) {
       // Arrange
       var equipment = new Equipment();
-      var weapon = new Item {
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = weaponProperty,
-            RangeType = WeaponRangeType.Melee
-          }
-        }
-      };
+      var weapon = ItemFactory.CreateWeapon(weaponProperties: weaponProperty, rangeType: WeaponRangeType.Melee);
       equipment.EquipWeapon(weapon);
 
       var abilityModifiers = new Dictionary<AbilityScore, int> {
@@ -413,20 +271,11 @@ namespace RPGCharacterService.UnitTests.Models {
     [Fact]
     public void CalculateWeaponDamageModifier_WithRangedWeapon_ShouldReturnDexterity() {
       // Arrange
-      var rangedWeapon = new Item {
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            RangeType = WeaponRangeType.Ranged,
-          }
-        }
-      };
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Strength, 10}, // Modifier: 0
-          {AbilityScore.Dexterity, 16} // Modifier: 3
-        },
-      };
+      var rangedWeapon = ItemFactory.CreateWeapon(rangeType: WeaponRangeType.Ranged);
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Strength, 10}, // Modifier: 0
+        {AbilityScore.Dexterity, 16} // Modifier: 3
+      });
       character.Equipment.EquipWeapon(rangedWeapon);
       Assert.NotNull(character.Equipment.MainHand);
       Assert.Equal(rangedWeapon.Id, character.Equipment.MainHand.Id);
@@ -460,15 +309,11 @@ namespace RPGCharacterService.UnitTests.Models {
     [InlineData(12, 11)] // No armor, +1 dex mod
     [InlineData(14, 12)] // No armor, +2 dex
     [InlineData(8, 9)] // No armor, -1 dex
-    public void CalculateArmorClass_WithNoArmor_ShouldReturnBasePlusDexterity(
-      int dexterity,
-      int expectedArmorClass) {
+    public void CalculateArmorClass_WithNoArmor_ShouldReturnBasePlusDexterity(int dexterity, int expectedArmorClass) {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Dexterity, dexterity}
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Dexterity, dexterity}
+      });
 
       // Act
       var result = character.CalculateArmorClass();
@@ -485,20 +330,11 @@ namespace RPGCharacterService.UnitTests.Models {
       int dex,
       AbilityScore expected) {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Strength, str},
-          {AbilityScore.Dexterity, dex}
-        }
-      };
-      var finesseWeapon = new Item {
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = WeaponProperty.Finesse
-          }
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Strength, str},
+        {AbilityScore.Dexterity, dex}
+      });
+      var finesseWeapon = ItemFactory.CreateWeapon(weaponProperties: WeaponProperty.Finesse);
       character.Equipment.EquipWeapon(finesseWeapon);
       Assert.NotNull(character.Equipment.MainHand);
       Assert.Equal(finesseWeapon.Id, character.Equipment.MainHand.Id);
@@ -513,20 +349,11 @@ namespace RPGCharacterService.UnitTests.Models {
     [Fact]
     public void CalculateWeaponDamageModifier_WithNonFinesseWeapon_ShouldReturnStrength() {
       // Arrange
-      var character = new Character {
-        AbilityScores = new Dictionary<AbilityScore, int> {
-          {AbilityScore.Strength, 16}, // Modifier: 3
-          {AbilityScore.Dexterity, 10} // Modifier: 0
-        }
-      };
-      var nonFinesseWeapon = new Item {
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-          WeaponStats = new WeaponStats {
-            WeaponProperties = WeaponProperty.None
-          }
-        }
-      };
+      var character = CharacterFactory.CreateCharacter(abilityScores: new Dictionary<AbilityScore, int> {
+        {AbilityScore.Strength, 16}, // Modifier: 3
+        {AbilityScore.Dexterity, 10} // Modifier: 0
+      });
+      var nonFinesseWeapon = ItemFactory.CreateWeapon(weaponProperties: WeaponProperty.None);
       character.Equipment.EquipWeapon(nonFinesseWeapon);
       Assert.NotNull(character.Equipment.MainHand);
       Assert.Equal(nonFinesseWeapon.Id, character.Equipment.MainHand.Id);

@@ -4,6 +4,7 @@ using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Entities.Items;
 using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
+using RPGCharacterService.Tests.Unit.Helpers;
 
 namespace RPGCharacterService.UnitTests.Services {
   public class EquipmentServiceTests {
@@ -20,16 +21,10 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task EquipWeapon_WithValidCharacterAndWeapon_ShouldUpdateCharacter() {
       // Arrange
-      var character = new Character();
+      var character = CharacterFactory.CreateCharacter();
       var characterId = character.Id;
       var weaponId = 1;
-      var weapon = new Item {
-        Id = weaponId,
-        Name = "Test Weapon",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Weapon,
-        }
-      };
+      var weapon = ItemFactory.CreateWeapon(id: weaponId);
 
       characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
         .ReturnsAsync(character);
@@ -72,7 +67,7 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task EquipWeapon_WithNonExistentWeapon_ShouldThrowItemNotFoundException() {
       // Arrange
-      var character = new Character();
+      var character = CharacterFactory.CreateCharacter();
       var characterId = character.Id;
       var weaponId = 1;
 
@@ -89,16 +84,13 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task EquipArmor_WithValidCharacterAndArmor_ShouldUpdateCharacter() {
       // Arrange
-      var character = new Character();
+      var character = CharacterFactory.CreateCharacter();
       var characterId = character.Id;
       var armorId = 1;
-      var armor = new Item {
-        Id = armorId,
-        Name = "Test Armor",
-        EquipmentStats = new EquipmentStats {
-          EquipmentType = EquipmentType.Armor,
-        }
-      };
+      var armor = ItemFactory.CreateArmor(
+        baseArmorClass: 10,
+        armorType: ArmorType.Light
+      );
 
       characterRepositoryMock.Setup(x => x.GetByIdAsync(characterId))
         .ReturnsAsync(character);
@@ -118,7 +110,7 @@ namespace RPGCharacterService.UnitTests.Services {
     [Fact]
     public async Task EquipShield_WithValidCharacterAndShield_ShouldUpdateCharacter() {
       // Arrange
-      var character = new Character();
+      var character = CharacterFactory.CreateCharacter();
       var characterId = character.Id;
       var shieldId = 1;
       var shield = new Item {
@@ -150,7 +142,7 @@ namespace RPGCharacterService.UnitTests.Services {
     [InlineData(true)]  // Off-hand
     public async Task EquipWeapon_WithValidCharacterAndWeapon_ShouldUpdateCorrectHand(bool isOffHand) {
       // Arrange
-      var character = new Character();
+      var character = CharacterFactory.CreateCharacter();
       var characterId = character.Id;
       var weaponId = 1;
       var weapon = new Item {

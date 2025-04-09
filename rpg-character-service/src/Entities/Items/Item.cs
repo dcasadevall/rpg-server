@@ -12,7 +12,7 @@ namespace RPGCharacterService.Entities.Items {
     /// <summary>
     /// Gets the name of the item.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     /// Gets the equipment-specific stats for this item, if it is equipment.
