@@ -33,6 +33,7 @@ namespace RPGCharacterService.Persistence.Characters {
 
     /// <summary>
     /// Deletes a character from the repository.
+    /// </summary>
     Task DeleteAsync(Guid id);
   }
 
