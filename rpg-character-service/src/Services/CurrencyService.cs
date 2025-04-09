@@ -1,7 +1,6 @@
 using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
-using System;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Persistence; // Needed for Math and ArgumentOutOfRangeException
 
@@ -34,7 +33,7 @@ namespace RPGCharacterService.Services {
 
     /// <summary>
     /// Exchanges a specified amount of one currency ('from') into another ('to')
-    /// using standard D&D 5e conversion rates. Fractional results are not converted.
+    /// using standard D&amp;D 5e conversion rates. Fractional results are not converted.
     /// </summary>
     /// <param name="characterId">The unique identifier of the character.</param>
     /// <param name="from">The currency type to exchange from.</param>
@@ -52,7 +51,7 @@ namespace RPGCharacterService.Services {
 
   /// <summary>
   /// Service implementation for managing character currency operations.
-  /// Handles currency initialization, modification, and exchange using standard D&D 5e rules.
+  /// Handles currency initialization, modification, and exchange using standard D&amp;D 5e rules.
   /// </summary>
   public class CurrencyService(ICharacterRepository repository, IDiceService diceService) : ICurrencyService {
     /// <summary>
@@ -135,13 +134,14 @@ namespace RPGCharacterService.Services {
 
     /// <summary>
     /// Exchanges a specified amount of one currency ('from') into another ('to')
-    /// using standard D&D 5e conversion rates. Uses float calculation and floors the result.
+    /// using standard D&amp;D 5e conversion rates. Fractional results are not converted.
     /// </summary>
     /// <param name="characterId">The unique identifier of the character.</param>
     /// <param name="from">The currency type to exchange from.</param>
     /// <param name="to">The currency type to exchange to.</param>
     /// <param name="fromAmount">The amount of 'from' currency to exchange.</param>
     /// <returns>The character with updated currency amounts.</returns>
+    /// <exception cref="CharacterNotFoundException">Thrown when the character is not found.</exception>
     /// <exception cref="CurrencyNotInitializedException">...</exception>
     /// <exception cref="NotEnoughCurrencyException">Thrown when the character doesn't have enough 'from' currency.</exception>
     /// <exception cref="InvalidCurrencyExchangeException">Thrown for invalid exchanges (e.g., same type).</exception>

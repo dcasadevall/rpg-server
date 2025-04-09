@@ -2,8 +2,8 @@ using RPGCharacterService.Entities.Items;
 
 namespace RPGCharacterService.Entities.Characters {
   /// <summary>
-  /// Represents a D&D character, containing all character attributes, equipment, and wealth.
-  /// This class implements core D&D 5e character mechanics including hit points, ability scores, and armor class calculations.
+  /// Represents a D&amp;D character, containing all character attributes, equipment, and wealth.
+  /// This class implements core D&amp;D 5e character mechanics including hit points, ability scores, and armor class calculations.
   /// This model is an Aggregate Root, containing other models such as Equipment or Wealth.
   /// </summary>
   public class Character {
@@ -74,7 +74,7 @@ namespace RPGCharacterService.Entities.Characters {
     /// <summary>
     /// Calculates the character's proficiency bonus based on their level.
     /// </summary>
-    /// <returns>The proficiency bonus value according to D&D 5e rules.</returns>
+    /// <returns>The proficiency bonus value according to D&amp;D 5e rules.</returns>
     public int CalculateProficiencyBonus() {
       return Level switch {
         >= 17 => 6,

@@ -9,6 +9,6 @@ namespace RPGCharacterService.Dtos.Dice {
     ///   The results of each individual die roll
     /// </summary>
     [SwaggerSchema(Description = "The results of each individual die roll")]
-    public IEnumerable<int> Results { get; init; }
+    public IEnumerable<int> Results { get; init; } = new List<int>();
   }
 }

@@ -12,7 +12,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace RPGCharacterService.Controllers {
   /// <summary>
-  /// Controller responsible for managing character currency operations.
+  /// Controller for managing character currency in D&amp;D 5e.
   /// Handles initialization, modification, and exchange of different currency types (gold, silver, copper, etc.).
   /// </summary>
   [ApiController]
@@ -112,7 +112,7 @@ namespace RPGCharacterService.Controllers {
 
     /// <summary>
     /// Exchanges a specified amount of one type of currency ('from') for another ('to')
-    /// using standard D&D 5e conversion rates (flooring any fractional results).
+    /// using standard D&amp;D 5e conversion rates (flooring any fractional results).
     /// For example, exchanging 1 Gold ('from') with 'amount' 1 for Silver ('to')
     /// will deduct 1 Gold and add 10 Silver (1 GP = 10 SP).
     /// Exchanging 11 Silver ('from') with 'amount' 1 for Gold ('to')

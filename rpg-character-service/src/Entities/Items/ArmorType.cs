@@ -1,8 +1,8 @@
 namespace RPGCharacterService.Entities.Items {
   /// <summary>
-  /// Represents the different types of armor that can be equipped by characters.
+  /// Represents the different types of armor in D&amp;D 5e.
   /// Note: Shields are not included in this enum as they are treated as a separate equipment type,
-  /// unlike in D&D where they are considered a type of armor.
+  /// unlike in D&amp;D where they are considered a type of armor.
   /// </summary>
   public enum ArmorType {
     /// <summary>

@@ -6,7 +6,12 @@ using RPGCharacterService.Entities.Items;
 using RPGCharacterService.Persistence.DynamoDb.Models;
 
 namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
-  public class DynamoDbSeeder(IAmazonDynamoDB dynamoDb, IDynamoDBContext context, ILogger<DynamoDbSeeder> logger) {
+  /// <summary>
+  /// Class used to initially seed dynamo db from a configuration json file.
+  /// </summary>
+  /// <param name="context"></param>
+  /// <param name="logger"></param>
+  public class DynamoDbSeeder(IDynamoDBContext context, ILogger<DynamoDbSeeder> logger) {
     public async Task SeedItemsAsync() {
       try {
         logger.LogInformation("Starting to seed items from JSON file");

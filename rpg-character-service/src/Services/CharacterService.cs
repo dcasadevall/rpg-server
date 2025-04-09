@@ -97,7 +97,7 @@ namespace RPGCharacterService.Services {
       var character = new Character {
         Name = request.Name,
         Race = request.Race,
-        Subrace = request?.Subrace ?? "",
+        Subrace = request.Subrace ?? "",
         Class = request.Class,
         Level = 1,
         AbilityScores = abilityScores
