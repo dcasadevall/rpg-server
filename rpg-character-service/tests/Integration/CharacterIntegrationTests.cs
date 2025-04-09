@@ -48,7 +48,7 @@ public class CharacterIntegrationTests {
   public async Task CharacterLifecycle_ShouldWorkCorrectly() {
     // Create a character
     var createRequest = new CreateCharacterRequest {
-      Name = "Test Character",
+      Name = "PykeySimplyTheBest",
       Race = "Human",
       Class = "Fighter",
     };
