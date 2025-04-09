@@ -16,7 +16,8 @@ namespace RPGCharacterService.Dtos.Mapping {
         .ForMember(dest => dest.MaxHitPoints, opt => opt.MapFrom(src => src.CalculateMaxHitPoints()))
         .ForMember(dest => dest.ArmorClass, opt => opt.MapFrom(src => src.CalculateArmorClass()))
         .ForMember(dest => dest.ProficiencyBonus, opt => opt.MapFrom(src => src.CalculateProficiencyBonus()))
-        .ForMember(dest => dest.AbilityModifiers, opt => opt.MapFrom(src => src.CalculateAllAbilityModifiers()));
+        .ForMember(dest => dest.AbilityModifiers, opt => opt.MapFrom(src => src.CalculateAllAbilityModifiers()))
+        .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => src.Equipment));
 
       // Wealth to CurrencyResponse mapping
       CreateMap<Wealth, CurrencyResponse>();
@@ -41,6 +42,12 @@ namespace RPGCharacterService.Dtos.Mapping {
                      OffHandId = src.Equipment.OffHand != null ? src.Equipment.OffHand.Id : null,
                      ArmorId = src.Equipment.Armor != null ? src.Equipment.Armor.Id : null
                    }));
+
+      // Add mapping for Equipment to EquipmentDetails
+      CreateMap<Entities.Equipment, EquipmentDetails>()
+        .ForMember(dest => dest.MainHandId, opt => opt.MapFrom(src => src.MainHand != null ? src.MainHand.Id : (int?) null))
+        .ForMember(dest => dest.OffHandId, opt => opt.MapFrom(src => src.OffHand != null ? src.OffHand.Id : (int?) null))
+        .ForMember(dest => dest.ArmorId, opt => opt.MapFrom(src => src.Armor != null ? src.Armor.Id : (int?)null));
     }
   }
 }

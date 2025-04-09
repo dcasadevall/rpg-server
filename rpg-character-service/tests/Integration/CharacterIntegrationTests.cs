@@ -16,15 +16,29 @@ namespace RPGCharacterService.IntegrationTests;
 /// Set the TEST_API_ENDPOINT environment variable to specify the endpoint.
 /// e.g. TEST_API_ENDPOINT=http://localhost:5266
 /// </summary>
-public class CharacterIntegrationTests {
+public class CharacterIntegrationTests : IDisposable {
   private readonly string baseUrl;
   private readonly HttpClient client;
+  private Guid? testCharacterId;
 
   public CharacterIntegrationTests() {
     baseUrl = Environment.GetEnvironmentVariable("TEST_API_ENDPOINT") ?? "http://localhost:5266";
     client = new HttpClient {
       BaseAddress = new Uri(baseUrl)
     };
+  }
+
+  public void Dispose() {
+    if (testCharacterId.HasValue) {
+      try {
+        // Use a separate HttpClient to avoid any issues with the disposed client
+        using var cleanupClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
+        cleanupClient.DeleteAsync($"{baseUrl}/api/v1/characters/{testCharacterId}").Wait();
+      } catch (Exception ex) {
+        Console.WriteLine($"Failed to cleanup test character {testCharacterId}: {ex.Message}");
+      }
+    }
+    client.Dispose();
   }
 
   [Fact]
@@ -62,7 +76,7 @@ public class CharacterIntegrationTests {
     var createResponse = await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters", createRequest);
     await createResponse.EnsureSuccessStatusCodeWithLogging();
     var createdCharacter = await createResponse.Content.ReadFromJsonAsync<CharacterResponse>();
-    var characterId = createdCharacter!.Id;
+    testCharacterId = createdCharacter!.Id;
 
     // Try to modify currency (should error)
     var modifyCurrencyRequest = new ModifyCurrencyRequest {
@@ -73,7 +87,7 @@ public class CharacterIntegrationTests {
     };
 
     var modifyCurrencyResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency", modifyCurrencyRequest);
     modifyCurrencyResponse
       .StatusCode
       .Should()
@@ -87,7 +101,7 @@ public class CharacterIntegrationTests {
     };
 
     var exchangeCurrencyResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency/exchange",
                                     exchangeCurrencyRequest);
     exchangeCurrencyResponse
       .StatusCode
@@ -96,20 +110,20 @@ public class CharacterIntegrationTests {
 
     // Initialize currency. Empty body
     var initCurrencyResponse =
-      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/init", new object());
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency/init", new object());
     initCurrencyResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify we have some currency and store it for later verifications after modify / exchange
 
     // Modify currency
     var modifyResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency", modifyCurrencyRequest);
     modifyResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify state
 
     // Exchange currency
-    var exchangeResponse = await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
+    var exchangeResponse = await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/currency/exchange",
                                                          exchangeCurrencyRequest);
     exchangeResponse.EnsureSuccessStatusCode();
 
@@ -117,7 +131,7 @@ public class CharacterIntegrationTests {
 
     // Get character and verify stats
     var getCharacterResponse =
-      await client.GetFromJsonAsync<CharacterResponse>($"{baseUrl}/api/v1/characters/{characterId}");
+      await client.GetFromJsonAsync<CharacterResponse>($"{baseUrl}/api/v1/characters/{testCharacterId}");
     getCharacterResponse
       .Should()
       .NotBeNull();
@@ -176,10 +190,10 @@ public class CharacterIntegrationTests {
       .Be(expectedMaxHitPoints);
 
     // Modify hit points
-    var updateHitPointsRequest = new {HitPoints = -5};
+    var updateHitPointsRequest = new {Delta = -5};
     var expectedHitPointsAfter = Math.Max(0, expectedMaxHitPoints - 5);
     var updateHitPointsResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/hit-points", updateHitPointsRequest);
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/stats/hitpoints", updateHitPointsRequest);
     updateHitPointsResponse.EnsureSuccessStatusCode();
 
     // Read response and verify that we have the proper hit points
@@ -216,7 +230,7 @@ public class CharacterIntegrationTests {
       OffHand = false
     };
     var addMainHandResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{mainHandId}",
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/equipment/weapon/{mainHandId}",
                                     equipMainHandRequest);
     addMainHandResponse.EnsureSuccessStatusCode();
 
@@ -224,7 +238,7 @@ public class CharacterIntegrationTests {
       OffHand = true
     };
     var equipOffHandResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{offHandId}",
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/equipment/weapon/{offHandId}",
                                     equipOffHandRequest);
     equipOffHandResponse.EnsureSuccessStatusCode();
 
@@ -243,7 +257,7 @@ public class CharacterIntegrationTests {
 
     var shieldId = 50;
     var equipShieldResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/shield/{shieldId}",
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/equipment/shield/{shieldId}",
                                     new object());
     equipShieldResponse.EnsureSuccessStatusCode();
 
@@ -262,7 +276,7 @@ public class CharacterIntegrationTests {
 
     var armorId = 40;
     var equipArmorResponse =
-      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/armor/{armorId}",
+      await client.PatchAsJsonAsync($"{baseUrl}/api/v1/characters/{testCharacterId}/equipment/armor/{armorId}",
                                     new object());
     equipArmorResponse.EnsureSuccessStatusCode();
 
@@ -286,7 +300,7 @@ public class CharacterIntegrationTests {
 
     // View character and verify equipment
     var characterWithEquipment =
-      await client.GetFromJsonAsync<CharacterResponse>($"{baseUrl}/api/v1/characters/{characterId}");
+      await client.GetFromJsonAsync<CharacterResponse>($"{baseUrl}/api/v1/characters/{testCharacterId}");
     characterWithEquipment
       .Should()
       .NotBeNull();
@@ -296,27 +310,27 @@ public class CharacterIntegrationTests {
       .NotBeNull();
     characterWithEquipment
       .Equipment
-      .MainHand
+      .MainHandId
       .Should()
       .Be(mainHandId);
     characterWithEquipment
       .Equipment
-      .OffHand
+      .OffHandId
       .Should()
       .Be(shieldId);
     characterWithEquipment
       .Equipment
-      .Armor
+      .ArmorId
       .Should()
       .Be(armorId);
     // TODO: Verify armor class and weapon damage bonus
 
     // Delete character
-    var deleteResponse = await client.DeleteAsync($"{baseUrl}/api/v1/characters/{characterId}");
+    var deleteResponse = await client.DeleteAsync($"{baseUrl}/api/v1/characters/{testCharacterId}");
     deleteResponse.EnsureSuccessStatusCode();
 
     // Get character should return error
-    var getDeletedResponse = await client.GetAsync($"{baseUrl}/api/v1/characters/{characterId}");
+    var getDeletedResponse = await client.GetAsync($"{baseUrl}/api/v1/characters/{testCharacterId}");
     getDeletedResponse
       .StatusCode
       .Should()
@@ -326,6 +340,6 @@ public class CharacterIntegrationTests {
     var finalCharacters = await client.GetFromJsonAsync<List<CharacterResponse>>($"{baseUrl}/api/v1/characters");
     finalCharacters
       .Should()
-      .NotContain(c => c.Id == characterId);
+      .NotContain(c => c.Id == testCharacterId);
   }
 }

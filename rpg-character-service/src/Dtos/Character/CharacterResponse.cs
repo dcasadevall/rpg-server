@@ -1,3 +1,4 @@
+using RPGCharacterService.Dtos.Equipment;
 using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
 using Swashbuckle.AspNetCore.Annotations;
@@ -59,7 +60,7 @@ namespace RPGCharacterService.Dtos.Character {
     ///   The character's equipped items
     /// </summary>
     [SwaggerSchema(Description = "The character's currently equipped items")]
-    public Entities.Equipment Equipment { get; init; } = new();
+    public EquipmentDetails Equipment { get; init; } = new();
 
     /// <summary>
     ///   The character's wealth (currencies)
