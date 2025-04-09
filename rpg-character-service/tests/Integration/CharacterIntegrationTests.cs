@@ -10,26 +10,44 @@ using RPGCharacterService.Entities.Characters;
 
 namespace RPGCharacterService.IntegrationTests;
 
-public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory> {
-  private readonly HttpClient client = factory.CreateClient();
+/// <summary>
+/// Integration tests for the RPG Character Service.
+/// These tests require a running instance of the service.
+/// Set the TEST_API_ENDPOINT environment variable to specify the endpoint.
+/// e.g. TEST_API_ENDPOINT=http://localhost:5266
+/// </summary>
+public class CharacterIntegrationTests {
+  private readonly string baseUrl;
+  private readonly HttpClient client;
+
+  public CharacterIntegrationTests() {
+    baseUrl = Environment.GetEnvironmentVariable("TEST_API_ENDPOINT") ?? "http://localhost:5266";
+    client = new HttpClient {
+      BaseAddress = new Uri(baseUrl)
+    };
+  }
 
   [Fact]
   public async Task GetCharacters_ReturnsSuccessStatusCode() {
-    // Arrange & Act
-    var response = await client.GetAsync("/api/characters");
+    try {
+      // Arrange & Act
+      var response = await client.GetAsync($"{baseUrl}/api/v1/characters");
 
-    // Assert
-    response.EnsureSuccessStatusCode();
-    response
-      .StatusCode
-      .Should()
-      .Be(HttpStatusCode.OK);
+      // Assert
+      response.EnsureSuccessStatusCode();
+      response
+        .StatusCode
+        .Should()
+        .Be(HttpStatusCode.OK);
+    } catch (Exception ex) {
+      throw new Exception($"Test failed. Make sure the service is running at {baseUrl}. Error: {ex.Message}", ex);
+    }
   }
 
   [Fact]
   public async Task CharacterLifecycle_ShouldWorkCorrectly() {
     // List characters (empty)
-    var characters = await client.GetFromJsonAsync<List<CharacterResponse>>("/api/v1/characters");
+    var characters = await client.GetFromJsonAsync<List<CharacterResponse>>($"{baseUrl}/api/v1/characters");
     characters
       .Should()
       .BeEmpty();
@@ -41,7 +59,7 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
       Class = "Fighter",
     };
 
-    var createResponse = await client.PostAsJsonAsync("/api/v1/characters", createRequest);
+    var createResponse = await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters", createRequest);
     createResponse.EnsureSuccessStatusCode();
     var createdCharacter = await createResponse.Content.ReadFromJsonAsync<CharacterResponse>();
     var characterId = createdCharacter!.Id;
@@ -55,7 +73,7 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
     };
 
     var modifyCurrencyResponse =
-      await client.PutAsJsonAsync($"/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
+      await client.PutAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
     modifyCurrencyResponse
       .StatusCode
       .Should()
@@ -69,7 +87,8 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
     };
 
     var exchangeCurrencyResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/currency/exchange", exchangeCurrencyRequest);
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
+                                   exchangeCurrencyRequest);
     exchangeCurrencyResponse
       .StatusCode
       .Should()
@@ -77,27 +96,28 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
 
     // Initialize currency. Empty body
     var initCurrencyResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/currency/initialize", new object());
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/initialize", new object());
     initCurrencyResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify we have some currency and store it for later verifications after modify / exchange
 
     // Modify currency
     var modifyResponse =
-      await client.PutAsJsonAsync($"/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
+      await client.PutAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency", modifyCurrencyRequest);
     modifyResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify state
 
     // Exchange currency
-    var exchangeResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/currency/exchange", exchangeCurrencyRequest);
+    var exchangeResponse = await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/currency/exchange",
+                                                        exchangeCurrencyRequest);
     exchangeResponse.EnsureSuccessStatusCode();
 
     // TODO: Verify state
 
     // Get character and verify stats
-    var getCharacterResponse = await client.GetFromJsonAsync<CharacterResponse>($"/api/v1/characters/{characterId}");
+    var getCharacterResponse =
+      await client.GetFromJsonAsync<CharacterResponse>($"{baseUrl}/api/v1/characters/{characterId}");
     getCharacterResponse
       .Should()
       .NotBeNull();
@@ -159,7 +179,7 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
     var updateHitPointsRequest = new {HitPoints = -5};
     var expectedHitPointsAfter = Math.Max(0, expectedMaxHitPoints - 5);
     var updateHitPointsResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/hit-points", updateHitPointsRequest);
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/hit-points", updateHitPointsRequest);
     updateHitPointsResponse.EnsureSuccessStatusCode();
 
     // Read response and verify that we have the proper hit points
@@ -174,7 +194,7 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
 
     // Roll dice a few times
     for (var i = 0; i < 3; i++) {
-      var rollResponse = await client.GetAsync($"/api/v1/dice/roll?sides=4&count=2");
+      var rollResponse = await client.GetAsync($"{baseUrl}/api/v1/dice/roll?sides=4&count=2");
       rollResponse.EnsureSuccessStatusCode();
       var rollResult = await rollResponse.Content.ReadFromJsonAsync<RollDiceResponse>();
       rollResult
@@ -196,16 +216,16 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
       OffHand = false
     };
     var addMainHandResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/weapon/{mainHandId}",
-                                    equipMainHandRequest);
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{mainHandId}",
+                                   equipMainHandRequest);
     addMainHandResponse.EnsureSuccessStatusCode();
 
     var equipOffHandRequest = new EquipWeaponRequest {
       OffHand = true
     };
     var equipOffHandResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/weapon/{offHandId}",
-                                    equipOffHandRequest);
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/weapon/{offHandId}",
+                                   equipOffHandRequest);
     equipOffHandResponse.EnsureSuccessStatusCode();
 
     // Read response and verify that we have the proper main / offhand equipped
@@ -223,7 +243,8 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
 
     var shieldId = 50;
     var equipShieldResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/shield/{shieldId}", new object());
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/shield/{shieldId}",
+                                   new object());
     equipShieldResponse.EnsureSuccessStatusCode();
 
     // Read response and verify we have a shield
@@ -241,7 +262,8 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
 
     var armorId = 40;
     var equipArmorResponse =
-      await client.PostAsJsonAsync($"/api/v1/characters/{characterId}/equipment/armor/{armorId}", new object());
+      await client.PostAsJsonAsync($"{baseUrl}/api/v1/characters/{characterId}/equipment/armor/{armorId}",
+                                   new object());
     equipArmorResponse.EnsureSuccessStatusCode();
 
     // Read response and verify we have armor
@@ -263,7 +285,8 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
       .Be(armorId);
 
     // View character and verify equipment
-    var characterWithEquipment = await client.GetFromJsonAsync<CharacterResponse>($"/api/v1/characters/{characterId}");
+    var characterWithEquipment =
+      await client.GetFromJsonAsync<CharacterResponse>($"{baseUrl}/api/v1/characters/{characterId}");
     characterWithEquipment
       .Should()
       .NotBeNull();
@@ -289,18 +312,18 @@ public class CharacterIntegrationTests(CustomWebApplicationFactory factory) : IC
     // TODO: Verify armor class and weapon damage bonus
 
     // Delete character
-    var deleteResponse = await client.DeleteAsync($"/api/v1/characters/{characterId}");
+    var deleteResponse = await client.DeleteAsync($"{baseUrl}/api/v1/characters/{characterId}");
     deleteResponse.EnsureSuccessStatusCode();
 
     // Get character should return error
-    var getDeletedResponse = await client.GetAsync($"/api/v1/characters/{characterId}");
+    var getDeletedResponse = await client.GetAsync($"{baseUrl}/api/v1/characters/{characterId}");
     getDeletedResponse
       .StatusCode
       .Should()
       .Be(HttpStatusCode.NotFound);
 
     // List characters should be empty
-    var finalCharacters = await client.GetFromJsonAsync<List<CharacterResponse>>("/api/v1/characters");
+    var finalCharacters = await client.GetFromJsonAsync<List<CharacterResponse>>($"{baseUrl}/api/v1/characters");
     finalCharacters
       .Should()
       .BeEmpty();
