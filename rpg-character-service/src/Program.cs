@@ -6,6 +6,8 @@ using RPGCharacterService.Controllers.Filters;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
 using RPGCharacterService.Services;
+using RPGCharacterService.Infrastructure.Data;
+using RPGCharacterService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +20,18 @@ builder.Services.AddControllers(options => {
   options.Filters.Add(typeof(ExceptionFilterAttribute));
 });
 
-builder.Services.AddSingleton<ICharacterRepository, InMemoryCharacterRepository>();
-builder.Services.AddScoped<IItemRepository, InMemoryItemRepository>();
+// Add database services based on environment
+if (builder.Environment.IsDevelopment())
+{
+    // Use in-memory repositories for development
+    builder.Services.AddInMemoryRepositories();
+}
+else
+{
+    // Use database repositories for production
+    builder.Services.AddDatabase(builder.Configuration);
+}
+
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
