@@ -1,48 +1,33 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using RPGCharacterService.Infrastructure.Data;
+using RPGCharacterService.Infrastructure.Data.Mapping;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
 
-namespace RPGCharacterService.Infrastructure.Extensions
-{
+namespace RPGCharacterService.Infrastructure.Extensions {
+  public static class ServiceCollectionExtensions {
     /// <summary>
-    /// Extension methods for IServiceCollection.
+    /// Adds the infrastructure namespace related dependencies to the service collection.
     /// </summary>
-    public static class ServiceCollectionExtensions
-    {
-        /// <summary>
-        /// Adds database services to the service collection.
-        /// </summary>
-        /// <param name="services">The service collection.</param>
-        /// <param name="connectionString">The db connection string.</param>
-        /// <returns>The service collection.</returns>
-        public static IServiceCollection AddDatabase(this IServiceCollection services, string connectionString)
-        {
-            // Add the DbContext
-            services.AddDbContext<RpgDbContext>(options =>
-                options.UseNpgsql(connectionString, npgsqlOptions =>
-                    npgsqlOptions.MigrationsAssembly("RPGCharacterService.Infrastructure")));
+    /// <param name="services"></param>
+    /// <param name="connectionString"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddInfrastructureDependencies(this IServiceCollection services,
+                                                                   string connectionString) {
+      // Set the repositories for the application to ECF repositories
+      services.AddScoped<ICharacterRepository, EntityFrameworkCharacterRepository>();
+      services.AddScoped<IItemRepository, EntityFrameworkItemRepository>();
 
-            // Add the repositories
-            services.AddScoped<ICharacterRepository, EntityFrameworkCharacterRepository>();
-            services.AddScoped<IItemRepository, EntityFrameworkItemRepository>();
+      // Configure the DbContext to use the given connection string
+      services.AddDbContext<RpgDbContext>(options => options.UseNpgsql(connectionString,
+                                                                       npgsqlOptions =>
+                                                                         npgsqlOptions
+                                                                           .MigrationsAssembly("RPGCharacterService.Infrastructure")));
 
-            return services;
-        }
+      // Add AutoMapper for mapping between entities and models
+      services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-        /// <summary>
-        /// Adds in-memory repositories for local development and testing.
-        /// </summary>
-        /// <param name="services">The service collection.</param>
-        /// <returns>The service collection.</returns>
-        public static IServiceCollection AddInMemoryRepositories(this IServiceCollection services)
-        {
-            services.AddSingleton<ICharacterRepository, InMemoryCharacterRepository>();
-            services.AddSingleton<IItemRepository, InMemoryItemRepository>();
-
-            return services;
-        }
+      return services;
     }
+  }
 }

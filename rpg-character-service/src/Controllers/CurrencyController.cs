@@ -1,9 +1,10 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Currency.Requests;
 using RPGCharacterService.Dtos.Currency.Responses;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Currency;
-using RPGCharacterService.Mappers;
+using RPGCharacterService.Models;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -15,7 +16,7 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:ApiVersion}/characters/{characterId:guid}/currency")]
-  public class CurrencyController(ICurrencyService currencyService, ICharacterService characterService)
+  public class CurrencyController(ICurrencyService currencyService, IMapper mapper)
     : ControllerBase {
     /// <summary>
     /// Initializes a character's currency by randomly generating starting amounts.
@@ -34,7 +35,7 @@ namespace RPGCharacterService.Controllers {
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId) {
       try {
         var character = await currencyService.GenerateInitialCurrencyAsync(characterId);
-        var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
+        var currencyResponse = mapper.Map<CurrencyResponse>(character.Wealth);
         return Ok(currencyResponse);
       } catch (CharacterNotFoundException) {
         return NotFound(new {
@@ -79,9 +80,9 @@ namespace RPGCharacterService.Controllers {
       }
 
       try {
-        var currencyChanges = CurrencyMapper.ToDictionary(request);
+        var currencyChanges = mapper.Map<Dictionary<CurrencyType, int>>(request);
         var character = await currencyService.ModifyCurrenciesAsync(characterId, currencyChanges);
-        var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
+        var currencyResponse = mapper.Map<CurrencyResponse>(character.Wealth);
         return Ok(currencyResponse);
       } catch (CharacterNotFoundException) {
         return NotFound(new {
@@ -143,7 +144,7 @@ namespace RPGCharacterService.Controllers {
       try {
         var character =
           await currencyService.ExchangeCurrencyAsync(characterId, request.From, request.To, request.Amount);
-        var currencyResponse = CurrencyMapper.ToCurrencyResponse(character.Wealth);
+        var currencyResponse = mapper.Map<CurrencyResponse>(character.Wealth);
         return Ok(currencyResponse);
       } catch (CharacterNotFoundException ex) {
         return NotFound(new {

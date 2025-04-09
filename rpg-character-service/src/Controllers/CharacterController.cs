@@ -1,7 +1,7 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Exceptions.Character;
-using RPGCharacterService.Mappers;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -14,7 +14,7 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:apiVersion}/characters")]
-  public class CharacterController(ICharacterService characterService) : ControllerBase {
+  public class CharacterController(ICharacterService characterService, IMapper mapper) : ControllerBase {
     /// <summary>
     /// Retrieves a list of all characters.
     /// </summary>
@@ -26,7 +26,7 @@ namespace RPGCharacterService.Controllers {
     public async Task<ActionResult<List<CharacterResponse>>> GetAllCharacters() {
       var characters = await characterService.GetAllCharactersAsync();
       return Ok(characters
-                .Select(CharacterMapper.ToResponse)
+                .Select(c => mapper.Map<CharacterResponse>(c))
                 .ToList());
     }
 
@@ -47,10 +47,12 @@ namespace RPGCharacterService.Controllers {
       [SwaggerParameter("Character identifier", Required = true)] Guid id) {
       try {
         var character = await characterService.GetCharacterAsync(id);
-        var characterResponse = CharacterMapper.ToResponse(character);
-        return Ok(characterResponse);
-      } catch (CharacterNotFoundException ex) {
-        return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
+        return Ok(mapper.Map<CharacterResponse>(character));
+      } catch (CharacterNotFoundException) {
+        return NotFound(new {
+          error = "CHARACTER_NOT_FOUND",
+          message = "Character not found."
+        });
       }
     }
 
@@ -73,7 +75,7 @@ namespace RPGCharacterService.Controllers {
       CreateCharacterRequest request) {
       try {
         var newCharacter = await characterService.CreateCharacterAsync(request);
-        var characterResponse = CharacterMapper.ToResponse(newCharacter);
+        var characterResponse = mapper.Map<CharacterResponse>(newCharacter);
         return CreatedAtAction(nameof(GetCharacterById), new {id = newCharacter.Id}, characterResponse);
       } catch (InappropriateNameException) {
         return BadRequest(new {error = "NAME_INAPPROPRIATE", message = "The provided name is inappropriate and cannot be used."});

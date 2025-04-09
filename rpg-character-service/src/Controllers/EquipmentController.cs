@@ -1,9 +1,9 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RPGCharacterService.Dtos.Equipment;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Exceptions.Items;
-using RPGCharacterService.Mappers;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -15,7 +15,7 @@ namespace RPGCharacterService.Controllers {
   [ApiController]
   [ApiVersion("1.0")]
   [Route("api/v{version:apiVersion}/characters/{characterId:guid}/equipment")]
-  public class EquipmentController(IEquipmentService equipmentService) : ControllerBase {
+  public class EquipmentController(IEquipmentService equipmentService, IMapper mapper) : ControllerBase {
     /// <summary>
     /// Equips a piece of armor to a character.
     /// </summary>
@@ -37,7 +37,7 @@ namespace RPGCharacterService.Controllers {
       [SwaggerParameter("Armor item identifier", Required = true)] int armorId) {
       try {
         var character = await equipmentService.EquipArmorAsync(characterId, armorId);
-        return Ok(EquipmentMapper.ToResponse(character));
+        return Ok(mapper.Map<EquipmentResponse>(character));
       } catch (CharacterNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       } catch (ItemNotFoundException) {
@@ -70,7 +70,7 @@ namespace RPGCharacterService.Controllers {
       [FromBody] [SwaggerRequestBody("Off-hand weapon details", Required = false)] EquipWeaponRequest request) {
       try {
         var character = await equipmentService.EquipWeaponAsync(characterId, weaponId, request.OffHand ?? false);
-        return Ok(EquipmentMapper.ToResponse(character));
+        return Ok(mapper.Map<EquipmentResponse>(character));
       } catch (CharacterNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       } catch (ItemNotFoundException) {
@@ -101,7 +101,7 @@ namespace RPGCharacterService.Controllers {
       [SwaggerParameter("Shield item identifier", Required = true)] int shieldId) {
       try {
         var character = await equipmentService.EquipShieldAsync(characterId, shieldId);
-        return Ok(EquipmentMapper.ToResponse(character));
+        return Ok(mapper.Map<EquipmentResponse>(character));
       } catch (CharacterNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       } catch (ItemNotFoundException) {

@@ -1,14 +1,13 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
-using RPGCharacterService.Controllers;
 using RPGCharacterService.Controllers.Filters;
 using RPGCharacterService.Persistence.Characters;
 using RPGCharacterService.Persistence.Items;
 using RPGCharacterService.Services;
-using RPGCharacterService.Infrastructure.Data;
 using RPGCharacterService.Infrastructure.Extensions;
 using DotNetEnv;
+using RPGCharacterService.Dtos.Mapping;
 
 // Load environment variables from .env file
 Env.Load();
@@ -31,30 +30,31 @@ var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "rpg_character_ser
 var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-if (string.IsNullOrEmpty(dbPassword))
-{
-    throw new InvalidOperationException("Database password is not configured. Please set DB_PASSWORD in your .env file.");
+if (string.IsNullOrEmpty(dbPassword)) {
+  throw new InvalidOperationException("Database password is not configured. Please set DB_PASSWORD in your .env file.");
 }
 
 var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
 // Add database services based on environment
-if (builder.Environment.IsDevelopment())
-{
-    // Use in-memory repositories for development
-    builder.Services.AddInMemoryRepositories();
-}
-else
-{
-    // Use database repositories for staging / production
-    builder.Services.AddDatabase(connectionString);
+if (builder.Environment.IsDevelopment()) {
+  // Use in-memory repositories for development
+  builder.Services.AddSingleton<ICharacterRepository, InMemoryCharacterRepository>();
+  builder.Services.AddSingleton<IItemRepository, InMemoryItemRepository>();
+} else {
+  // Use database repositories for staging / production
+  builder.Services.AddInfrastructureDependencies(connectionString);
 }
 
+// Add Domain dependencies
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddSingleton<IDiceService, DiceService>();
+
+// Add Dto Automapper
+builder.Services.AddAutoMapper(typeof(DtoMappingProfile).Assembly);
 
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
