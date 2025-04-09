@@ -1,7 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using RPGCharacterService.Entities.Items;
 
-namespace RPGCharacterService.Infrastructure.Data.Models {
+namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// <summary>
   /// DynamoDB representation of an item.
   /// </summary>

@@ -1,7 +1,7 @@
-using RPGCharacterService.Exceptions.Items;
 using RPGCharacterService.Entities.Items;
+using RPGCharacterService.Exceptions.Items;
 
-namespace RPGCharacterService.Persistence.Items {
+namespace RPGCharacterService.Persistence {
   /// <summary>
   /// Interface defining the contract for item persistence operations.
   /// </summary>

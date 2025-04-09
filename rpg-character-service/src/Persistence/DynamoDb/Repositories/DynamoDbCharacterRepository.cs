@@ -2,10 +2,9 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using AutoMapper;
 using RPGCharacterService.Entities.Characters;
-using RPGCharacterService.Infrastructure.Data.Models;
-using RPGCharacterService.Persistence.Characters;
+using RPGCharacterService.Persistence.DynamoDb.Models;
 
-namespace RPGCharacterService.Infrastructure.Data;
+namespace RPGCharacterService.Persistence.DynamoDb;
 
 /// <summary>
 /// DynamoDB implementation of the character repository.

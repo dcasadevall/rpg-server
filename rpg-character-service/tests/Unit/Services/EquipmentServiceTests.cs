@@ -2,8 +2,7 @@ using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Items;
 using RPGCharacterService.Entities.Characters;
 using RPGCharacterService.Entities.Items;
-using RPGCharacterService.Persistence.Characters;
-using RPGCharacterService.Persistence.Items;
+using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 
 namespace RPGCharacterService.UnitTests.Services {

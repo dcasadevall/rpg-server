@@ -1,6 +1,6 @@
 using RPGCharacterService.Entities.Characters;
 
-namespace RPGCharacterService.Persistence.Characters {
+namespace RPGCharacterService.Persistence.InMemory {
   /// <summary>
   /// In-memory implementation of ICharacterRepository for local testing and development.
   /// This implementation stores characters in a dictionary and is not suitable for production use

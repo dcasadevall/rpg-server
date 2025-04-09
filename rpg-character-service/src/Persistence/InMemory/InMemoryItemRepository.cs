@@ -1,6 +1,6 @@
 using RPGCharacterService.Entities.Items;
 
-namespace RPGCharacterService.Persistence.Items {
+namespace RPGCharacterService.Persistence.InMemory {
     /// <summary>
     /// In-memory implementation of IItemRepository for local testing and development.
     /// This implementation stores items in a dictionary and is not suitable for production use

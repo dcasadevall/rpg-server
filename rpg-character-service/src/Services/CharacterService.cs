@@ -2,7 +2,7 @@ using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
-using RPGCharacterService.Persistence.Characters;
+using RPGCharacterService.Persistence;
 
 namespace RPGCharacterService.Services {
   public interface ICharacterService {

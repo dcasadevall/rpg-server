@@ -2,12 +2,11 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using RPGCharacterService.Controllers.Filters;
-using RPGCharacterService.Persistence.Characters;
-using RPGCharacterService.Persistence.Items;
 using RPGCharacterService.Services;
-using RPGCharacterService.Infrastructure.Extensions;
 using DotNetEnv;
 using RPGCharacterService.Dtos.Mapping;
+using RPGCharacterService.Persistence.DynamoDb.Configuration;
+using RPGCharacterService.Persistence.InMemory;
 
 // Load environment variables from .env file
 Env.Load();
@@ -26,11 +25,12 @@ builder.Services.AddControllers(options => {
 // Add database services based on environment
 if (builder.Environment.IsDevelopment()) {
   // Use in-memory repositories for development
-  builder.Services.AddSingleton<ICharacterRepository, InMemoryCharacterRepository>();
-  builder.Services.AddSingleton<IItemRepository, InMemoryItemRepository>();
+  Console.WriteLine("Using InMemory for persistence");
+  builder.Services.ConfigureInMemoryPersistence();
 } else {
   // Use database repositories for staging / production
-  builder.Services.AddDynamoDb();
+  Console.WriteLine("Using DynamoDB for persistence");
+  builder.Services.ConfigureDynamoDbPersistence();
 }
 
 // Add Domain dependencies
@@ -84,6 +84,13 @@ builder.Services.AddVersionedApiExplorer(options => {
 });
 
 var app = builder.Build();
+
+// Initialize DynamoDB tables in non-development environments
+if (!app.Environment.IsDevelopment()) {
+  using var scope = app.Services.CreateScope();
+  var dynamoDbInitializer = scope.ServiceProvider.GetRequiredService<DynamoDbInitializationService>();
+  await dynamoDbInitializer.InitializeTablesAsync();
+}
 
 // Enable Swagger Middleware
 app.UseSwagger();

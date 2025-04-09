@@ -1,8 +1,8 @@
 using AutoMapper;
 using RPGCharacterService.Entities.Items;
-using RPGCharacterService.Infrastructure.Data.Models;
+using RPGCharacterService.Persistence.DynamoDb.Models;
 
-namespace RPGCharacterService.Infrastructure.Data.Mapping {
+namespace RPGCharacterService.Persistence.DynamoDb.Mapping {
   /// <summary>
   /// AutoMapper profile for mapping between Item and ItemDocument.
   /// </summary>

@@ -1,6 +1,6 @@
 using Amazon.DynamoDBv2.DataModel;
 
-namespace RPGCharacterService.Infrastructure.Data.Models {
+namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// <summary>
   /// DynamoDB representation of a character.
   /// </summary>

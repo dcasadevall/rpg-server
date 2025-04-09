@@ -1,5 +1,5 @@
 using RPGCharacterService.Entities.Characters;
-using RPGCharacterService.Persistence.Characters;
+using RPGCharacterService.Persistence;
 
 namespace RPGCharacterService.Services {
   /// <summary>

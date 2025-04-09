@@ -1,10 +1,9 @@
 using Amazon.DynamoDBv2.DataModel;
 using AutoMapper;
 using RPGCharacterService.Entities.Items;
-using RPGCharacterService.Infrastructure.Data.Models;
-using RPGCharacterService.Persistence.Items;
+using RPGCharacterService.Persistence.DynamoDb.Models;
 
-namespace RPGCharacterService.Infrastructure.Data {
+namespace RPGCharacterService.Persistence.DynamoDb.Repositories {
   /// <summary>
   /// DynamoDB implementation of the item repository.
   /// </summary>

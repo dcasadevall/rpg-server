@@ -1,9 +1,9 @@
 using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
-using RPGCharacterService.Persistence.Characters;
 using System;
-using RPGCharacterService.Exceptions.Character; // Needed for Math and ArgumentOutOfRangeException
+using RPGCharacterService.Exceptions.Character;
+using RPGCharacterService.Persistence; // Needed for Math and ArgumentOutOfRangeException
 
 namespace RPGCharacterService.Services {
   /// <summary>

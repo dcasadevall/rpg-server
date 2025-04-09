@@ -1,7 +1,7 @@
-using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Entities.Characters;
+using RPGCharacterService.Exceptions.Character;
 
-namespace RPGCharacterService.Persistence.Characters {
+namespace RPGCharacterService.Persistence {
   /// <summary>
   /// Defines the interface for character management.
   /// </summary>

@@ -3,7 +3,7 @@ using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Currency;
 using RPGCharacterService.Entities;
 using RPGCharacterService.Entities.Characters;
-using RPGCharacterService.Persistence.Characters;
+using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 
 namespace RPGCharacterService.UnitTests.Services {
