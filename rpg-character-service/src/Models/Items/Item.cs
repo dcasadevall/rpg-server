@@ -25,11 +25,6 @@ namespace RPGCharacterService.Models.Items {
   /// </summary>
   public record EquipmentStats {
     /// <summary>
-    /// Gets the bonus to armor class provided by this equipment.
-    /// </summary>
-    public int ArmorBonus { get; init; }
-
-    /// <summary>
     /// Gets the type of equipment (Armor, Weapon, or Shield).
     /// </summary>
     public EquipmentType EquipmentType { get; init; }

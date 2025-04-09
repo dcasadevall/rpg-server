@@ -36,7 +36,7 @@ namespace RPGCharacterService.Models {
     public int CalculateArmorClass(int dexterityModifier) {
       var armorType = Armor?.EquipmentStats?.ArmorStats?.ArmorType ?? ArmorType.None;
       var baseArmorClass = Armor?.EquipmentStats?.ArmorStats?.BaseArmorClass ?? 0;
-      var shieldBonus = OffHand?.IsShield() ?? false ? OffHand.EquipmentStats?.ArmorBonus ?? 0 :  0;
+      var shieldBonus = (OffHand?.IsShield() ?? false) ? 2 : 0;
 
       var acBeforeBonus = armorType switch {
         ArmorType.Light => baseArmorClass + dexterityModifier,
