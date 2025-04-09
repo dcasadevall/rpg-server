@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using RPGCharacterService.Entities.Items;
@@ -11,9 +12,23 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
         logger.LogInformation("Starting to seed items from JSON file");
 
         // Read the JSON file
-        var jsonPath = Path.Combine(AppContext.BaseDirectory, "Configuration", "seed-data.json");
+        var jsonPath = Path.Combine(AppContext.BaseDirectory, "Persistence", "DynamoDb", "Configuration", "seed-data.json");
+        logger.LogInformation("Looking for seed data file at: {Path}", jsonPath);
+
+        if (!File.Exists(jsonPath)) {
+          logger.LogError("Seed data file not found at: {Path}", jsonPath);
+          return;
+        }
+
         var jsonContent = await File.ReadAllTextAsync(jsonPath);
-        var seedData = JsonSerializer.Deserialize<SeedData>(jsonContent);
+        logger.LogInformation("Read {Length} bytes from seed data file", jsonContent.Length);
+
+        var options = new JsonSerializerOptions {
+          PropertyNameCaseInsensitive = true
+        };
+
+        var seedData = JsonSerializer.Deserialize<SeedData>(jsonContent, options);
+        logger.LogInformation("Deserialized seed data. Items count: {Count}", seedData?.Items?.Count ?? 0);
 
         if (seedData?.Items == null || !seedData.Items.Any()) {
           logger.LogWarning("No items found in seed data file");
@@ -61,24 +76,40 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
     }
 
     private class SeedData {
+      [JsonPropertyName("items")]
       public List<SeedItem> Items { get; set; } = new();
     }
 
     private class SeedItem {
+      [JsonPropertyName("id")]
       public string Id { get; set; } = string.Empty;
+
+      [JsonPropertyName("name")]
       public string Name { get; set; } = string.Empty;
+
+      [JsonPropertyName("equipmentType")]
       public string EquipmentType { get; set; } = string.Empty;
+
+      [JsonPropertyName("weaponStats")]
       public SeedWeaponStats? WeaponStats { get; set; }
+
+      [JsonPropertyName("armorStats")]
       public SeedArmorStats? ArmorStats { get; set; }
     }
 
     private class SeedWeaponStats {
+      [JsonPropertyName("weaponProperties")]
       public List<string> WeaponProperties { get; set; } = new();
+
+      [JsonPropertyName("rangeType")]
       public string RangeType { get; set; } = string.Empty;
     }
 
     private class SeedArmorStats {
+      [JsonPropertyName("baseArmorClass")]
       public int BaseArmorClass { get; set; }
+
+      [JsonPropertyName("armorType")]
       public string ArmorType { get; set; } = string.Empty;
     }
   }

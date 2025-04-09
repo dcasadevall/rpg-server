@@ -34,4 +34,10 @@
         <_ContentIncludedByDefault Remove="wwwroot\openapi.json"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="Persistence\DynamoDb\Configuration\seed-data.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
 </Project>
