@@ -41,6 +41,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
         }
 
         // Check if items already exist
+        // This is a very naive check, but it works for local development
         var existingItems = await context
                                   .ScanAsync<ItemDocument>([])
                                   .GetRemainingAsync();

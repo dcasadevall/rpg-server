@@ -5,6 +5,8 @@ using RPGCharacterService.Persistence.DynamoDb.Configuration;
 namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// <summary>
   /// DynamoDB representation of a character.
+  /// Note that table names are hardcoded, but in a real project
+  /// we would use environment variables or configuration files to set the table names.
   /// </summary>
   [DynamoDBTable("characters")]
   public class CharacterDocument {

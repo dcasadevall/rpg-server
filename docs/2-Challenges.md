@@ -22,6 +22,16 @@ Ultimately I was able to find a way to register a prefix via dynamo db context
 
 ## Possible Future Improvements
 
+### Variable consolidation
+
 There are a few variables that one could in theory pass from TF outputs to the kustomize deployment variables.
 For example, characters / items table right now are hardcoded in C#, but they could be passed from the
 TF output to avoid inconsistencies.
+
+### Table initialization via terraform only
+
+I chose to initialize tables and seed via C# code due to ease of use when developing locally, however,
+this is redundant with the initialization / seeding in terraform.
+
+In a real environment, I would not have C# initialization and let all that happen only on terraform.
+Maybe separate the C# initialization so that it only happens on local builds.

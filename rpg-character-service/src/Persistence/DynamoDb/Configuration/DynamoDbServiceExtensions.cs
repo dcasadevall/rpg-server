@@ -35,7 +35,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
         var db = sp.GetRequiredService<IAmazonDynamoDB>();
 
         var contextConfig = new DynamoDBContextConfig {
-          TableNamePrefix = $"{settings.DbPrefix}-"
+          TableNamePrefix = $"{settings.DbPrefix}"
         };
 
         return new DynamoDBContext(db, contextConfig);

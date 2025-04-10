@@ -1,26 +1,31 @@
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using RPGCharacterService.Persistence.DynamoDb.Models;
 
 namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
   /// <summary>
   /// Service for initializing DynamoDB tables.
   /// This is useful for local setups where terraform or other infrastructure tools are not used.
   /// It is harmless to run this in production, but it is not necessary.
+  /// Note that table names are hardcoded (here and in the document files), but in a real project
+  /// we would use environment variables or configuration files to set the table names.
   /// </summary>
   public class DynamoDbInitializer(IAmazonDynamoDB client,
                                    DynamoDbSeeder seeder,
-                                   ILogger<DynamoDbInitializer> logger) {
+                                   ILogger<DynamoDbInitializer> logger,
+                                   DynamoDbSettings settings) {
     /// <summary>
     /// Initializes the DynamoDB tables.
     /// </summary>
     public async Task InitializeTablesAsync() {
       // Initialize characters table
       logger.LogInformation("Initializing characters table");
-      await InitializeTableAsync("characters");
+      await InitializeTableAsync($"{settings.DbPrefix}characters");
 
       // Initialize items table
       logger.LogInformation("Initializing items table");
-      await InitializeTableAsync("items");
+      await InitializeTableAsync($"{settings.DbPrefix}items");
 
       // Seed data if necessary
       logger.LogInformation("Seeding items");
