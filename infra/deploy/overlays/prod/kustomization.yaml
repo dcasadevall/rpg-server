@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: rpg-game-prod
+
+bases:
+- ../../base
+
+patchesStrategicMerge:
+- deployment-patches.yaml
+
+configMapGenerator:
+- name: environment-config
+  behavior: merge
+  literals:
+  - ENVIRONMENT=prod
+  - DYNAMODB_TABLE=rpg-game-prod
+  - AWS_REGION=us-east-1
+  - METADATA_SERVICE_URL=https://api.rpg-game.com
+  - GAME_SIM_IMAGE=123456789012.dkr.ecr.us-east-1.amazonaws.com/game-sim-service:prod
+  - METADATA_SERVICE_IMAGE=123456789012.dkr.ecr.us-east-1.amazonaws.com/metadata-service:prod

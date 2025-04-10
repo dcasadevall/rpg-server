@@ -2,7 +2,7 @@
 
 # Create DynamoDB table for characters
 resource "aws_dynamodb_table" "characters" {
-  name           = var.characters_table_name
+  name           = "${var.characters_table_name}-${var.environment}"
   billing_mode   = var.billing_mode
   hash_key       = "id"
 
@@ -16,13 +16,14 @@ resource "aws_dynamodb_table" "characters" {
   }
 
   tags = merge(var.tags, {
-    Name = var.characters_table_name
+    Name = "${var.characters_table_name}-${var.environment}"
+    Environment = var.environment
   })
 }
 
 # Create DynamoDB table for items
 resource "aws_dynamodb_table" "items" {
-  name           = var.items_table_name
+  name           = "${var.items_table_name}-${var.environment}"
   billing_mode   = var.billing_mode
   hash_key       = "id"
 
@@ -36,13 +37,14 @@ resource "aws_dynamodb_table" "items" {
   }
 
   tags = merge(var.tags, {
-    Name = var.items_table_name
+    Name = "${var.items_table_name}-${var.environment}"
+    Environment = var.environment
   })
 }
 
 # IAM role for EC2 instances
 resource "aws_iam_role" "ec2_dynamodb_role" {
-  name = "ec2_dynamodb_role"
+  name = "ec2_dynamodb_role_${var.environment}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -57,13 +59,15 @@ resource "aws_iam_role" "ec2_dynamodb_role" {
     ]
   })
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    Environment = var.environment
+  })
 }
 
 # IAM policy for DynamoDB access
 resource "aws_iam_policy" "dynamodb_access" {
-  name        = "dynamodb-access-policy"
-  description = "Policy for accessing DynamoDB tables"
+  name        = "dynamodb-access-policy-${var.environment}"
+  description = "Policy for accessing DynamoDB tables in ${var.environment} environment"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -95,6 +99,6 @@ resource "aws_iam_role_policy_attachment" "dynamodb_policy_attachment" {
 
 # Create instance profile
 resource "aws_iam_instance_profile" "ec2_dynamodb_profile" {
-  name = "ec2_dynamodb_profile"
+  name = "ec2_dynamodb_profile_${var.environment}"
   role = aws_iam_role.ec2_dynamodb_role.name
 }

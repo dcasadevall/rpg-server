@@ -1,3 +1,8 @@
+variable "environment" {
+  description = "Environment name (e.g., dev, prod)"
+  type        = string
+}
+
 variable "characters_table_name" {
   description = "Name of the DynamoDB table for characters"
   type        = string

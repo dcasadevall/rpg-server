@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-sim-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: game-sim-service
+  template:
+    metadata:
+      labels:
+        app: game-sim-service
+    spec:
+      containers:
+      - name: game-sim-service
+        image: ${GAME_SIM_IMAGE}
+        ports:
+        - containerPort: 7777
+          protocol: UDP
+        env:
+        - name: DYNAMODB_TABLE
+          value: ${DYNAMODB_TABLE}
+        - name: METADATA_SERVICE_URL
+          value: ${METADATA_SERVICE_URL}
+        - name: AWS_REGION
+          value: ${AWS_REGION}
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"

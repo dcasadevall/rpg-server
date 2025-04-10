@@ -38,15 +38,16 @@ module "alb" {
 module "dynamodb" {
   source = "./modules/dynamodb"
 
-  characters_table_name = "rpg-characters"
-  items_table_name      = "rpg-items"
-  billing_mode          = "PAY_PER_REQUEST"
+  environment = var.environment
+  characters_table_name = "characters"
+  items_table_name = "items"
+  billing_mode = "PAY_PER_REQUEST"
   read_capacity         = 5
   write_capacity        = 5
   tags = {
-    Environment = "production"
+    Environment = var.environment
     Project     = var.project_name
-    ManagedBy   = "terraform"
+    Management  = "terraform"
   }
 }
 

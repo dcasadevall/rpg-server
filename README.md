@@ -98,6 +98,32 @@ You may need to create a root access key. This is not recommended in AWS but its
 
 > `cd infrastructure && terraform init && terraform apply`
 
+#### Environment-Specific Deployment
+
+The infrastructure supports multiple environments (dev, prod) with separate resources:
+
+1. **Development Environment**:
+   ```bash
+   terraform apply -var="environment=dev"
+   ```
+   - Creates tables: `characters-dev` and `items-dev`
+   - Uses development-specific IAM roles and policies
+   - Lower capacity settings
+
+2. **Production Environment**:
+   ```bash
+   terraform apply -var="environment=prod"
+   ```
+   - Creates tables: `characters-prod` and `items-prod`
+   - Uses production-specific IAM roles and policies
+   - Higher capacity settings
+
+> **Note:** Each environment has its own:
+> - DynamoDB tables
+> - IAM roles and policies
+> - Resource tags
+> - Capacity settings
+
 ---
 
 ## Local Development Setup
