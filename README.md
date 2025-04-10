@@ -164,9 +164,6 @@ Scripts for building and deploying are available inside the `scripts/` directory
 ## Future Work
 
 - Complete Game Simulation server.
-- Dockerize both services and deploy to AWS ECS.
-- Implement CI/CD pipelines (GitHub Actions).
-- Blue/Green deployments for minimal downtime.
 
 ---
 
