@@ -34,9 +34,9 @@ variable "static_bucket_name" {
 # Default AMI ID: Amazon Linux 2023 AMI
 # Modern, secure, AWS-supported, ideal for EC2 servers
 variable "metadata_ami_id" {
-  description = "AMI ID for the metadata service instances"
+  description = "AMI ID for metadata service instances"
   type        = string
-  default     = "ami-0c55b159cbfafe1f0"  # Amazon Linux 2023 AMI for us-east-1
+  default     = "ami-0c7217cdde317cfec"  # Amazon Linux 2023 in us-east-1
 }
 
 variable "metadata_instance_type" {
@@ -64,9 +64,9 @@ variable "gamesim_udp_port" {
 # Default AMI ID: Amazon Linux 2023 AMI
 # Modern, secure, AWS-supported, ideal for EC2 servers
 variable "gamesim_ami_id" {
-  description = "AMI ID for the game simulation service instances"
+  description = "AMI ID for game simulation service instances"
   type        = string
-  default     = "ami-0c55b159cbfafe1f0"  # Amazon Linux 2023 AMI for us-east-1
+  default     = "ami-0c7217cdde317cfec"  # Amazon Linux 2023 in us-east-1
 }
 
 variable "gamesim_instance_type" {

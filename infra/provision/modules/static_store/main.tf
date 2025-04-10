@@ -35,12 +35,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "static_store" {
   }
 }
 
-resource "aws_s3_bucket_acl" "static_store" {
-  provider = aws.static_store
-  bucket = aws_s3_bucket.static_store.id
-  acl    = "private"
-}
-
 # CloudFront Origin Access Identity
 resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for ${var.bucket_name}"
