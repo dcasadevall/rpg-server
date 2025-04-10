@@ -3,18 +3,18 @@ actor Client
 participant "Application Load Balancer" as ALB
 participant "Metadata Service" as MDS
 participant "Game Sim Service" as GS
-database "RDS Database" as RDS
+database "DynamoDb" as DynamoDb
 
 == Session Creation ==
 Client -> ALB : HTTPS Create New GameSim Request
 ALB -> MDS : Forward Request
-MDS -> RDS : Allocate GameSimId, Record Mapping
+MDS -> DynamoDb : Allocate GameSimId, Record Mapping
 MDS --> Client : Return GameSim IP:Port (UDP)
 
 == Session Joining ==
 Client -> ALB : HTTPS Join Existing GameSim Request
 ALB -> MDS : Forward Request
-MDS -> RDS : Validate GameSimId, Fetch Mapping
+MDS -> DynamoDb : Validate GameSimId, Fetch Mapping
 MDS --> Client : Return GameSim IP:Port (UDP)
 
 == Gameplay Phase ==
@@ -23,5 +23,5 @@ GS --> MDS : Periodic Async Updates (Player State, Events)
 
 == Session End ==
 GS --> MDS : Finalize Session, Send Closing Updates
-MDS -> RDS : Update Session Final State
+MDS -> DynamoDb : Update Session Final State
 @enduml

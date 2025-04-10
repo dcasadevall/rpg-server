@@ -3,6 +3,14 @@
 This repository contains the backend services and infrastructure for a real-time RPG game inspired by Dungeons & Dragons mechanics.
 It is structured as a **monorepo** to support easier local development, deployment, and scaling.
 
+This document explains how to run the character service.<br>
+Docs answering the prompt details can be found here:
+
+- [Question 1.a Decisions](docs/1.a-Decisions.md)
+- [Question 1.a API Design](docs/1.a-API-planning.md)
+- [Question 1.b TDD](docs/1.b-Extension-TDD.md)
+- [Question 2 Infrastructure](docs/2-infrastructure.md)
+
 ---
 
 ## Project Structure
@@ -10,7 +18,7 @@ It is structured as a **monorepo** to support easier local development, deployme
 | Directory | Description |
 |:---|:---|
 | `rpg-character-service/` | C# ASP.NET Core WebAPI for player character creation and management (REST APIs). |
-| `game-simulation/` | Lightweight UDP-based service responsible for simulating real-time game sessions. |
+| `game-simulation/` (Future) | Lightweight UDP-based service responsible for simulating real-time game sessions. |
 | `infrastructure/` | Terraform configuration for deploying services and infrastructure into AWS. |
 | `scripts/` | Helper scripts to build, deploy, and manage services locally and remotely. |
 
@@ -92,6 +100,50 @@ Run the service. Uses in-memory database.
 
 5. **Access Swagger UI:**
    - https://localhost:5001/swagger/index.html
+
+6. **Generate Swagger Documentation:**
+   - Install the Swagger CLI tool (if not already installed):
+     ```bash
+     dotnet tool install -g Swashbuckle.AspNetCore.Cli
+     ```
+   - Generate the OpenAPI/Swagger JSON file:
+     ```bash
+     cd rpg-character-service/src
+     swagger tofile --output swagger.json bin/Debug/net9.0/rpg-character-service.dll v1
+     ```
+   - The generated `swagger.json` file can be used to:
+     - Import into API documentation tools (Swagger UI, ReDoc, Postman)
+     - Generate client SDKs
+     - Share API documentation with other developers
+     - API testing and validation
+
+   - **Convert to Markdown Documentation:**
+     - Install Widdershins (converts OpenAPI/Swagger JSON to Markdown):
+       ```bash
+       npm install -g widdershins
+       ```
+     - Generate Markdown documentation:
+       ```bash
+       widdershins swagger.json -o ../../docs/rpg-service-api.md
+       ```
+
+   - **Generate Test Coverage Reports:**
+     - Install the ReportGenerator tool globally:
+       ```bash
+       dotnet tool install -g dotnet-reportgenerator-globaltool
+       ```
+     - Run tests with coverage collection:
+       ```bash
+       dotnet test --collect:"XPlat Code Coverage" --results-directory:./TestResults --filter:"FullyQualifiedName!~Integration"
+       ```
+     - Generate HTML coverage report:
+       ```bash
+       reportgenerator "-reports:./TestResults/*/coverage.cobertura.xml" "-targetdir:./TestResults/CoverageReport" "-reporttypes:Html"
+       ```
+     - Open the generated report:
+       ```bash
+       open ./TestResults/CoverageReport/index.html
+       ```
 
 ---
 

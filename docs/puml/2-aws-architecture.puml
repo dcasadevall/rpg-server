@@ -11,14 +11,16 @@ node "AWS VPC" {
         [Metadata Service Instance 2]
         [Metadata Service Instance N]
     }
-    
+
     frame "Game Sim Service (Auto-Scaled)" {
         [Game Sim Instance 1]
         [Game Sim Instance 2]
         [Game Sim Instance N]
     }
-    
-    database "RDS Database" as RDS
+
+    database "DynamoDb" as DynamoDb1
+    database "DynamoDb" as DynamoDb2
+    database "DynamoDb" as DynamoDb3
 }
 
 ' Client Connections
@@ -29,9 +31,9 @@ Client --> [Application Load Balancer] : Request Metadata Service (HTTPS)
 [Application Load Balancer] --> [Metadata Service Instance 1] : HTTPS Traffic
 
 ' Metadata Service to RDS
-[Metadata Service Instance 1] --> RDS : Character and Matchmaking Data
-[Metadata Service Instance 2] --> RDS
-[Metadata Service Instance N] --> RDS
+[Metadata Service Instance 1] --> DynamoDb1 : Character and Matchmaking Data
+[Metadata Service Instance 2] --> DynamoDb2
+[Metadata Service Instance N] --> DynamoDb3
 
 ' Direct UDP Connection to Game Sim (Single line)
 Client -[#blue,dashed]-> [Game Sim Instance 2] : UDP (IP:Port from Metadata Service)

@@ -9,7 +9,8 @@ node "AWS VPC (Region A)" {
         [Metadata Service Instance 1]
         [Metadata Service Instance 2]
     }
-    database "RDS Database" as RDS
+    database "DynamoDb 1" as DynamoDb1
+    database "DynamoDb 2" as DynamoDb2
 }
 
 node "AWS VPC (Region B)" {
@@ -26,9 +27,9 @@ Client --> [Application Load Balancer] : Request Metadata Service (HTTPS)
 ' API Flow
 [Application Load Balancer] --> [Metadata Service Instance 1] : HTTPS Traffic
 
-' Metadata Service to RDS
-[Metadata Service Instance 1] --> RDS
-[Metadata Service Instance 2] --> RDS
+' Metadata Service to DynamoDb
+[Metadata Service Instance 1] --> DynamoDb1
+[Metadata Service Instance 2] --> DynamoDb2
 
 ' Cross-Region Access
 [Game Sim Instance 1] --> [Metadata Service Instance 1] : Async Updates (via Cross-Region PrivateLink/PSC)

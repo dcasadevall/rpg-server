@@ -18,7 +18,8 @@ node "AWS VPC (US Region)" {
             [Game Sim Instance A1]
             [Game Sim Instance A2]
         }
-        database "RDS Database (US Region)" as RDS_A
+        database "DynamoDb 1 (US Region)" as DynamoDb_A1
+        database "DynamoDb 2 (US Region)" as DynamoDb_A2
     }
 }
 
@@ -32,7 +33,8 @@ node "AWS VPC (EU Region)" {
             [Game Sim Instance B1]
             [Game Sim Instance B2]
         }
-        database "RDS Database (EU Region)" as RDS_B
+        database "DynamoDb 1 (EU Region)" as DynamoDb_B1
+        database "DynamoDb 2 (EU Region)" as DynamoDb_B2
     }
 }
 
@@ -44,11 +46,13 @@ EUClient --> [Regional Load Balancer (EU Region)] : Metadata Service Request (EU
 
 ' API Flow US Region
 [Regional Load Balancer (US Region)] --> [Metadata Service Instance A1] : HTTPS Traffic
-[Metadata Service Instance A1] --> RDS_A
+[Metadata Service Instance A1] --> DynamoDb_A1
+[Metadata Service Instance A2] --> DynamoDb_A2
 
 ' API Flow EU Region
 [Regional Load Balancer (EU Region)] --> [Metadata Service Instance B1] : HTTPS Traffic
-[Metadata Service Instance B1] --> RDS_B
+[Metadata Service Instance B1] --> DynamoDb_B1
+[Metadata Service Instance B2] --> DynamoDb_B2
 
 ' UDP Connection US Region
 USClient -[#blue,dashed]-> [Game Sim Instance A1] : UDP (US Region)
