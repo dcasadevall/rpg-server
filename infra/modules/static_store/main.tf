@@ -17,6 +17,7 @@ resource "aws_s3_bucket" "static_store" {
 }
 
 resource "aws_s3_bucket_versioning" "static_store" {
+  provider = aws.static_store
   bucket = aws_s3_bucket.static_store.id
   versioning_configuration {
     status = "Enabled"
@@ -24,6 +25,7 @@ resource "aws_s3_bucket_versioning" "static_store" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "static_store" {
+  provider = aws.static_store
   bucket = aws_s3_bucket.static_store.id
 
   rule {
@@ -34,6 +36,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "static_store" {
 }
 
 resource "aws_s3_bucket_acl" "static_store" {
+  provider = aws.static_store
   bucket = aws_s3_bucket.static_store.id
   acl    = "private"
 }
@@ -45,6 +48,7 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
 
 # S3 Bucket Policy (Public Read via CloudFront only)
 resource "aws_s3_bucket_policy" "static_content_policy" {
+  provider = aws.static_store
   bucket = aws_s3_bucket.static_store.id
   policy = data.aws_iam_policy_document.s3_policy.json
 }

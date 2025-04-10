@@ -1,3 +1,9 @@
+variable "project_name" {
+  description = "Name of the project used for resource naming and tagging"
+  type        = string
+  default     = "rpg-game"
+}
+
 variable "region" {
   description = "The AWS region to deploy resources in"
   type        = string
@@ -30,7 +36,7 @@ variable "static_bucket_name" {
 variable "metadata_ami_id" {
   description = "AMI ID for the metadata service instances"
   type        = string
-  default     = "ami-0c2b0c5c0c5c0c5c0"  # Amazon Linux 2023 AMI for us-east-1
+  default     = "ami-0c55b159cbfafe1f0"  # Amazon Linux 2023 AMI for us-east-1
 }
 
 variable "metadata_instance_type" {
@@ -60,7 +66,7 @@ variable "gamesim_udp_port" {
 variable "gamesim_ami_id" {
   description = "AMI ID for the game simulation service instances"
   type        = string
-  default     = "ami-0c2b0c5c0c5c0c5c0"  # Amazon Linux 2023 AMI for us-east-1
+  default     = "ami-0c55b159cbfafe1f0"  # Amazon Linux 2023 AMI for us-east-1
 }
 
 variable "gamesim_instance_type" {

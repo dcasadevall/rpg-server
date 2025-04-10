@@ -21,7 +21,7 @@ module "vpc" {
   environment = "production"
   tags = {
     Environment = "production"
-    Project     = "rpg-game"
+    Project     = var.project_name
     ManagedBy   = "terraform"
   }
 }
@@ -45,7 +45,7 @@ module "dynamodb" {
   write_capacity        = 5
   tags = {
     Environment = "production"
-    Project     = "rpg-game"
+    Project     = var.project_name
     ManagedBy   = "terraform"
   }
 }
@@ -87,4 +87,16 @@ module "static_store" {
 
   bucket_name = var.static_bucket_name
   region      = var.region
+}
+
+# Deploy ECR repository for character service
+module "ecr" {
+  source = "./modules/ecr"
+
+  project_name = var.project_name
+  tags = {
+    Environment = "production"
+    Project     = var.project_name
+    ManagedBy   = "terraform"
+  }
 }

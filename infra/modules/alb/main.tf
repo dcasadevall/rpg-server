@@ -12,6 +12,11 @@ resource "aws_acm_certificate" "alb_cert" {
 
   lifecycle {
     create_before_destroy = true
+    prevent_destroy       = true
+  }
+
+  tags = {
+    Name = "wildcard-cert-${var.domain_name}"
   }
 }
 
