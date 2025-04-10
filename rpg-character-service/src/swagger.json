@@ -1,0 +1,1173 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "RPG Character Service API",
+    "description": "A RESTful service for managing D&D-inspired RPG characters.",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/v1/characters": {
+      "get": {
+        "tags": [
+          "Character"
+        ],
+        "summary": "Retrieves a list of all characters.",
+        "description": "Gets a list of all characters",
+        "responses": {
+          "200": {
+            "description": "Returns the list of characters.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CharacterResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Character"
+        ],
+        "summary": "Creates a new character with the specified details.",
+        "description": "Creates a new character with the provided attributes",
+        "requestBody": {
+          "description": "The character creation request containing the character's details.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCharacterRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCharacterRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCharacterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created character.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid or the character name is inappropriate."
+          },
+          "409": {
+            "description": "If a character with the same name already exists."
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{id}": {
+      "get": {
+        "tags": [
+          "Character"
+        ],
+        "summary": "Retrieves a character by their unique identifier.",
+        "description": "Gets a specific character by their ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the requested character.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the ID format is invalid."
+          },
+          "404": {
+            "description": "If the character with the specified ID is not found."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Character"
+        ],
+        "summary": "Deletes a character by their unique identifier.",
+        "description": "Deletes the character with the specified ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the character to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "If the character was successfully deleted."
+          },
+          "400": {
+            "description": "If the ID format is invalid."
+          },
+          "404": {
+            "description": "If the character with the specified ID is not found."
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{characterId}/currency/init": {
+      "post": {
+        "tags": [
+          "Currency"
+        ],
+        "summary": "Initializes a character's currency by randomly generating starting amounts.\nThis operation can only be performed once per character.",
+        "description": "Randomly sets the character's starting currency by rolling dice",
+        "parameters": [
+          {
+            "name": "characterId",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currency Initialized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID Format"
+          },
+          "404": {
+            "description": "Character Not Found"
+          },
+          "409": {
+            "description": "Currency Already Initialized"
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{characterId}/currency": {
+      "patch": {
+        "tags": [
+          "Currency"
+        ],
+        "summary": "Modifies a character's currency by adding or subtracting specified amounts.\nAllows for changes to multiple currency types in a single operation.",
+        "description": "Adds or subtracts the specified values from the character's current currency",
+        "parameters": [
+          {
+            "name": "characterId",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The currency modification details including amounts to add or subtract.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyCurrencyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyCurrencyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyCurrencyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Currency Modified",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "404": {
+            "description": "Character Not Found"
+          },
+          "409": {
+            "description": "Not enough currency"
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{characterId}/currency/exchange": {
+      "patch": {
+        "tags": [
+          "Currency"
+        ],
+        "summary": "Exchanges a specified amount of one type of currency ('from') for another ('to')\nusing standard D&D 5e conversion rates (flooring any fractional results).\nFor example, exchanging 1 Gold ('from') with 'amount' 1 for Silver ('to')\nwill deduct 1 Gold and add 10 Silver (1 GP = 10 SP).\nExchanging 11 Silver ('from') with 'amount' 1 for Gold ('to')\nwill deduct 10 Silver and add 1 Gold.",
+        "description": "Converts a specified `Amount` of the `From` currency into the `To` currency, based on standard D&D 5e conversion rates. Any fractional results for the `To` currency are not converted.\n\nExample 1: Spend 2 Gold for Silver\nRequest Body: `{ \"from\": \"gold\", \"to\": \"silver\", \"amount\": 2 }`\nResult: Deduct 2 Gold, Add 20 Silver.\n\nExample 2: Spend 15 Silver for Gold\nRequest Body: `{ \"from\": \"silver\", \"to\": \"gold\", \"amount\": 15 }`\nResult: Deduct 10 Silver, Add 1 Gold.",
+        "parameters": [
+          {
+            "name": "characterId",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Details for the exchange, specifying the currency type to pay with ('From'),\n            the currency type to receive ('To'), and the exact amount of the 'From' currency to spend ('Amount').",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeCurrencyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeCurrencyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeCurrencyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Currency Exchanged",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not Enough 'From' Currency",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          },
+          "404": {
+            "description": "Character Not Found",
+            "content": {
+              "text/plain": {
+                "schema": { }
+              },
+              "application/json": {
+                "schema": { }
+              },
+              "text/json": {
+                "schema": { }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dice/roll": {
+      "get": {
+        "tags": [
+          "Dice"
+        ],
+        "summary": "Rolls one or more dice of a specified type.\nSupports standard RPG dice types: d4, d6, d8, d10, d12, and d20.",
+        "description": "The dice sides must be one of the following values: 4, 6, 8, 10, 12, or 20.\nEach die roll will return a random integer between 1 and the number of sides (inclusive).",
+        "parameters": [
+          {
+            "name": "Sides",
+            "in": "query",
+            "description": "The number of sides on the dice",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DiceSides"
+            }
+          },
+          {
+            "name": "Count",
+            "in": "query",
+            "description": "The number of dice to roll",
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful dice roll",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollDiceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollDiceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollDiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid sides or count format"
+          },
+          "422": {
+            "description": "Invalid dice type - not a valid dice type"
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{characterId}/equipment/armor/{armorId}": {
+      "patch": {
+        "tags": [
+          "Equipment"
+        ],
+        "summary": "Equips a piece of armor to a character.",
+        "description": "The armor must exist in the system and be of type Armor.\nOnly one piece of armor can be equipped at a time.",
+        "parameters": [
+          {
+            "name": "characterId",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "armorId",
+            "in": "path",
+            "description": "The unique identifier of the armor item to equip.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Armor Equipped",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Item Id"
+          },
+          "404": {
+            "description": "Character or Armor Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{characterId}/equipment/weapon/{weaponId}": {
+      "patch": {
+        "tags": [
+          "Equipment"
+        ],
+        "summary": "Equips a weapon to a character, either in the main hand or off-hand.",
+        "description": "The weapon must exist in the system and be of type Weapon.\nCharacters can equip weapons in both main hand and off-hand slots.",
+        "parameters": [
+          {
+            "name": "characterId",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "weaponId",
+            "in": "path",
+            "description": "The unique identifier of the weapon item to equip.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Optional request containing off-hand weapon details.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipWeaponRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipWeaponRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipWeaponRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Weapon Equipped",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or Weapon ID"
+          },
+          "404": {
+            "description": "Character or Weapon Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{characterId}/equipment/shield/{shieldId}": {
+      "patch": {
+        "tags": [
+          "Equipment"
+        ],
+        "summary": "Equips a shield to a character.",
+        "description": "The shield must exist in the system and be of type Shield.\nOnly one shield can be equipped at a time.",
+        "parameters": [
+          {
+            "name": "characterId",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "shieldId",
+            "in": "path",
+            "description": "The unique identifier of the shield item to equip.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shield Equipped",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Item Id"
+          },
+          "404": {
+            "description": "Character or Shield Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{characterId}/stats/hitpoints": {
+      "patch": {
+        "tags": [
+          "Stats"
+        ],
+        "summary": "Modifies a character's hit points by a specified amount.\nThe hit points will be clamped between 0 and the character's maximum hit points.",
+        "description": "A positive delta increases hit points (healing), while a negative delta decreases hit points (damage).\nThe final hit points value will never exceed the character's maximum hit points or go below 0.",
+        "parameters": [
+          {
+            "name": "characterId",
+            "in": "path",
+            "description": "The unique identifier of the character.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The hit points modification details containing the delta value.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HitPointUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HitPointUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/HitPointUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Hit Points Updated",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HitPointUpdateResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HitPointUpdateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HitPointUpdateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or Delta"
+          },
+          "404": {
+            "description": "Character Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AbilityScore": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "description": "Represents the six ability scores.\nThese scores determine a character's basic capabilities and affect various game mechanics.",
+        "format": "int32"
+      },
+      "CharacterResponse": {
+        "required": [
+          "class",
+          "name",
+          "race",
+          "subrace"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier of the character",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the character",
+            "nullable": true
+          },
+          "race": {
+            "type": "string",
+            "description": "The character's race",
+            "nullable": true
+          },
+          "subrace": {
+            "type": "string",
+            "description": "The character's subrace, if any",
+            "nullable": true
+          },
+          "class": {
+            "type": "string",
+            "description": "The character's class",
+            "nullable": true
+          },
+          "level": {
+            "type": "integer",
+            "description": "The character's level",
+            "format": "int32"
+          },
+          "hitPoints": {
+            "type": "integer",
+            "description": "The character's current hit points",
+            "format": "int32"
+          },
+          "abilityScores": {
+            "type": "object",
+            "properties": {
+              "Strength": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Dexterity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Constitution": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Intelligence": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Wisdom": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Charisma": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "description": "The character's ability scores",
+            "nullable": true
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentDetails"
+          },
+          "wealth": {
+            "$ref": "#/components/schemas/Wealth"
+          },
+          "maxHitPoints": {
+            "type": "integer",
+            "description": "The character's maximum hit points",
+            "format": "int32"
+          },
+          "armorClass": {
+            "type": "integer",
+            "description": "The character's armor class",
+            "format": "int32"
+          },
+          "proficiencyBonus": {
+            "type": "integer",
+            "description": "The character's proficiency bonus based on level",
+            "format": "int32"
+          },
+          "weaponDamageModifier": {
+            "$ref": "#/components/schemas/AbilityScore"
+          },
+          "abilityModifiers": {
+            "type": "object",
+            "properties": {
+              "Strength": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Dexterity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Constitution": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Intelligence": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Wisdom": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "Charisma": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "description": "The character's ability modifiers derived from ability scores",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response object for returning character information to the client."
+      },
+      "CreateCharacterRequest": {
+        "required": [
+          "class",
+          "name",
+          "race"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 15,
+            "minLength": 3,
+            "pattern": "^[a-zA-Z]+$",
+            "type": "string",
+            "description": "The name of the character, between 3-15 characters, letters only"
+          },
+          "race": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "The character's race (e.g., Human, Elf, Dwarf)"
+          },
+          "subrace": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "The character's optional subrace (e.g., High, Mountain)",
+            "nullable": true
+          },
+          "class": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "The character's class (e.g., Fighter, Wizard, Cleric)"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request object for creating a new character"
+      },
+      "CurrencyResponse": {
+        "type": "object",
+        "properties": {
+          "copper": {
+            "type": "integer",
+            "description": "The amount of copper coins",
+            "format": "int32"
+          },
+          "silver": {
+            "type": "integer",
+            "description": "The amount of silver coins",
+            "format": "int32"
+          },
+          "electrum": {
+            "type": "integer",
+            "description": "The amount of electrum coins",
+            "format": "int32"
+          },
+          "gold": {
+            "type": "integer",
+            "description": "The amount of gold coins",
+            "format": "int32"
+          },
+          "platinum": {
+            "type": "integer",
+            "description": "The amount of platinum coins",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response object for currency-related operations"
+      },
+      "CurrencyType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "description": "Represents the different types of currency.",
+        "format": "int32"
+      },
+      "DiceSides": {
+        "enum": [
+          4,
+          6,
+          8,
+          10,
+          12,
+          20
+        ],
+        "type": "integer",
+        "description": "Represents the standard dice types used in tabletop role-playing games.\nEach value corresponds to the number of sides on the die.",
+        "format": "int32"
+      },
+      "EquipWeaponRequest": {
+        "type": "object",
+        "properties": {
+          "offHand": {
+            "type": "boolean",
+            "description": "Whether to equip the weapon in the off-hand slot",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request object for equipping a weapon to a character"
+      },
+      "EquipmentDetails": {
+        "type": "object",
+        "properties": {
+          "armorId": {
+            "type": "integer",
+            "description": "The ID of the armor equipped in the armor slot, if any",
+            "format": "int32",
+            "nullable": true
+          },
+          "mainHandId": {
+            "type": "integer",
+            "description": "The ID of the weapon equipped in the main hand slot, if any",
+            "format": "int32",
+            "nullable": true
+          },
+          "offHandId": {
+            "type": "integer",
+            "description": "The ID of the weapon or shield equipped in the off-hand slot, if any",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Contains details about the character's equipped items"
+      },
+      "EquipmentResponse": {
+        "type": "object",
+        "properties": {
+          "armorClass": {
+            "type": "integer",
+            "description": "The character's calculated armor class after equipment changes",
+            "format": "int32"
+          },
+          "weaponDamageModifier": {
+            "$ref": "#/components/schemas/AbilityScore"
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentDetails"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response object for equipment-related operations"
+      },
+      "ExchangeCurrencyRequest": {
+        "required": [
+          "amount",
+          "from",
+          "to"
+        ],
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/CurrencyType"
+          },
+          "to": {
+            "$ref": "#/components/schemas/CurrencyType"
+          },
+          "amount": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "The amount of the source currency to convert",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request object for exchanging one type of currency for another"
+      },
+      "HitPointUpdateRequest": {
+        "required": [
+          "delta"
+        ],
+        "type": "object",
+        "properties": {
+          "delta": {
+            "type": "integer",
+            "description": "The amount to add or subtract from the character's current hit points",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request object for updating a character's hit points"
+      },
+      "HitPointUpdateResponse": {
+        "type": "object",
+        "properties": {
+          "hitPoints": {
+            "type": "integer",
+            "description": "The character's current hit points after the update",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response object for hit point update operations"
+      },
+      "ModifyCurrencyRequest": {
+        "type": "object",
+        "properties": {
+          "gold": {
+            "type": "integer",
+            "description": "Amount of gold coins to add or subtract",
+            "format": "int32",
+            "nullable": true
+          },
+          "silver": {
+            "type": "integer",
+            "description": "Amount of silver coins to add or subtract",
+            "format": "int32",
+            "nullable": true
+          },
+          "copper": {
+            "type": "integer",
+            "description": "Amount of copper coins to add or subtract",
+            "format": "int32",
+            "nullable": true
+          },
+          "electrum": {
+            "type": "integer",
+            "description": "Amount of electrum coins to add or subtract",
+            "format": "int32",
+            "nullable": true
+          },
+          "platinum": {
+            "type": "integer",
+            "description": "Amount of platinum coins to add or subtract",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request object for modifying a character's currency"
+      },
+      "RollDiceResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "The results of each individual die roll",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response object for dice rolling operations"
+      },
+      "Wealth": {
+        "type": "object",
+        "properties": {
+          "copper": {
+            "type": "integer",
+            "description": "Gets or sets the amount of copper pieces.",
+            "format": "int32",
+            "readOnly": true
+          },
+          "silver": {
+            "type": "integer",
+            "description": "Gets or sets the amount of silver pieces.",
+            "format": "int32",
+            "readOnly": true
+          },
+          "electrum": {
+            "type": "integer",
+            "description": "Gets or sets the amount of electrum pieces.",
+            "format": "int32",
+            "readOnly": true
+          },
+          "gold": {
+            "type": "integer",
+            "description": "Gets or sets the amount of gold pieces.",
+            "format": "int32",
+            "readOnly": true
+          },
+          "platinum": {
+            "type": "integer",
+            "description": "Gets or sets the amount of platinum pieces.",
+            "format": "int32",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a character's wealth in various currency types.\nThis class manages the different currency amounts and provides methods to get and set them."
+      }
+    }
+  }
+}
