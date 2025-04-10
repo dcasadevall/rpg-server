@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "id": "1",
+      "id": 1,
       "name": "Club",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -12,7 +12,7 @@
       }
     },
     {
-      "id": "2",
+      "id": 2,
       "name": "Dagger",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -25,7 +25,7 @@
       }
     },
     {
-      "id": "3",
+      "id": 3,
       "name": "Greatclub",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -36,7 +36,7 @@
       }
     },
     {
-      "id": "4",
+      "id": 4,
       "name": "Handaxe",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -48,7 +48,7 @@
       }
     },
     {
-      "id": "5",
+      "id": 5,
       "name": "Javelin",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -59,7 +59,7 @@
       }
     },
     {
-      "id": "6",
+      "id": 6,
       "name": "Light Hammer",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "7",
+      "id": 7,
       "name": "Mace",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -80,7 +80,7 @@
       }
     },
     {
-      "id": "8",
+      "id": 8,
       "name": "Quarterstaff",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -91,7 +91,7 @@
       }
     },
     {
-      "id": "9",
+      "id": 9,
       "name": "Sickle",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -102,7 +102,7 @@
       }
     },
     {
-      "id": "10",
+      "id": 10,
       "name": "Spear",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -114,7 +114,7 @@
       }
     },
     {
-      "id": "11",
+      "id": 11,
       "name": "Battleaxe",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -125,7 +125,7 @@
       }
     },
     {
-      "id": "12",
+      "id": 12,
       "name": "Flail",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -134,7 +134,7 @@
       }
     },
     {
-      "id": "13",
+      "id": 13,
       "name": "Glaive",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -147,7 +147,7 @@
       }
     },
     {
-      "id": "14",
+      "id": 14,
       "name": "Greataxe",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "id": "15",
+      "id": 15,
       "name": "Greatsword",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -171,7 +171,7 @@
       }
     },
     {
-      "id": "16",
+      "id": 16,
       "name": "Halberd",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -184,7 +184,7 @@
       }
     },
     {
-      "id": "17",
+      "id": 17,
       "name": "Lance",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -196,7 +196,7 @@
       }
     },
     {
-      "id": "18",
+      "id": 18,
       "name": "Longsword",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -207,7 +207,7 @@
       }
     },
     {
-      "id": "19",
+      "id": 19,
       "name": "Maul",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -219,7 +219,7 @@
       }
     },
     {
-      "id": "20",
+      "id": 20,
       "name": "Morningstar",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -228,7 +228,7 @@
       }
     },
     {
-      "id": "21",
+      "id": 21,
       "name": "Pike",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -241,7 +241,7 @@
       }
     },
     {
-      "id": "22",
+      "id": 22,
       "name": "Rapier",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -252,7 +252,7 @@
       }
     },
     {
-      "id": "23",
+      "id": 23,
       "name": "Scimitar",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -264,7 +264,7 @@
       }
     },
     {
-      "id": "24",
+      "id": 24,
       "name": "Shortsword",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -276,7 +276,7 @@
       }
     },
     {
-      "id": "25",
+      "id": 25,
       "name": "Trident",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -288,7 +288,7 @@
       }
     },
     {
-      "id": "26",
+      "id": 26,
       "name": "War Pick",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -297,7 +297,7 @@
       }
     },
     {
-      "id": "27",
+      "id": 27,
       "name": "Warhammer",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -308,7 +308,7 @@
       }
     },
     {
-      "id": "28",
+      "id": 28,
       "name": "Whip",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -320,7 +320,7 @@
       }
     },
     {
-      "id": "29",
+      "id": 29,
       "name": "Light Crossbow",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -333,7 +333,7 @@
       }
     },
     {
-      "id": "30",
+      "id": 30,
       "name": "Dart",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -345,7 +345,7 @@
       }
     },
     {
-      "id": "31",
+      "id": 31,
       "name": "Shortbow",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -357,7 +357,7 @@
       }
     },
     {
-      "id": "32",
+      "id": 32,
       "name": "Sling",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -368,7 +368,7 @@
       }
     },
     {
-      "id": "33",
+      "id": 33,
       "name": "Blowgun",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -380,7 +380,7 @@
       }
     },
     {
-      "id": "34",
+      "id": 34,
       "name": "Hand Crossbow",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -393,7 +393,7 @@
       }
     },
     {
-      "id": "35",
+      "id": 35,
       "name": "Heavy Crossbow",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -407,7 +407,7 @@
       }
     },
     {
-      "id": "36",
+      "id": 36,
       "name": "Longbow",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -420,7 +420,7 @@
       }
     },
     {
-      "id": "37",
+      "id": 37,
       "name": "Net",
       "equipmentType": "Weapon",
       "weaponStats": {
@@ -432,7 +432,7 @@
       }
     },
     {
-      "id": "38",
+      "id": 38,
       "name": "Padded Armor",
       "equipmentType": "Armor",
       "armorStats": {
@@ -441,7 +441,7 @@
       }
     },
     {
-      "id": "39",
+      "id": 39,
       "name": "Leather Armor",
       "equipmentType": "Armor",
       "armorStats": {
@@ -450,7 +450,7 @@
       }
     },
     {
-      "id": "40",
+      "id": 40,
       "name": "Studded Leather Armor",
       "equipmentType": "Armor",
       "armorStats": {
@@ -459,7 +459,7 @@
       }
     },
     {
-      "id": "41",
+      "id": 41,
       "name": "Hide Armor",
       "equipmentType": "Armor",
       "armorStats": {
@@ -468,7 +468,7 @@
       }
     },
     {
-      "id": "42",
+      "id": 42,
       "name": "Chain Shirt",
       "equipmentType": "Armor",
       "armorStats": {
@@ -477,7 +477,7 @@
       }
     },
     {
-      "id": "43",
+      "id": 43,
       "name": "Scale Mail",
       "equipmentType": "Armor",
       "armorStats": {
@@ -486,7 +486,7 @@
       }
     },
     {
-      "id": "44",
+      "id": 44,
       "name": "Breastplate",
       "equipmentType": "Armor",
       "armorStats": {
@@ -495,7 +495,7 @@
       }
     },
     {
-      "id": "45",
+      "id": 45,
       "name": "Half Plate",
       "equipmentType": "Armor",
       "armorStats": {
@@ -504,7 +504,7 @@
       }
     },
     {
-      "id": "46",
+      "id": 46,
       "name": "Ring Mail",
       "equipmentType": "Armor",
       "armorStats": {
@@ -513,7 +513,7 @@
       }
     },
     {
-      "id": "47",
+      "id": 47,
       "name": "Chain Mail",
       "equipmentType": "Armor",
       "armorStats": {
@@ -522,7 +522,7 @@
       }
     },
     {
-      "id": "48",
+      "id": 48,
       "name": "Splint Mail",
       "equipmentType": "Armor",
       "armorStats": {
@@ -531,7 +531,7 @@
       }
     },
     {
-      "id": "49",
+      "id": 49,
       "name": "Plate Mail",
       "equipmentType": "Armor",
       "armorStats": {
@@ -540,7 +540,7 @@
       }
     },
     {
-      "id": "50",
+      "id": 50,
       "name": "Shield",
       "equipmentType": "Shield"
     }

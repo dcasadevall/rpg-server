@@ -228,10 +228,3 @@ Scripts for building and deploying are available inside the `scripts/` directory
 ## License
 
 This project is licensed under the MIT License.
-
----
-
-# Summary
-
-**This monorepo contains everything needed to run, manage, and deploy an RPG backend system both locally and in AWS.**
-It is designed to be modular, scalable, and easy to extend as the game evolves.

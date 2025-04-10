@@ -2,9 +2,10 @@
 
 # Create DynamoDB table for characters
 resource "aws_dynamodb_table" "characters" {
-  name           = "${var.characters_table_name}-${var.environment}"
+  name           = "${var.environment}-${var.characters_table_name}"
   billing_mode   = var.billing_mode
   hash_key       = "id"
+  range_key      = "name"
 
   # Set capacity only if using PROVISIONED billing mode
   read_capacity  = var.billing_mode == "PROVISIONED" ? var.read_capacity : null
@@ -12,6 +13,11 @@ resource "aws_dynamodb_table" "characters" {
 
   attribute {
     name = "id"
+    type = "S"
+  }
+
+  attribute {
+    name = "name"
     type = "S"
   }
 
@@ -23,9 +29,10 @@ resource "aws_dynamodb_table" "characters" {
 
 # Create DynamoDB table for items
 resource "aws_dynamodb_table" "items" {
-  name           = "${var.items_table_name}-${var.environment}"
+  name           = "${var.environment}-${var.items_table_name}"
   billing_mode   = var.billing_mode
   hash_key       = "id"
+  range_key      = "name"
 
   # Set capacity only if using PROVISIONED billing mode
   read_capacity  = var.billing_mode == "PROVISIONED" ? var.read_capacity : null
@@ -34,6 +41,11 @@ resource "aws_dynamodb_table" "items" {
   attribute {
     name = "id"
     type = "N"
+  }
+
+  attribute {
+    name = "name"
+    type = "S"
   }
 
   tags = merge(var.tags, {

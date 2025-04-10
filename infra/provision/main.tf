@@ -99,3 +99,10 @@ module "ecr" {
     Management  = "terraform"
   }
 }
+
+module "dynamodb_seeder" {
+  source = "./modules/dynamodb_seeder"
+
+  environment      = var.environment
+  items_table_name = module.dynamodb.items_table_name
+}
