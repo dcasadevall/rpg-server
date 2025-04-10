@@ -51,36 +51,56 @@ resource "aws_autoscaling_group" "gamesim_asg" {
   force_delete              = true
 }
 
-# Autoscaling policy that allows us to watch
-# for a certain number of active game sessions
-resource "aws_autoscaling_policy" "gamesim_target_tracking" {
-  name                   = "gamesim-target-tracking"
-  autoscaling_group_name = aws_autoscaling_group.gamesim_asg.name
-  policy_type            = "TargetTrackingScaling"
+# CloudWatch Metric Alarm for scaling up
+resource "aws_cloudwatch_metric_alarm" "scale_up" {
+  alarm_name          = "game-sim-scale-up"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "ActiveGameSessions"
+  namespace           = "GameSimService"
+  period             = "60"
+  statistic          = "Sum"
+  threshold          = var.target_autoscale_session_ratio * var.desired_capacity
+  alarm_description  = "Scale up when active game sessions exceed target ratio"
+  alarm_actions      = [aws_autoscaling_policy.scale_up.arn]
 
-  target_tracking_configuration {
-    customized_metric_specification {
-      metric_math_specification {
-        expression = "SUM(m1) / COUNT(m1)"
-        label      = "SessionsPerInstance"
-
-        metric {
-          id         = "m1"
-          metric_name = "ActiveGameSessions"
-          namespace   = "GameSimService"
-          stat        = "Sum"
-          period      = 60
-        }
-      }
-
-      target_value = var.target_autoscale_session_ratio
-    }
-
-    predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"
-    }
-
-    scale_in_cooldown  = 300
-    scale_out_cooldown = 300
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.gamesim_asg.name
   }
-} 
+}
+
+# CloudWatch Metric Alarm for scaling down
+resource "aws_cloudwatch_metric_alarm" "scale_down" {
+  alarm_name          = "game-sim-scale-down"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "ActiveGameSessions"
+  namespace           = "GameSimService"
+  period             = "60"
+  statistic          = "Sum"
+  threshold          = var.target_autoscale_session_ratio * (var.desired_capacity - 1)
+  alarm_description  = "Scale down when active game sessions fall below target ratio"
+  alarm_actions      = [aws_autoscaling_policy.scale_down.arn]
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.gamesim_asg.name
+  }
+}
+
+# Scaling Up Policy
+resource "aws_autoscaling_policy" "scale_up" {
+  name                   = "game-sim-scale-up"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown              = 300
+  autoscaling_group_name = aws_autoscaling_group.gamesim_asg.name
+}
+
+# Scaling Down Policy
+resource "aws_autoscaling_policy" "scale_down" {
+  name                   = "game-sim-scale-down"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown              = 300
+  autoscaling_group_name = aws_autoscaling_group.gamesim_asg.name
+}

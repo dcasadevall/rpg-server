@@ -6,20 +6,9 @@ resource "aws_dynamodb_table" "characters" {
   billing_mode   = var.billing_mode
   hash_key       = "id"
 
-  # Only set these if using PROVISIONED billing mode
-  dynamic "read_capacity" {
-    for_each = var.billing_mode == "PROVISIONED" ? [1] : []
-    content {
-      read_capacity_units = var.read_capacity
-    }
-  }
-
-  dynamic "write_capacity" {
-    for_each = var.billing_mode == "PROVISIONED" ? [1] : []
-    content {
-      write_capacity_units = var.write_capacity
-    }
-  }
+  # Set capacity only if using PROVISIONED billing mode
+  read_capacity  = var.billing_mode == "PROVISIONED" ? var.read_capacity : null
+  write_capacity = var.billing_mode == "PROVISIONED" ? var.write_capacity : null
 
   attribute {
     name = "id"
@@ -37,20 +26,9 @@ resource "aws_dynamodb_table" "items" {
   billing_mode   = var.billing_mode
   hash_key       = "id"
 
-  # Only set these if using PROVISIONED billing mode
-  dynamic "read_capacity" {
-    for_each = var.billing_mode == "PROVISIONED" ? [1] : []
-    content {
-      read_capacity_units = var.read_capacity
-    }
-  }
-
-  dynamic "write_capacity" {
-    for_each = var.billing_mode == "PROVISIONED" ? [1] : []
-    content {
-      write_capacity_units = var.write_capacity
-    }
-  }
+  # Set capacity only if using PROVISIONED billing mode
+  read_capacity  = var.billing_mode == "PROVISIONED" ? var.read_capacity : null
+  write_capacity = var.billing_mode == "PROVISIONED" ? var.write_capacity : null
 
   attribute {
     name = "id"

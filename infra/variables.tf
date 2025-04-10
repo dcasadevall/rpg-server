@@ -4,16 +4,6 @@ variable "region" {
   default     = "us-east-1"
 }
 
-variable "vpc_id" {
-  description = "The ID of the VPC where resources will be created"
-  type        = string
-}
-
-variable "public_subnet_ids" {
-  description = "List of public subnet IDs for ALB and EC2 instances"
-  type        = list(string)
-}
-
 variable "certificate_arn" {
   description = "ARN of the SSL certificate to use for HTTPS"
   type        = string
@@ -28,9 +18,13 @@ variable "static_bucket_name" {
 }
 
 # Metadata Service Variables
+
+# Default AMI ID: Amazon Linux 2023 AMI
+# Modern, secure, AWS-supported, ideal for EC2 servers
 variable "metadata_ami_id" {
   description = "The AMI ID for the metadata service instances"
   type        = string
+  default     = "ami-0c55b159cbfafe1f0"
 }
 
 variable "metadata_instance_type" {
@@ -55,9 +49,12 @@ variable "gamesim_udp_port" {
   default     = 7777
 }
 
+# Default AMI ID: Amazon Linux 2023 AMI
+# Modern, secure, AWS-supported, ideal for EC2 servers
 variable "gamesim_ami_id" {
   description = "The AMI ID for the game simulation service instances"
   type        = string
+  default     = "ami-0c55b159cbfafe1f0"
 }
 
 variable "gamesim_instance_type" {

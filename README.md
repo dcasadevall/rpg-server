@@ -64,6 +64,29 @@ Run the service. Uses in-memory database.
 - **Environment:** Infrastructure as code (IaC) supporting repeatable and reliable deployment.
 
 > **Deploy Infra:**
+
+#### Requirements
+
+Configure AWS Authentication
+
+* Go to the AWS Console → IAM → Users → Your User → Security Credentials → and make sure you have valid Access Key + Secret Access Key
+
+* Install AWS: https://aws.amazon.com/cli/
+
+* Configure credentials:
+
+`aws configure`
+
+OR Setup env vars:
+
+```
+   export AWS_ACCESS_KEY_ID="your_access_key"
+   export AWS_SECRET_ACCESS_KEY="your_secret_key"
+   export AWS_REGION="us-east-1"
+```
+
+#### Commands
+
 > `cd infrastructure && terraform init && terraform apply`
 
 ---
