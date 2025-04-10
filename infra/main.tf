@@ -14,20 +14,42 @@ module "alb" {
   certificate_arn   = var.certificate_arn
 }
 
+# Deploy DynamoDB tables and IAM roles
+module "dynamodb" {
+  source = "./modules/dynamodb"
+
+  # Table names
+  characters_table_name = "characters"
+  items_table_name      = "items"
+
+  # Billing mode and capacity
+  billing_mode    = "PAY_PER_REQUEST"  # or "PROVISIONED" if you want to specify capacity
+  read_capacity   = 5                  # only used if billing_mode is PROVISIONED
+  write_capacity  = 5                  # only used if billing_mode is PROVISIONED
+
+  # Tags
+  tags = {
+    Environment = "production"
+    Project     = "rpg-character-service"
+    ManagedBy   = "terraform"
+  }
+}
+
 # Deploys the Metadata Service
 module "metadata_service" {
-  source                    = "./modules/metadata_service"
-  vpc_id                    = var.vpc_id
-  public_subnet_ids         = var.public_subnet_ids
-  ami_id                    = var.metadata_ami_id
-  instance_type             = var.metadata_instance_type
-  user_data                 = var.metadata_user_data
-  alb_target_group_arn      = module.alb.alb_target_group_arn
-  alb_security_group_id     = module.alb.alb_security_group_id
-  gamesim_security_group_id = module.game_sim_service.gamesim_security_group_id
-  min_size                  = 2
-  max_size                  = 10
-  desired_capacity          = 2
+  source                        = "./modules/metadata_service"
+  vpc_id                        = var.vpc_id
+  public_subnet_ids             = var.public_subnet_ids
+  ami_id                        = var.metadata_ami_id
+  instance_type                 = var.metadata_instance_type
+  user_data                     = var.metadata_user_data
+  alb_target_group_arn          = module.alb.alb_target_group_arn
+  alb_security_group_id         = module.alb.alb_security_group_id
+  gamesim_security_group_id     = module.game_sim_service.gamesim_security_group_id
+  min_size                      = 2
+  max_size                      = 10
+  desired_capacity              = 2
+  dynamodb_instance_profile_arn = module.dynamodb.instance_profile_arn
 }
 
 module "game_sim_service" {
@@ -41,16 +63,6 @@ module "game_sim_service" {
   min_size          = 2
   max_size          = 20
   desired_capacity  = 4
-}
-
-module "rds_database" {
-  source                   = "./modules/rds_database"
-  vpc_id                   = var.vpc_id
-  db_name                  = var.db_name
-  db_username              = var.db_username
-  db_password              = var.db_password
-  allowed_security_groups  = [module.metadata_service.metadata_service_asg_name] # (adjust if needed)
-  db_subnet_group_name     = var.db_subnet_group_name
 }
 
 module "static_store" {

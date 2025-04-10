@@ -27,30 +27,6 @@ variable "static_bucket_name" {
   default     = "game-static-content"
 }
 
-# Database Variables
-variable "db_subnet_group_name" {
-  description = "The name of the DB subnet group for the RDS instance"
-  type        = string
-}
-
-variable "db_name" {
-  description = "The name of the database to create"
-  type        = string
-  default     = "metadatadb"
-}
-
-variable "db_username" {
-  description = "Username for the database"
-  type        = string
-  sensitive   = true
-}
-
-variable "db_password" {
-  description = "Password for the database"
-  type        = string
-  sensitive   = true
-}
-
 # Metadata Service Variables
 variable "metadata_ami_id" {
   description = "The AMI ID for the metadata service instances"
@@ -97,4 +73,4 @@ variable "gamesim_user_data" {
     #!/bin/bash
     echo "Starting game simulation server..." > /var/log/game-sim.log
   EOF
-} 
+}

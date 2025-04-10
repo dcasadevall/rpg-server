@@ -44,6 +44,11 @@ resource "aws_launch_template" "metadata_lt" {
     security_groups             = [aws_security_group.metadata_sg.id]
   }
 
+  # IAM instance profile for DynamoDB access
+  iam_instance_profile {
+    arn = var.dynamodb_instance_profile_arn
+  }
+
   # User data script that runs on instance startup (base64 encoded)
   # This typically installs and configures the metadata service software
   user_data = base64encode(var.user_data)
@@ -63,4 +68,4 @@ resource "aws_autoscaling_group" "metadata_asg" {
   health_check_type         = "EC2"
   health_check_grace_period = 60
   force_delete              = true
-} 
+}

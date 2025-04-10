@@ -1,15 +1,15 @@
 variable "vpc_id" {
-  description = "The ID of the VPC where the metadata service will be created"
+  description = "The ID of the VPC where resources will be created"
   type        = string
 }
 
 variable "public_subnet_ids" {
-  description = "List of public subnet IDs where the EC2 instances will be deployed"
+  description = "List of public subnet IDs for EC2 instances"
   type        = list(string)
 }
 
 variable "alb_security_group_id" {
-  description = "The ID of the ALB security group for ingress rules"
+  description = "Security group ID of the ALB"
   type        = string
 }
 
@@ -30,31 +30,31 @@ variable "instance_type" {
 }
 
 variable "min_size" {
-  description = "Minimum number of instances in the auto scaling group"
+  description = "Minimum number of instances in the ASG"
   type        = number
-  default     = 1
 }
 
 variable "max_size" {
-  description = "Maximum number of instances in the auto scaling group"
+  description = "Maximum number of instances in the ASG"
   type        = number
-  default     = 3
 }
 
 variable "desired_capacity" {
-  description = "Desired number of instances in the auto scaling group"
+  description = "Desired number of instances in the ASG"
   type        = number
-  default     = 2
 }
 
 variable "user_data" {
-  description = "User data script for instance initialization"
+  description = "User data script for metadata service instance initialization"
   type        = string
-  default     = ""
 }
 
 variable "gamesim_security_group_id" {
-  description = "The ID of the Game Simulation security group for ingress rules"
+  description = "Security group ID of the game simulation service"
   type        = string
-  default     = ""
-} 
+}
+
+variable "dynamodb_instance_profile_arn" {
+  description = "ARN of the IAM instance profile for DynamoDB access"
+  type        = string
+}
