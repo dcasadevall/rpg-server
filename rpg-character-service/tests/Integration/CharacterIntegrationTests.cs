@@ -262,7 +262,7 @@ public class CharacterIntegrationTests : IDisposable {
     equipOffHandResponse.EnsureSuccessStatusCode();
 
     // Read response and verify that we have the proper main / offhand equipped
-    var equipmentResult = await equipOffHandResponse.Content.ReadFromJsonAsync<EquipmentResponse>();
+    var equipmentResult = await equipOffHandResponse.Content.ReadFromJsonAsync<CharacterResponse>();
     equipmentResult!
       .Equipment
       .MainHandId
@@ -281,7 +281,7 @@ public class CharacterIntegrationTests : IDisposable {
     equipShieldResponse.EnsureSuccessStatusCode();
 
     // Read response and verify we have a shield
-    var equipShieldResult = await equipShieldResponse.Content.ReadFromJsonAsync<EquipmentResponse>();
+    var equipShieldResult = await equipShieldResponse.Content.ReadFromJsonAsync<CharacterResponse>();
     equipShieldResult!
       .Equipment
       .MainHandId
@@ -300,7 +300,7 @@ public class CharacterIntegrationTests : IDisposable {
     equipArmorResponse.EnsureSuccessStatusCode();
 
     // Read response and verify we have armor
-    var equipArmorResult = await equipArmorResponse.Content.ReadFromJsonAsync<EquipmentResponse>();
+    var equipArmorResult = await equipArmorResponse.Content.ReadFromJsonAsync<CharacterResponse>();
     equipArmorResult!
       .Equipment
       .MainHandId

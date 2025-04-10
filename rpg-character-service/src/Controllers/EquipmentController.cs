@@ -1,11 +1,10 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using RPGCharacterService.Dtos.Character;
 using RPGCharacterService.Dtos.Equipment;
 using RPGCharacterService.Exceptions.Character;
 using RPGCharacterService.Exceptions.Equipment;
 using RPGCharacterService.Exceptions.Items;
 using RPGCharacterService.Mapping;
-using RPGCharacterService.Persistence;
 using RPGCharacterService.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -31,15 +30,15 @@ namespace RPGCharacterService.Controllers {
     [HttpPatch("armor/{armorId:int}")]
     [SwaggerOperation(Summary = "Equip Armor to a Character",
                        Description = "Equips the specified armor to the given character")]
-    [SwaggerResponse(200, "Armor Equipped", typeof(EquipmentResponse))]
+    [SwaggerResponse(200, "Armor Equipped", typeof(CharacterResponse))]
     [SwaggerResponse(400, "Invalid Item Id")]
     [SwaggerResponse(404, "Character or Armor Not Found")]
-    public async Task<ActionResult<EquipmentResponse>> EquipArmor(
+    public async Task<ActionResult<CharacterResponse>> EquipArmor(
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
       [SwaggerParameter("Armor item identifier", Required = true)] int armorId) {
       try {
         var character = await equipmentService.EquipArmorAsync(characterId, armorId);
-        return Ok(mapper.Map<EquipmentResponse>(character));
+        return Ok(mapper.Map<CharacterResponse>(character));
       } catch (CharacterNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       } catch (ItemNotFoundException) {
@@ -63,16 +62,16 @@ namespace RPGCharacterService.Controllers {
     [HttpPatch("weapon/{weaponId:int}")]
     [SwaggerOperation(Summary = "Equip Weapon to a Character",
                        Description = "Equips the specified weapon to the given character")]
-    [SwaggerResponse(200, "Weapon Equipped", typeof(EquipmentResponse))]
+    [SwaggerResponse(200, "Weapon Equipped", typeof(CharacterResponse))]
     [SwaggerResponse(400, "Invalid ID or Weapon ID")]
     [SwaggerResponse(404, "Character or Weapon Not Found")]
-    public async Task<ActionResult<EquipmentResponse>> EquipWeapon(
+    public async Task<ActionResult<CharacterResponse>> EquipWeapon(
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
       [SwaggerParameter("Weapon item identifier", Required = true)] int weaponId,
       [FromBody] [SwaggerRequestBody("Off-hand weapon details", Required = false)] EquipWeaponRequest request) {
       try {
         var character = await equipmentService.EquipWeaponAsync(characterId, weaponId, request.OffHand ?? false);
-        return Ok(mapper.Map<EquipmentResponse>(character));
+        return Ok(mapper.Map<CharacterResponse>(character));
       } catch (CharacterNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       } catch (ItemNotFoundException) {
@@ -95,15 +94,15 @@ namespace RPGCharacterService.Controllers {
     [HttpPatch("shield/{shieldId:int}")]
     [SwaggerOperation(Summary = "Equip Shield to a Character",
                        Description = "Equips the specified shield to the given character")]
-    [SwaggerResponse(200, "Shield Equipped", typeof(EquipmentResponse))]
+    [SwaggerResponse(200, "Shield Equipped", typeof(CharacterResponse))]
     [SwaggerResponse(400, "Invalid Item Id")]
     [SwaggerResponse(404, "Character or Shield Not Found")]
-    public async Task<ActionResult<EquipmentResponse>> EquipShield(
+    public async Task<ActionResult<CharacterResponse>> EquipShield(
       [SwaggerParameter("Character identifier", Required = true)] Guid characterId,
       [SwaggerParameter("Shield item identifier", Required = true)] int shieldId) {
       try {
         var character = await equipmentService.EquipShieldAsync(characterId, shieldId);
-        return Ok(mapper.Map<EquipmentResponse>(character));
+        return Ok(mapper.Map<CharacterResponse>(character));
       } catch (CharacterNotFoundException) {
         return NotFound(new {error = "CHARACTER_NOT_FOUND", message = "Character not found."});
       } catch (ItemNotFoundException) {

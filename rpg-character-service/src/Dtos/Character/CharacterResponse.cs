@@ -100,4 +100,30 @@ namespace RPGCharacterService.Dtos.Character {
     [SwaggerSchema(Description = "The character's ability modifiers derived from ability scores")]
     public Dictionary<AbilityScore, int> AbilityModifiers { get; init; } = new();
   }
+
+  /// <summary>
+  /// Contains details about the character's equipped items.
+  /// This Response is always used within the CharacterResponse object as we return the entire character object
+  /// on every equipment update.
+  /// </summary>
+  public class EquipmentDetails {
+    /// <summary>
+    ///   The ID of the armor equipped in the armor slot, if any
+    /// </summary>
+    [SwaggerSchema(Description = "The ID of the armor equipped in the armor slot, null if nothing equipped")]
+    public int? ArmorId { get; set; }
+
+    /// <summary>
+    ///   The ID of the weapon equipped in the main hand slot, if any
+    /// </summary>
+    [SwaggerSchema(Description = "The ID of the weapon equipped in the main hand slot, null if nothing equipped")]
+    public int? MainHandId { get; set; }
+
+    /// <summary>
+    ///   The ID of the weapon or shield equipped in the off-hand slot, if any
+    /// </summary>
+    [SwaggerSchema(Description =
+                      "The ID of the weapon or shield equipped in the off-hand slot, null if nothing equipped")]
+    public int? OffHandId { get; set; }
+  }
 }

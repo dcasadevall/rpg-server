@@ -33,17 +33,6 @@ namespace RPGCharacterService.Dtos.Mapping {
           {CurrencyType.Platinum, src.Platinum ?? 0}
         });
 
-      // Character to EquipmentResponse mapping
-      CreateMap<Entities.Characters.Character, EquipmentResponse>()
-        .ForMember(dest => dest.ArmorClass, opt => opt.MapFrom(src => src.CalculateArmorClass()))
-        .ForMember(dest => dest.WeaponDamageModifier, opt => opt.MapFrom(src => src.CalculateWeaponDamageModifier()))
-        .ForMember(dest => dest.Equipment,
-                   opt => opt.MapFrom(src => new EquipmentDetails {
-                     MainHandId = src.Equipment.MainHand != null ? src.Equipment.MainHand.Id : null,
-                     OffHandId = src.Equipment.OffHand != null ? src.Equipment.OffHand.Id : null,
-                     ArmorId = src.Equipment.Armor != null ? src.Equipment.Armor.Id : null
-                   }));
-
       // Add mapping for Equipment to EquipmentDetails
       CreateMap<Entities.Equipment, EquipmentDetails>()
         .ForMember(dest => dest.MainHandId, opt => opt.MapFrom(src => src.MainHand != null ? src.MainHand.Id : (int?) null))
