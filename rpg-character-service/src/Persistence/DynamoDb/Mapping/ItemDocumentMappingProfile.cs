@@ -40,7 +40,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Mapping {
                    } : null));
 
       CreateMap<ItemDocument, Item>()
-        .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
+        .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
         .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
         .ForMember(dest => dest.EquipmentStats, opt => opt.MapFrom(src => src.EquipmentStats));
     }

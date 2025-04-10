@@ -25,20 +25,12 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
             AttributeName = "Id",
             AttributeType = "S"
           },
-          new AttributeDefinition {
-            AttributeName = "Name",
-            AttributeType = "S"
-          }
         ],
         KeySchema = [
           new KeySchemaElement {
             AttributeName = "Id",
             KeyType = "HASH"
           },
-          new KeySchemaElement {
-            AttributeName = "Name",
-            KeyType = "RANGE"
-          }
         ],
         ProvisionedThroughput = new ProvisionedThroughput {
           ReadCapacityUnits = 5,
@@ -53,20 +45,12 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
             AttributeName = "Id",
             AttributeType = "N"
           },
-          new AttributeDefinition {
-            AttributeName = "Name",
-            AttributeType = "S"
-          }
         ],
         KeySchema = [
           new KeySchemaElement {
             AttributeName = "Id",
             KeyType = "HASH"
           },
-          new KeySchemaElement {
-            AttributeName = "Name",
-            KeyType = "RANGE"
-          }
         ],
         ProvisionedThroughput = new ProvisionedThroughput {
           ReadCapacityUnits = 5,

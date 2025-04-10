@@ -11,7 +11,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
   [DynamoDBTable("items")]
   public class ItemDocument {
     [DynamoDBHashKey]
-    public required string Id { get; init; }
+    public required int Id { get; init; }
 
     [DynamoDBProperty]
     public required string Name { get; init; }

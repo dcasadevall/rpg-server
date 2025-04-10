@@ -5,7 +5,7 @@ namespace RPGCharacterService.Controllers.Filters {
   /// This filter is used to handle exceptions that occur during the execution of an action method.
   /// It returns Internal Server Error (500) for unhandled exceptions.
   /// </summary>
-  public class ExceptionFilterAttribute : ActionFilterAttribute {
+  public class ExceptionFilterAttribute(ILogger<ExceptionFilterAttribute> logger) : ActionFilterAttribute {
     public override void OnActionExecuted(ActionExecutedContext context) {
       if (context.Exception == null) {
         return;
@@ -15,6 +15,8 @@ namespace RPGCharacterService.Controllers.Filters {
         StatusCode = StatusCodes.Status500InternalServerError
       };
 
+      logger.LogError("An unhandled exception occurred: {Message}. Stacktrace: {}",
+                      context.Exception.Message, context.Exception.StackTrace);
       context.ExceptionHandled = true;
     }
   }

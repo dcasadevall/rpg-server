@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using RPGCharacterService.Entities.Items;
 using RPGCharacterService.Persistence.DynamoDb.Models;
@@ -83,40 +82,40 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
 
     private class SeedData {
       [JsonPropertyName("items")]
-      public List<SeedItem> Items { get; set; } = new();
+      public List<SeedItem> Items { get; init; } = [];
     }
 
     private class SeedItem {
       [JsonPropertyName("id")]
-      public string Id { get; set; } = string.Empty;
+      public int Id { get; init; } = 0;
 
       [JsonPropertyName("name")]
-      public string Name { get; set; } = string.Empty;
+      public string Name { get; init; } = string.Empty;
 
       [JsonPropertyName("equipmentType")]
-      public string EquipmentType { get; set; } = string.Empty;
+      public string EquipmentType { get; init; } = string.Empty;
 
       [JsonPropertyName("weaponStats")]
-      public SeedWeaponStats? WeaponStats { get; set; }
+      public SeedWeaponStats? WeaponStats { get; init; }
 
       [JsonPropertyName("armorStats")]
-      public SeedArmorStats? ArmorStats { get; set; }
+      public SeedArmorStats? ArmorStats { get; init; }
     }
 
     private class SeedWeaponStats {
       [JsonPropertyName("weaponProperties")]
-      public List<string> WeaponProperties { get; set; } = new();
+      public List<string> WeaponProperties { get; init; } = new();
 
       [JsonPropertyName("rangeType")]
-      public string RangeType { get; set; } = string.Empty;
+      public string RangeType { get; init; } = string.Empty;
     }
 
     private class SeedArmorStats {
       [JsonPropertyName("baseArmorClass")]
-      public int BaseArmorClass { get; set; }
+      public int BaseArmorClass { get; init; }
 
       [JsonPropertyName("armorType")]
-      public string ArmorType { get; set; } = string.Empty;
+      public string ArmorType { get; init; } = string.Empty;
     }
   }
 }

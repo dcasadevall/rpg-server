@@ -70,7 +70,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Mapping {
 
     private static ItemDocument MapItemToDocument(Item item) {
       return new ItemDocument {
-        Id = item.Id.ToString(),
+        Id = item.Id,
         Name = item.Name,
         EquipmentStats = item.EquipmentStats != null ? new EquipmentStatsDocument {
           EquipmentType = item.EquipmentStats.EquipmentType,
@@ -86,9 +86,9 @@ namespace RPGCharacterService.Persistence.DynamoDb.Mapping {
       };
     }
 
-    private static Item? MapDocumentToItem(ItemDocument document) {
+    private static Item MapDocumentToItem(ItemDocument document) {
       return new Item {
-        Id = int.Parse(document.Id),
+        Id = document.Id,
         Name = document.Name,
         EquipmentStats = document.EquipmentStats != null ? new EquipmentStats {
           EquipmentType = document.EquipmentStats.EquipmentType,
