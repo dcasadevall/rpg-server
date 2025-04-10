@@ -29,10 +29,16 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
         return new AmazonDynamoDBClient(settings.AccessKey, settings.SecretKey, config);
       });
 
-      // Register DB Context
+      // Register DB Context with environment-specific table names
       services.AddScoped<IDynamoDBContext>(sp => {
+        var settings = sp.GetRequiredService<DynamoDbSettings>();
         var db = sp.GetRequiredService<IAmazonDynamoDB>();
-        return new DynamoDBContext(db);
+
+        var contextConfig = new DynamoDBContextConfig {
+          TableNamePrefix = $"{settings.DbPrefix}-"
+        };
+
+        return new DynamoDBContext(db, contextConfig);
       });
 
       // Register repositories

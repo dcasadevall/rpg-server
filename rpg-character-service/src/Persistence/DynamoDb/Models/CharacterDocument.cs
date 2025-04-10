@@ -1,5 +1,6 @@
 using Amazon.DynamoDBv2.DataModel;
 using RPGCharacterService.Entities.Characters;
+using RPGCharacterService.Persistence.DynamoDb.Configuration;
 
 namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// <summary>
@@ -40,6 +41,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Models {
     [DynamoDBProperty]
     public CharacterInitializationFlags InitFlags { get; init; } = CharacterInitializationFlags.None;
   }
+
   /// <summary>
   /// DynamoDB representation of a character's equipment.
   /// </summary>

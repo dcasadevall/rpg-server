@@ -14,8 +14,6 @@ configMapGenerator:
   behavior: merge
   literals:
   - ENVIRONMENT=dev
-  - DYNAMODB_TABLE=rpg-game-dev
-  - AWS_REGION=us-east-1
-  - METADATA_SERVICE_URL=http://metadata-service.rpg-game-dev.svc.cluster.local
+  - DYNAMODB_DB_PREFIX=dev
   - GAME_SIM_IMAGE=123456789012.dkr.ecr.us-east-1.amazonaws.com/game-sim-service:dev
   - METADATA_SERVICE_IMAGE=123456789012.dkr.ecr.us-east-1.amazonaws.com/metadata-service:dev

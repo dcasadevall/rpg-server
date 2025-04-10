@@ -1,5 +1,6 @@
 using Amazon.DynamoDBv2.DataModel;
 using RPGCharacterService.Entities.Items;
+using RPGCharacterService.Persistence.DynamoDb.Configuration;
 
 namespace RPGCharacterService.Persistence.DynamoDb.Models {
   /// <summary>

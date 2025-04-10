@@ -9,9 +9,7 @@ resources:
 configMapGenerator:
 - name: environment-config
   literals:
-  - DYNAMODB_TABLE=${DYNAMODB_TABLE}
-  - AWS_REGION=${AWS_REGION}
-  - METADATA_SERVICE_URL=${METADATA_SERVICE_URL}
+  - DYNAMODB_DB_PREFIX=${DYNAMODB_DB_PREFIX}
   - GAME_SIM_PORT=7777
 
 images:

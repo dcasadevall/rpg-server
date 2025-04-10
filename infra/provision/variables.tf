@@ -16,6 +16,24 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "domain_name" {
+  description = "Domain name for the application"
+  type        = string
+  default     = "dcasadevall.com"
+}
+
+variable "instance_type" {
+  description = "Default EC2 instance type for services"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "bucket_name" {
+  description = "Name of the S3 bucket for static content"
+  type        = string
+  default     = "rpg-game-static-content"
+}
+
 variable "iam_username" {
   description = "IAM username to attach the infrastructure management policy to"
   type        = string

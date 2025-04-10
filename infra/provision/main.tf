@@ -79,6 +79,7 @@ module "metadata_service" {
   desired_capacity            = var.environment == "dev" ? 1 : 2
   gamesim_security_group_id   = module.game_sim_service.gamesim_security_group_id
   dynamodb_instance_profile_arn = module.dynamodb.instance_profile_arn
+  user_data                   = var.metadata_user_data
 }
 
 module "static_store" {
