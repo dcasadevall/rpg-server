@@ -8,7 +8,7 @@ variable "public_subnet_ids" {
   type        = list(string)
 }
 
-variable "certificate_arn" {
-  description = "ARN of the SSL certificate to use for HTTPS"
+variable "domain_name" {
+  description = "Domain name for the ACM certificate (e.g., example.com)"
   type        = string
-} 
+}

@@ -85,6 +85,15 @@ OR Setup env vars:
    export AWS_REGION="us-east-1"
 ```
 
+* Setup your IAM name:
+
+Add this to your bash profile:
+`export TF_VAR_iam_username="YourUsername"`
+
+* PERMISSIONS NOTE:
+
+You may need to create a root access key. This is not recommended in AWS but its fine for this project.
+
 #### Commands
 
 > `cd infrastructure && terraform init && terraform apply`

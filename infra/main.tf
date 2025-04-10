@@ -7,6 +7,13 @@ provider "aws" {
 
 # Main Infrastructure
 
+# Deploy IAM resources first
+module "iam" {
+  source = "./modules/iam"
+
+  iam_username = var.iam_username
+}
+
 # Deploy VPC and networking
 module "vpc" {
   source = "./modules/vpc"
@@ -24,8 +31,7 @@ module "alb" {
   source            = "./modules/alb"
   vpc_id            = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
-  # HTTPS Certificate for SSL
-  certificate_arn   = var.certificate_arn
+  domain_name       = "dcasadevall.com"
 }
 
 # Deploy DynamoDB tables and IAM roles
@@ -77,6 +83,8 @@ module "metadata_service" {
 }
 
 module "static_store" {
-  source      = "./modules/static_store"
+  source = "./modules/static_store"
+
   bucket_name = var.static_bucket_name
+  region      = var.region
 }

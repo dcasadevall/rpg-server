@@ -1,9 +1,41 @@
 # Static Store Module (S3 + CloudFront)
 
-# S3 Bucket
-resource "aws_s3_bucket" "static_content" {
-  bucket = var.bucket_name
-  force_destroy = true
+provider "aws" {
+  alias  = "static_store"
+  region = "us-west-1"  # S3 bucket must be in us-west-1
+}
+
+# Generate random ID for bucket name
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
+}
+
+# S3 Bucket for Static Content
+resource "aws_s3_bucket" "static_store" {
+  provider = aws.static_store
+  bucket   = "${var.bucket_name}-${random_id.bucket_suffix.hex}"
+}
+
+resource "aws_s3_bucket_versioning" "static_store" {
+  bucket = aws_s3_bucket.static_store.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "static_store" {
+  bucket = aws_s3_bucket.static_store.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_acl" "static_store" {
+  bucket = aws_s3_bucket.static_store.id
+  acl    = "private"
 }
 
 # CloudFront Origin Access Identity
@@ -13,7 +45,7 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
 
 # S3 Bucket Policy (Public Read via CloudFront only)
 resource "aws_s3_bucket_policy" "static_content_policy" {
-  bucket = aws_s3_bucket.static_content.id
+  bucket = aws_s3_bucket.static_store.id
   policy = data.aws_iam_policy_document.s3_policy.json
 }
 
@@ -26,24 +58,25 @@ data "aws_iam_policy_document" "s3_policy" {
 
     actions = ["s3:GetObject"]
 
-    resources = ["${aws_s3_bucket.static_content.arn}/*"]
+    resources = ["${aws_s3_bucket.static_store.arn}/*"]
   }
 }
 
 # CloudFront Distribution
 resource "aws_cloudfront_distribution" "cdn" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+  price_class         = "PriceClass_100"
+
   origin {
-    domain_name = aws_s3_bucket.static_content.bucket_regional_domain_name
+    domain_name = aws_s3_bucket.static_store.bucket_regional_domain_name
     origin_id   = "static-content-origin"
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
     }
   }
-
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
@@ -52,7 +85,6 @@ resource "aws_cloudfront_distribution" "cdn" {
 
     forwarded_values {
       query_string = false
-
       cookies {
         forward = "none"
       }

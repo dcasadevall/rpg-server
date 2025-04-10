@@ -4,6 +4,8 @@ using Amazon.DynamoDBv2.Model;
 namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
   /// <summary>
   /// Service for initializing DynamoDB tables.
+  /// This is useful for local setups where terraform or other infrastructure tools are not used.
+  /// It is harmless to run this in production, but it is not necessary.
   /// </summary>
   public class DynamoDbInitializer(IAmazonDynamoDB client,
                                    DynamoDbSeeder seeder,

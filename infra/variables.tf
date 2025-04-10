@@ -4,6 +4,12 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "iam_username" {
+  description = "IAM username to attach the infrastructure management policy to"
+  type        = string
+  default     = "Dani"
+}
+
 variable "certificate_arn" {
   description = "ARN of the SSL certificate to use for HTTPS"
   type        = string
@@ -22,9 +28,9 @@ variable "static_bucket_name" {
 # Default AMI ID: Amazon Linux 2023 AMI
 # Modern, secure, AWS-supported, ideal for EC2 servers
 variable "metadata_ami_id" {
-  description = "The AMI ID for the metadata service instances"
+  description = "AMI ID for the metadata service instances"
   type        = string
-  default     = "ami-0c55b159cbfafe1f0"
+  default     = "ami-0c2b0c5c0c5c0c5c0"  # Amazon Linux 2023 AMI for us-east-1
 }
 
 variable "metadata_instance_type" {
@@ -52,9 +58,9 @@ variable "gamesim_udp_port" {
 # Default AMI ID: Amazon Linux 2023 AMI
 # Modern, secure, AWS-supported, ideal for EC2 servers
 variable "gamesim_ami_id" {
-  description = "The AMI ID for the game simulation service instances"
+  description = "AMI ID for the game simulation service instances"
   type        = string
-  default     = "ami-0c55b159cbfafe1f0"
+  default     = "ami-0c2b0c5c0c5c0c5c0"  # Amazon Linux 2023 AMI for us-east-1
 }
 
 variable "gamesim_instance_type" {

@@ -1,4 +1,4 @@
-# Player Infrastructure Deployment - Terraform
+# RPG Character Manager - Fortis Prompt Part 2
 
 This repository provisions a complete AWS environment for real-time multiplayer services.
 The terraform modules can be found in `/infra`
