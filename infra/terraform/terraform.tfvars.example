@@ -10,7 +10,6 @@ metadata_user_data  = "<base64-encoded user-data script>"
 
 gamesim_ami_id      = "ami-yyyyyyyy"
 gamesim_instance_type = "t3.medium"
-gamesim_user_data   = "<base64-encoded user-data script>"
 gamesim_udp_port    = 30000
 
 db_name             = "game_metadata"

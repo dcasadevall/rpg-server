@@ -1,24 +1,43 @@
 # Game Simulation Service Module
 
-# Create Security Group for Game Sim Instances
+# Create Security Group for GameSim Instances
 resource "aws_security_group" "gamesim_sg" {
   name        = "game-sim-service-sg"
-  description = "Allow UDP traffic for game sessions"
+  description = "Security group for game simulation service"
   vpc_id      = var.vpc_id
+}
 
-  ingress {
-    from_port   = var.udp_port
-    to_port     = var.udp_port
-    protocol    = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# Allow inbound UDP traffic for game simulation
+resource "aws_security_group_rule" "udp_ingress" {
+  type              = "ingress"
+  from_port         = var.udp_port
+  to_port           = var.udp_port
+  protocol          = "udp"
+  security_group_id = aws_security_group.gamesim_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow UDP traffic for game simulation"
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# Allow outbound UDP traffic to public
+resource "aws_security_group_rule" "udp_egress" {
+  type              = "egress"
+  from_port         = var.udp_port
+  to_port           = var.udp_port
+  protocol          = "udp"
+  security_group_id = aws_security_group.gamesim_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow outbound UDP traffic to public"
+}
+
+# Allow HTTP traffic to other instances in the VPC (Meant for Metadata Service)
+resource "aws_security_group_rule" "vpc_egress" {
+  type              = "egress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  security_group_id = aws_security_group.gamesim_sg.id
+  self              = true
+  description       = "Allow HTTP traffic to other instances in the VPC"
 }
 
 # Launch Template
@@ -27,13 +46,42 @@ resource "aws_launch_template" "gamesim_lt" {
   image_id      = var.ami_id
   instance_type = var.instance_type
 
+  # Network configuration for EC2 instances
   network_interfaces {
     associate_public_ip_address = true
     security_groups             = [aws_security_group.gamesim_sg.id]
   }
 
-  user_data = base64encode(var.user_data)
+  # IAM instance profile for DynamoDB access
+  iam_instance_profile {
+    arn = var.dynamodb_instance_profile_arn
+  }
+
+  # User data script that installs Docker and runs our container
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    # Install Docker
+    yum update -y
+    amazon-linux-extras install docker
+    service docker start
+    usermod -a -G docker ec2-user
+
+    # Login to ECR
+    aws ecr get-login-password --region ${data.aws_region.current.name} | docker login --username AWS --password-stdin ${replace(var.game_sim_repository_url, "/^([^/]+).*$/", "$1")}
+
+    # Pull and run the game simulation service container
+    docker pull ${var.game_sim_repository_url}:latest
+    docker run -d \
+      -e GAME_SIM_PORT=${var.udp_port} \
+      -e GAME_SIM_ENVIRONMENT=${var.environment} \
+      -e METADATA_SERVICE_URL=https://${var.metadata_service_dns} \
+      -p ${var.udp_port}:${var.udp_port}/udp \
+      ${var.game_sim_repository_url}:latest
+  EOF
+  )
 }
+
+data "aws_region" "current" {}
 
 # Auto Scaling Group
 resource "aws_autoscaling_group" "gamesim_asg" {

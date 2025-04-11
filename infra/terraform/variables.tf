@@ -99,11 +99,44 @@ variable "gamesim_instance_type" {
   default     = "c5.large"
 }
 
-variable "gamesim_user_data" {
-  description = "User data script for game simulation instance initialization"
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+variable "game_sim_instance_type" {
+  description = "EC2 instance type for game simulation service"
   type        = string
-  default     = <<-EOF
-    #!/bin/bash
-    echo "Starting game simulation server..." > /var/log/game-sim.log
-  EOF
+  default     = "t2.micro"
+}
+
+variable "game_sim_min_size" {
+  description = "Minimum number of game simulation instances"
+  type        = number
+  default     = 1
+}
+
+variable "game_sim_max_size" {
+  description = "Maximum number of game simulation instances"
+  type        = number
+  default     = 3
+}
+
+variable "game_sim_desired_capacity" {
+  description = "Desired number of game simulation instances"
+  type        = number
+  default     = 1
+}
+
+variable "game_sim_udp_port" {
+  description = "UDP port for game simulation service"
+  type        = number
+  default     = 7777
+}
+
+variable "target_autoscale_session_ratio" {
+  description = "Target ratio of game sessions per instance for autoscaling"
+  type        = number
+  default     = 8
 }

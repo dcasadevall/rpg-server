@@ -49,6 +49,26 @@ variable "user_data" {
   default     = ""
 }
 
+variable "game_sim_repository_url" {
+  description = "ECR repository URL for the game simulation service"
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment name (e.g., dev, prod)"
+  type        = string
+}
+
+variable "metadata_service_dns" {
+  description = "DNS name of the metadata service"
+  type        = string
+}
+
+variable "dynamodb_instance_profile_arn" {
+  description = "ARN of the IAM instance profile for DynamoDB access"
+  type        = string
+}
+
 variable "target_autoscale_session_ratio" {
   description = "Average number of active game sessions to target for autoscaling. 8 = 80% session load."
   type        = number
