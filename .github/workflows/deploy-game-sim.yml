@@ -57,10 +57,15 @@ jobs:
       working-directory: ./infra/terraform
       run: terraform init
 
-    - name: Get AWS region from Terraform
+    - name: Get AWS region from Terraform or use default
       id: terraform-region
       working-directory: ./infra/terraform
-      run: echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
+      run: |
+        if terraform output -raw region > /dev/null 2>&1; then
+          echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
+        else
+          echo "region=us-east-1" >> $GITHUB_OUTPUT
+        fi
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -69,10 +74,15 @@ jobs:
         aws-region: ${{ steps.terraform-region.outputs.region }}
         role-session-name: GitHubActionsSession
 
-    - name: Get ECR repository URL from Terraform
+    - name: Get ECR repository URL from Terraform or use default
       id: terraform-repo
       working-directory: ./infra/terraform
-      run: echo "repository_url=$(terraform output -raw game_sim_repository_url)" >> $GITHUB_OUTPUT
+      run: |
+        if terraform output -raw game_sim_repository_url > /dev/null 2>&1; then
+          echo "repository_url=$(terraform output -raw game_sim_repository_url)" >> $GITHUB_OUTPUT
+        else
+          echo "repository_url=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ steps.terraform-region.outputs.region }}.amazonaws.com/game-sim-service" >> $GITHUB_OUTPUT
+        fi
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -104,10 +114,15 @@ jobs:
       with:
         terraform_version: "1.7.0"
 
-    - name: Get AWS region from Terraform
+    - name: Get AWS region from Terraform or use default
       id: terraform-region
       working-directory: ./infra/terraform
-      run: echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
+      run: |
+        if terraform output -raw region > /dev/null 2>&1; then
+          echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
+        else
+          echo "region=us-east-1" >> $GITHUB_OUTPUT
+        fi
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
