@@ -7,6 +7,18 @@ resource "aws_security_group" "metadata_sg" {
   vpc_id      = var.vpc_id
 }
 
+# Allow SSH access for testing
+# This should not be in prod
+resource "aws_security_group_rule" "ssh_ingress" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  security_group_id = aws_security_group.metadata_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow SSH access for testing"
+}
+
 # Allow HTTP traffic from the ALB
 resource "aws_security_group_rule" "alb_ingress" {
   type              = "ingress"
@@ -40,6 +52,19 @@ resource "aws_security_group_rule" "dynamodb_egress" {
   description       = "Allow outbound traffic to DynamoDB"
 }
 
+# Allow outbound internet access for Docker
+# In production, we may want to access ECR via VPC
+# and use a docker ready AMI image
+resource "aws_security_group_rule" "docker_egress" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = aws_security_group.metadata_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow outbound HTTPS for Docker"
+}
+
 # Allow HTTP traffic from other instances in the VPC (Meant for GameSim updates)
 resource "aws_security_group_rule" "vpc_ingress" {
   type              = "ingress"
@@ -56,6 +81,7 @@ resource "aws_launch_template" "metadata_lt" {
   name_prefix   = "metadata-service-"
   image_id      = var.ami_id
   instance_type = var.instance_type
+  key_name      = "fortis-take-home-key"
 
   # Network configuration for EC2 instances
   network_interfaces {
@@ -109,3 +135,4 @@ resource "aws_autoscaling_group" "metadata_asg" {
   health_check_grace_period = 60
   force_delete              = true
 }
+
