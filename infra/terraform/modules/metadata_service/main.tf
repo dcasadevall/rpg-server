@@ -98,10 +98,10 @@ resource "aws_launch_template" "metadata_lt" {
   user_data = base64encode(<<-EOF
     #!/bin/bash
     # Install Docker
-    yum update -y
-    amazon-linux-extras install docker
-    service docker start
-    usermod -a -G docker ec2-user
+    apt-get update
+    apt-get install -y docker.io
+    systemctl start docker
+    usermod -aG docker ubuntu
 
     # Login to ECR
     aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${replace(var.metadata_repository_url, "/^([^/]+).*$/", "$1")}
