@@ -4,19 +4,19 @@
 ENVIRONMENT=${ENVIRONMENT:-"dev"}
 
 # Make build scripts executable
-chmod +x metadata_service/build-metadata.sh
-chmod +x gamesim_service/build-game-sim.sh
+chmod +x deploy/metadata_service/deploy-metadata.sh
+chmod +x deploy/gamesim_service/deploy-game-sim.sh
 
 # Build and deploy metadata service
 echo "Building and deploying metadata service..."
-cd metadata_service
-./build-metadata.sh
-cd ..
+cd deploy/metadata_service
+./deploy-metadata.sh
+cd ../..
 
 # Build and deploy game simulation service
 echo "Building and deploying game simulation service..."
-cd gamesim_service
-./build-game-sim.sh
-cd ..
+cd deploy/gamesim_service
+./deploy-game-sim.sh
+cd ../..
 
 echo "All services deployed successfully!"

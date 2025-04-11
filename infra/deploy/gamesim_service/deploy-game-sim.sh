@@ -8,10 +8,9 @@ ENVIRONMENT=${ENVIRONMENT:-"dev"}
 # Get ECR repository URL from Terraform output
 ECR_REPOSITORY=$(terraform -chdir=../../provision output -raw ecr_repository_url)
 
-# Check if the gamesim-service directory exists
+# Check if the game simulation service directory exists
 if [ ! -d "../../../gamesim-service" ]; then
-    echo "Error: gamesim-service directory not found at ../../../gamesim-service"
-    echo "Please create the Go project in the gamesim-service directory first"
+    echo "Error: gamesim-service directory not found. Please implement the game simulation service first."
     exit 1
 fi
 
