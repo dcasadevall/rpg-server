@@ -10,6 +10,7 @@ Docs answering the prompt details can be found here:
 - [Question 1.a API Design](docs/1.a-API-planning.md)
 - [Question 1.b TDD](docs/1.b-Extension-TDD.md)
 - [Question 2 Infrastructure](docs/2-infrastructure.md)
+- [Question 2 Challenges](docs/2-Challenges.md)
 
 ---
 

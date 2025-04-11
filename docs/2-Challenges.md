@@ -41,3 +41,11 @@ Maybe separate the C# initialization so that it only happens on local builds.
 My experience with deployment containers has always been via kubernetes, so EC2 was completely new to me.
 I had to learn a few things and change my mindset on how to deploy services, but the tradeoff seemed
 worth it, given the simplicity of autoscaling groups and deployment without having to use an additional tool (kustomize).
+
+### Userdata to setup docker and debugging EC2 instance
+
+It was a pain (and I am still debugging) to try and figure out
+why my metadata service instance is not responding to health checks.
+There is some issue with the user data that is supposed to pull
+the image responsible for building the game and responding to
+health checks, but I couldn't figure it out
