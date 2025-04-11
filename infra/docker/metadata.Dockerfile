@@ -2,21 +2,21 @@
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
 WORKDIR /src
 
-# Copy only the project file first
+# Copy only the main project file first
 COPY ["rpg-character-service/src/rpg-character-service.csproj", "src/"]
 
-# Restore dependencies in smaller chunks
+# Restore only the main project dependencies
 WORKDIR "/src/src"
-RUN dotnet restore "rpg-character-service.csproj" --runtime linux-x64 --disable-parallel --no-cache --force --verbosity minimal /m:1
+RUN dotnet restore "rpg-character-service.csproj"
 
-# Copy the rest of the source code
+# Copy the rest of the source code (only the src directory)
 COPY ["rpg-character-service/src/.", "."]
 
-# Build with minimal verbosity and no parallel processing
-RUN dotnet build "rpg-character-service.csproj" -c Release -o /app/build --no-restore --verbosity minimal --disable-parallel
+# Build the application
+RUN dotnet build "rpg-character-service.csproj" -c Release -o /app/build
 
-# Publish with minimal verbosity and no parallel processing
-RUN dotnet publish "rpg-character-service.csproj" -c Release -o /app/publish --no-restore --verbosity minimal --disable-parallel
+# Publish the application
+RUN dotnet publish "rpg-character-service.csproj" -c Release -o /app/publish
 
 # Runtime stage
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:9.0-preview AS final
