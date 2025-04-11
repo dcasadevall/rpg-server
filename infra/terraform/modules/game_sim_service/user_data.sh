@@ -1,9 +1,10 @@
 #!/bin/bash
 # Install Docker
-yum update -y
-amazon-linux-extras install docker
-service docker start
-usermod -a -G docker ec2-user
+sudo snap install docker
+sudo snap start docker
+
+# Wait for docker to be ready
+until docker info; do sleep 1; done
 
 # Login to ECR
 aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecr_registry}

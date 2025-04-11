@@ -44,8 +44,9 @@ worth it, given the simplicity of autoscaling groups and deployment without havi
 
 ### Userdata to setup docker and debugging EC2 instance
 
-It was a pain (and I am still debugging) to try and figure out
-why my metadata service instance is not responding to health checks.
-There is some issue with the user data that is supposed to pull
-the image responsible for building the game and responding to
-health checks, but I couldn't figure it out
+It was a pain to try and figure out
+why my metadata service instance was not responding to health checks.
+The apt-get commands were not working, and I had to enable ssh
+in order to read the logs as to why that was happening.
+Without being used to all the aws CLI commands, this was
+a tedious process.

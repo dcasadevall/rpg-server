@@ -3,8 +3,10 @@ set -ex
 
 # Install Docker
 sudo snap install docker
-systemctl enable docker
-usermod -aG docker ubuntu
+sudo snap start docker
+
+# Wait for docker to be ready
+until docker info; do sleep 1; done
 
 # Login to ECR
 aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecr_registry}
