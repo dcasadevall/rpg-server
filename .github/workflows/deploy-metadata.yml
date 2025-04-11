@@ -22,10 +22,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Restore dependencies
       run: dotnet restore rpg-character-service/rpg-character-service.sln
@@ -45,6 +50,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
