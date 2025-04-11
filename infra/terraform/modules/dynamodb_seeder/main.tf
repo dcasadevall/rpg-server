@@ -53,7 +53,7 @@ resource "aws_iam_policy" "lambda_dynamodb" {
           "dynamodb:Scan"
         ]
         Resource = [
-          "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.items_table_name}-${var.environment}"
+          "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.items_table_name}-${var.environment}"
         ]
       }
     ]
@@ -72,5 +72,4 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}

@@ -74,3 +74,8 @@ variable "target_autoscale_session_ratio" {
   type        = number
   default     = 8
 }
+
+variable "region" {
+  description = "AWS region"
+  type        = string
+}

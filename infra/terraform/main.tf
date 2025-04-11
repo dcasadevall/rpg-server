@@ -19,6 +19,7 @@ module "vpc" {
   source = "./modules/vpc"
 
   environment = var.environment
+  region      = var.region
   vpc_cidr    = var.environment == "dev" ? "10.0.0.0/16" : "10.1.0.0/16"
   tags = {
     Environment = var.environment
@@ -80,6 +81,7 @@ module "metadata_service" {
   metadata_repository_url     = module.ecr.metadata_repository_url
   dynamodb_service_url        = "https://dynamodb.${var.region}.amazonaws.com"
   environment                 = var.environment
+  region                      = var.region
 }
 
 # Deploy game simulation service
@@ -99,6 +101,7 @@ module "game_sim_service" {
   metadata_service_dns            = module.alb.alb_dns_name
   dynamodb_instance_profile_arn   = module.dynamodb.instance_profile_arn
   target_autoscale_session_ratio  = var.target_autoscale_session_ratio
+  region                          = var.region
 }
 
 module "static_store" {
@@ -112,4 +115,5 @@ module "dynamodb_seeder" {
 
   environment = var.environment
   items_table_name = module.dynamodb.items_table_name
+  region = var.region
 }

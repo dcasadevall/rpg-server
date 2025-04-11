@@ -78,14 +78,14 @@ resource "aws_launch_template" "metadata_lt" {
     usermod -a -G docker ec2-user
 
     # Login to ECR
-    aws ecr get-login-password --region ${data.aws_region.current.name} | docker login --username AWS --password-stdin ${replace(var.metadata_repository_url, "/^([^/]+).*$/", "$1")}
+    aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${replace(var.metadata_repository_url, "/^([^/]+).*$/", "$1")}
 
     # Pull and run the metadata service container
     docker pull ${var.metadata_repository_url}:latest
     docker run -d \
       -e ENVIRONMENT=${var.environment} \
       -e DYNAMODB_DB_PREFIX=${var.environment}- \
-      -e DYNAMODB_SERVICE_URL=dynamodb.${data.aws_region.current.name}.amazonaws.com \
+      -e DYNAMODB_SERVICE_URL=dynamodb.${var.region}.amazonaws.com \
       -p 80:80 \
       ${var.metadata_repository_url}:latest
   EOF
@@ -107,5 +107,3 @@ resource "aws_autoscaling_group" "metadata_asg" {
   health_check_grace_period = 60
   force_delete              = true
 }
-
-data "aws_region" "current" {}

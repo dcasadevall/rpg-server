@@ -77,3 +77,8 @@ variable "user_data" {
   type        = string
   default     = ""
 }
+
+variable "region" {
+  description = "AWS region"
+  type        = string
+}

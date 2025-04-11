@@ -67,7 +67,7 @@ resource "aws_launch_template" "gamesim_lt" {
     usermod -a -G docker ec2-user
 
     # Login to ECR
-    aws ecr get-login-password --region ${data.aws_region.current.name} | docker login --username AWS --password-stdin ${replace(var.game_sim_repository_url, "/^([^/]+).*$/", "$1")}
+    aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${replace(var.game_sim_repository_url, "/^([^/]+).*$/", "$1")}
 
     # Pull and run the game simulation service container
     docker pull ${var.game_sim_repository_url}:latest
@@ -80,8 +80,6 @@ resource "aws_launch_template" "gamesim_lt" {
   EOF
   )
 }
-
-data "aws_region" "current" {}
 
 # Auto Scaling Group
 resource "aws_autoscaling_group" "gamesim_asg" {

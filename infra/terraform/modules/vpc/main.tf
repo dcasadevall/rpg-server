@@ -61,7 +61,7 @@ resource "aws_route_table_association" "public" {
 # Create VPC Endpoint for DynamoDB
 resource "aws_vpc_endpoint" "dynamodb" {
   vpc_id       = aws_vpc.main.id
-  service_name = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
+  service_name = "com.amazonaws.${var.region}.dynamodb"
   vpc_endpoint_type = "Gateway"
 
   route_table_ids = [aws_route_table.public.id]
@@ -70,5 +70,3 @@ resource "aws_vpc_endpoint" "dynamodb" {
     Name = "${var.environment}-dynamodb-endpoint"
   })
 }
-
-data "aws_region" "current" {}
