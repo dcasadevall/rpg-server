@@ -3,7 +3,7 @@
 # This file will be updated once the Go implementation is ready
 
 # Build stage
-FROM golang:1.22-alpine AS build
+FROM --platform=linux/amd64 golang:1.22-alpine AS build
 WORKDIR /src
 
 # Copy go.mod and go.sum first to leverage Docker cache
@@ -14,10 +14,10 @@ RUN go mod download
 COPY ["gamesim-service/.", "."]
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/gamesim-service
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/gamesim-service
 
 # Runtime stage
-FROM alpine:latest
+FROM --platform=linux/amd64 alpine:latest
 WORKDIR /app
 
 # Install required runtime dependencies

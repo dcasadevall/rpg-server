@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
+FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
 WORKDIR /src
 
 # Copy only the main project file first
@@ -19,7 +19,7 @@ RUN dotnet build "rpg-character-service.csproj" -c Release -o /app/build
 RUN dotnet publish "rpg-character-service.csproj" -c Release -o /app/publish
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-preview AS final
+FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:9.0-preview AS final
 WORKDIR /app
 
 # Install required system dependencies

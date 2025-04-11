@@ -78,6 +78,12 @@ variable "metadata_user_data" {
   EOF
 }
 
+variable "metadata_desired_capacity" {
+  description = "Desired number of metadata service tasks"
+  type        = number
+  default     = 1
+}
+
 # Game Simulation Service Variables
 variable "gamesim_udp_port" {
   description = "UDP port for game simulation traffic"

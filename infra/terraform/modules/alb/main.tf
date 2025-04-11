@@ -82,12 +82,13 @@ resource "aws_lb" "alb" {
   subnets            = var.public_subnet_ids
 }
 
-# Create Target Group
+# Create Target Group for Metadata Service
 resource "aws_lb_target_group" "metadata_tg" {
-  name     = "metadata-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "metadata-tg"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
 
   health_check {
     protocol = "HTTP"

@@ -28,7 +28,7 @@ module "vpc" {
   }
 }
 
-# Creates the application load balancer (ALB) for our Metadata Service
+# Creates the application load balancer (ALB) for our services
 module "alb" {
   source            = "./modules/alb"
   vpc_id            = module.vpc.vpc_id
@@ -53,7 +53,7 @@ module "dynamodb" {
   }
 }
 
-# Deploy ECR repository for character service
+# Deploy ECR repositories for services
 module "ecr" {
   source = "./modules/ecr"
 
@@ -62,54 +62,33 @@ module "ecr" {
   tags         = var.tags
 }
 
-# Deploy metadata service
-module "metadata_service" {
-  source = "./modules/metadata_service"
+# Deploy ECS cluster and services
+module "ecs" {
+  source = "./modules/ecs"
 
-  vpc_id                      = module.vpc.vpc_id
-  public_subnet_ids           = module.vpc.public_subnet_ids
-  alb_security_group_id       = module.alb.alb_security_group_id
-  alb_target_group_arn        = module.alb.alb_target_group_arn
-  ami_id                      = var.metadata_ami_id
-  instance_type               = var.instance_type
-  min_size                    = var.environment == "dev" ? 1 : 2
-  max_size                    = var.environment == "dev" ? 2 : 4
-  desired_capacity            = var.environment == "dev" ? 1 : 2
-  dynamodb_instance_profile_arn = module.dynamodb.instance_profile_arn
-  dynamodb_prefix_list_id     = module.vpc.dynamodb_prefix_list_id
-  user_data                   = var.metadata_user_data
-  metadata_repository_url     = module.ecr.metadata_repository_url
-  dynamodb_service_url        = "https://dynamodb.${var.region}.amazonaws.com"
-  environment                 = var.environment
-  region                      = var.region
+  project_name = var.project_name
+  environment  = var.environment
+  region       = var.region
+  vpc_id       = module.vpc.vpc_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+  alb_security_group_id = module.alb.alb_security_group_id
+  metadata_target_group_arn = module.alb.metadata_target_group_arn
+  metadata_repository_url = module.ecr.metadata_repository_url
+  game_sim_repository_url = module.ecr.game_sim_repository_url
+  game_sim_udp_port = var.game_sim_udp_port
+  game_sim_desired_capacity = var.game_sim_desired_capacity
+  metadata_desired_capacity = var.metadata_desired_capacity
+  metadata_service_dns = module.alb.alb_dns_name
 }
 
-# Deploy game simulation service
-module "game_sim_service" {
-  source = "./modules/game_sim_service"
-
-  vpc_id                          = module.vpc.vpc_id
-  public_subnet_ids               = module.vpc.public_subnet_ids
-  ami_id                          = var.gamesim_ami_id
-  instance_type                   = var.game_sim_instance_type
-  min_size                        = var.game_sim_min_size
-  max_size                        = var.game_sim_max_size
-  desired_capacity                = var.game_sim_desired_capacity
-  udp_port                        = var.game_sim_udp_port
-  environment                     = var.environment
-  game_sim_repository_url         = module.ecr.game_sim_repository_url
-  metadata_service_dns            = module.alb.alb_dns_name
-  dynamodb_instance_profile_arn   = module.dynamodb.instance_profile_arn
-  target_autoscale_session_ratio  = var.target_autoscale_session_ratio
-  region                          = var.region
-}
-
+# Deploy static content store
 module "static_store" {
   source = "./modules/static_store"
 
   bucket_name = var.bucket_name
 }
 
+# Deploy DynamoDB seeder
 module "dynamodb_seeder" {
   source = "./modules/dynamodb_seeder"
 
