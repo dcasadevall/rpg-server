@@ -47,8 +47,15 @@ resource "aws_acm_certificate_validation" "cert" {
 # Create Security Group for ALB
 resource "aws_security_group" "alb_sg" {
   name        = "alb-sg"
-  description = "Allow HTTPS inbound traffic"
+  description = "Allow HTTP and HTTPS inbound traffic"
   vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     from_port   = 443
@@ -103,10 +110,40 @@ resource "aws_lb_listener" "https_listener" {
   }
 }
 
+# Create HTTP Listener with redirect to HTTPS
+resource "aws_lb_listener" "http_listener" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
 # Create Route 53 A record for the ALB
 resource "aws_route53_record" "alb" {
   zone_id = aws_route53_zone.main.zone_id
   name    = "api.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.alb.dns_name
+    zone_id                = aws_lb.alb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+# Create Route 53 A record for the root domain
+resource "aws_route53_record" "root_domain" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = var.domain_name
   type    = "A"
 
   alias {
