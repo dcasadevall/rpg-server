@@ -15,8 +15,6 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: rpg-game-metadata-service
-  ECR_IMAGE: ${{ github.repository }}-metadata-service
 
 jobs:
   test:
@@ -27,16 +25,16 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 8.0.x
 
     - name: Restore dependencies
-      run: dotnet restore metadata-service/metadata-service.sln
+      run: dotnet restore rpg-character-service/rpg-character-service.sln
 
     - name: Build
-      run: dotnet build metadata-service/metadata-service.sln --no-restore
+      run: dotnet build rpg-character-service/rpg-character-service.sln --no-restore
 
     - name: Test
-      run: dotnet test metadata-service/metadata-service.sln --filter:"FullyQualifiedName!~Integration"
+      run: dotnet test rpg-character-service/rpg-character-service.sln --filter:"FullyQualifiedName!~Integration"
 
   build-and-push:
     needs: test
@@ -51,8 +49,14 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: arn:aws:iam::069159279042:role/github-actions-role
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
         aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get ECR repository URL from Terraform
+      id: terraform
+      run: |
+        cd infra/terraform
+        echo "repository_url=$(terraform output -raw metadata_repository_url)" >> $GITHUB_OUTPUT
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -62,11 +66,12 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
+        ECR_REPOSITORY: ${{ steps.terraform.outputs.repository_url }}
       run: |
-        docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f infra/docker/metadata.Dockerfile .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        docker build --platform linux/amd64 -t $ECR_REPOSITORY:$IMAGE_TAG -f infra/docker/metadata.Dockerfile .
+        docker push $ECR_REPOSITORY:$IMAGE_TAG
+        docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REPOSITORY:latest
+        docker push $ECR_REPOSITORY:latest
 
   deploy:
     needs: build-and-push
@@ -81,7 +86,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: arn:aws:iam::069159279042:role/github-actions-role
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Setup Terraform
