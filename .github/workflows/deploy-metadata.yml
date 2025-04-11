@@ -13,9 +13,6 @@ on:
           - prod
         default: 'dev'
 
-env:
-  AWS_REGION: us-east-1
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -56,17 +53,31 @@ jobs:
       with:
         go-version: '1.22'
 
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.7.0"
+
+    - name: Terraform Init
+      working-directory: ./infra/terraform
+      run: terraform init
+
+    - name: Get AWS region from Terraform
+      id: terraform-region
+      working-directory: ./infra/terraform
+      run: echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ steps.terraform-region.outputs.region }}
+        role-session-name: GitHubActionsSession
 
     - name: Get ECR repository URL from Terraform
-      id: terraform
-      run: |
-        cd infra/terraform
-        echo "repository_url=$(terraform output -raw metadata_repository_url)" >> $GITHUB_OUTPUT
+      id: terraform-repo
+      working-directory: ./infra/terraform
+      run: echo "repository_url=$(terraform output -raw metadata_repository_url)" >> $GITHUB_OUTPUT
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -76,7 +87,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
-        ECR_REPOSITORY: ${{ steps.terraform.outputs.repository_url }}
+        ECR_REPOSITORY: ${{ steps.terraform-repo.outputs.repository_url }}
       run: |
         docker build --platform linux/amd64 -t $ECR_REPOSITORY:$IMAGE_TAG -f infra/docker/metadata.Dockerfile .
         docker push $ECR_REPOSITORY:$IMAGE_TAG
@@ -93,16 +104,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
-        aws-region: ${{ env.AWS_REGION }}
-
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: "1.7.0"
+
+    - name: Get AWS region from Terraform
+      id: terraform-region
+      working-directory: ./infra/terraform
+      run: echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+        aws-region: ${{ steps.terraform-region.outputs.region }}
+        role-session-name: GitHubActionsSession
 
     - name: Terraform Init
       working-directory: ./infra/terraform
