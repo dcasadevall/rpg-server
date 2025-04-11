@@ -10,7 +10,7 @@ if [ ! -d "../gamesim-service" ]; then
 fi
 
 # Build the Docker image
-docker build -t ${ECR_REPOSITORY_URL}:latest -f docker/gamesim_service/Dockerfile ../
+docker build -t ${ECR_REPOSITORY_URL}:latest -f docker/gamesim.Dockerfile ../
 
 # Login to ECR
 aws ecr get-login-password --region $(terraform -chdir=terraform output -raw region) | docker login --username AWS --password-stdin ${ECR_REPOSITORY_URL%/*}

@@ -42,8 +42,17 @@ output "cloudfront_domain_name" {
   value       = module.static_store.cloudfront_domain_name
 }
 
-# ECR Outputs
-output "ecr_repository_url" {
-  description = "URL of the ECR repository"
-  value       = module.ecr.repository_url
+output "metadata_repository_url" {
+  description = "The URL of the metadata service ECR repository"
+  value       = module.ecr.metadata_repository_url
+}
+
+output "game_sim_repository_url" {
+  description = "The URL of the game simulation service ECR repository"
+  value       = module.ecr.game_sim_repository_url
+}
+
+output "region" {
+  description = "The AWS region"
+  value       = var.region
 }

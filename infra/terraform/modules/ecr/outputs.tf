@@ -1,8 +1,3 @@
-output "repository_url" {
-  description = "The URL of the metadata ECR repository"
-  value       = aws_ecr_repository.metadata_service.repository_url
-}
-
 output "repository_arn" {
   description = "The ARN of the metadata ECR repository"
   value       = aws_ecr_repository.metadata_service.arn
