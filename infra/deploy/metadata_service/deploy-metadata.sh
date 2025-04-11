@@ -10,7 +10,9 @@ ECR_REPOSITORY=$(terraform -chdir=../../provision output -raw ecr_repository_url
 
 # Build the Docker image
 echo "Building metadata service Docker image..."
-docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f Dockerfile ../../../
+docker build -t ${IMAGE_NAME}:${IMAGE_TAG} \
+    --build-arg ENVIRONMENT=${ENVIRONMENT} \
+    -f Dockerfile ../../../
 
 # Tag the image for ECR
 echo "Tagging image for ECR..."

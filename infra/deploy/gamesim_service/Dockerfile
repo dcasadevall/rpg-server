@@ -31,7 +31,8 @@ EXPOSE 7777/udp
 
 # Set environment variables
 ENV GAME_SIM_PORT=7777
-ENV GAME_SIM_ENVIRONMENT=development
+ARG ENVIRONMENT=dev
+ENV GAME_SIM_ENVIRONMENT=${ENVIRONMENT}
 
 # Start the application
 ENTRYPOINT ["/app/gamesim-service"]

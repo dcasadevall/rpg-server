@@ -32,10 +32,11 @@ COPY --from=build /app/publish .
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:80
-ENV ASPNETCORE_ENVIRONMENT=Development
+ARG ENVIRONMENT=dev
+ENV ASPNETCORE_ENVIRONMENT=${ENVIRONMENT}
 
 # AWS DynamoDB configuration
-ENV DYNAMODB_DB_PREFIX=dev-
+ENV DYNAMODB_DB_PREFIX=${ENVIRONMENT}-
 ENV DYNAMODB_SERVICE_URL=dynamodb.us-east-1.amazonaws.com
 
 # Expose the port the app runs on
