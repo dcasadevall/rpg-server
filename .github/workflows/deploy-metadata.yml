@@ -19,11 +19,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.22'
-
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -48,11 +43,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.22'
-
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -66,11 +56,7 @@ jobs:
       id: terraform-region
       working-directory: ./infra/terraform
       run: |
-        if terraform output -raw region > /dev/null 2>&1; then
-          echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
-        else
-          echo "region=us-east-1" >> $GITHUB_OUTPUT
-        fi
+        echo "region=us-east-1" >> $GITHUB_OUTPUT
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -83,11 +69,7 @@ jobs:
       id: terraform-repo
       working-directory: ./infra/terraform
       run: |
-        if terraform output -raw metadata_repository_url > /dev/null 2>&1; then
-          echo "repository_url=$(terraform output -raw metadata_repository_url)" >> $GITHUB_OUTPUT
-        else
-          echo "repository_url=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ steps.terraform-region.outputs.region }}.amazonaws.com/rpg-game-metadata-service" >> $GITHUB_OUTPUT
-        fi
+        echo "repository_url=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ steps.terraform-region.outputs.region }}.amazonaws.com/rpg-game-metadata-service" >> $GITHUB_OUTPUT
 
     - name: Login to Amazon ECR
       id: login-ecr

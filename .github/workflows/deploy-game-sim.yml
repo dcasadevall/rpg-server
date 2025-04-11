@@ -61,11 +61,7 @@ jobs:
       id: terraform-region
       working-directory: ./infra/terraform
       run: |
-        if terraform output -raw region > /dev/null 2>&1; then
-          echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
-        else
-          echo "region=us-east-1" >> $GITHUB_OUTPUT
-        fi
+        echo "region=us-east-1" >> $GITHUB_OUTPUT
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -78,11 +74,7 @@ jobs:
       id: terraform-repo
       working-directory: ./infra/terraform
       run: |
-        if terraform output -raw game_sim_repository_url > /dev/null 2>&1; then
-          echo "repository_url=$(terraform output -raw game_sim_repository_url)" >> $GITHUB_OUTPUT
-        else
-          echo "repository_url=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ steps.terraform-region.outputs.region }}.amazonaws.com/game-sim-service" >> $GITHUB_OUTPUT
-        fi
+        echo "repository_url=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ steps.terraform-region.outputs.region }}.amazonaws.com/rpg-game-sim-service" >> $GITHUB_OUTPUT
 
     - name: Login to Amazon ECR
       id: login-ecr
