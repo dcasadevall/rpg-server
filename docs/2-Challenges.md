@@ -50,3 +50,9 @@ The apt-get commands were not working, and I had to enable ssh
 in order to read the logs as to why that was happening.
 Without being used to all the aws CLI commands, this was
 a tedious process.
+
+### Github Workflows ###
+
+Giving the right policies to github was not trivial. It took a few attempts
+plus figuring out the right flow so that I could get the variables such as
+region and ecr repo passed around.
