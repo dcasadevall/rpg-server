@@ -97,7 +97,8 @@ public class Program {
     }
 
     // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local")) {
+    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "dev";
+    if (environment is "dev" or "local") {
       app.UseSwagger();
       app.UseSwaggerUI(c => {
         // Serve each swagger version. Multiple versions would require adding
