@@ -17,3 +17,8 @@ output "internet_gateway_id" {
   description = "ID of the Internet Gateway"
   value       = aws_internet_gateway.gw.id
 }
+
+output "dynamodb_prefix_list_id" {
+  description = "Prefix list ID for the DynamoDB VPC endpoint"
+  value       = aws_vpc_endpoint.dynamodb.prefix_list_id
+}

@@ -22,13 +22,20 @@ resource "aws_security_group" "metadata_sg" {
     security_groups = [var.gamesim_security_group_id]
   }
 
-  # Allow all outbound traffic from Metadata service instances
-  # This allows the service to communicate with other AWS services and the internet
+  # Allow responses to the ALB
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [var.alb_security_group_id]
+  }
+
+  # Allow outbound traffic to DynamoDB VPC endpoint
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    prefix_list_ids = [var.dynamodb_prefix_list_id]
   }
 }
 

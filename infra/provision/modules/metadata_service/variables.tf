@@ -54,6 +54,11 @@ variable "dynamodb_instance_profile_arn" {
   type        = string
 }
 
+variable "dynamodb_prefix_list_id" {
+  description = "Prefix list ID for the DynamoDB VPC endpoint"
+  type        = string
+}
+
 variable "user_data" {
   description = "User data script for the EC2 instances"
   type        = string

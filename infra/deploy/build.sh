@@ -5,11 +5,11 @@ IMAGE_NAME="rpg-character-service"
 IMAGE_TAG="latest"
 
 # Get ECR repository URL from Terraform output
-ECR_REPOSITORY=$(terraform -chdir=../.. output -raw ecr_repository_url)
+ECR_REPOSITORY=$(terraform -chdir=../provision output -raw ecr_repository_url)
 
-# Build the Docker image
+# Build the Docker image from the root directory
 echo "Building Docker image..."
-docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f Dockerfile ../../
 
 # Tag the image for ECR
 echo "Tagging image for ECR..."

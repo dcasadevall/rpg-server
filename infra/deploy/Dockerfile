@@ -2,18 +2,17 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
 WORKDIR /src
 
-# Copy the project files
-COPY ["../../rpg-character-service/src/rpg-character-service.csproj", "src/"]
-COPY ["../../rpg-character-service/rpg-character-service.sln", "./"]
+# Copy only the main project file first
+COPY ["rpg-character-service/src/rpg-character-service.csproj", "src/"]
 
-# Restore dependencies
-RUN dotnet restore
+# Restore only the main project dependencies
+WORKDIR "/src/src"
+RUN dotnet restore "rpg-character-service.csproj"
 
-# Copy the rest of the source code
-COPY ["../../rpg-character-service", "."]
+# Copy the rest of the source code (only the src directory)
+COPY ["rpg-character-service/src/.", "."]
 
 # Build the application
-WORKDIR "/src/src"
 RUN dotnet build "rpg-character-service.csproj" -c Release -o /app/build
 
 # Publish the application
@@ -33,7 +32,12 @@ COPY --from=build /app/publish .
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:80
-ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_ENVIRONMENT=Development
+
+# AWS DynamoDB configuration
+ENV AWS_REGION=us-east-1
+ENV DYNAMODB_SERVICE_URL=https://dynamodb.us-east-1.amazonaws.com
+ENV DYNAMODB_DB_PREFIX=dev-
 
 # Expose the port the app runs on
 EXPOSE 80

@@ -57,3 +57,18 @@ resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
+
+# Create VPC Endpoint for DynamoDB
+resource "aws_vpc_endpoint" "dynamodb" {
+  vpc_id       = aws_vpc.main.id
+  service_name = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = [aws_route_table.public.id]
+
+  tags = merge(var.tags, {
+    Name = "${var.environment}-dynamodb-endpoint"
+  })
+}
+
+data "aws_region" "current" {}
