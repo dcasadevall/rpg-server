@@ -56,3 +56,5 @@ a tedious process.
 Giving the right policies to github was not trivial. It took a few attempts
 plus figuring out the right flow so that I could get the variables such as
 region and ecr repo passed around.
+Additionally, the image format (linux/amd64) seemed not to match the expected one,
+causing the binary not to execute.
