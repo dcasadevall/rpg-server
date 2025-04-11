@@ -82,3 +82,8 @@ variable "metadata_service_dns" {
   description = "DNS name of the metadata service"
   type        = string
 }
+
+variable "metadata_service_security_group_id" {
+  description = "Security group ID of the metadata service"
+  type        = string
+}

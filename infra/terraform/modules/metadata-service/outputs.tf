@@ -22,3 +22,8 @@ output "metadata_log_group_name" {
   description = "Name of the CloudWatch log group for metadata service"
   value       = aws_cloudwatch_log_group.metadata.name
 }
+
+output "metadata_security_group_id" {
+  description = "ID of the metadata service security group"
+  value       = aws_security_group.metadata.id
+}

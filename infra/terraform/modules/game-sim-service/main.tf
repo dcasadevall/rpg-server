@@ -14,6 +14,15 @@ resource "aws_security_group" "game_sim" {
     description = "Allow UDP traffic for game simulation"
   }
 
+  # Allow outbound traffic to metadata service
+  egress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [var.metadata_service_security_group_id]
+    description     = "Allow HTTPS traffic to metadata service"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -102,42 +111,136 @@ resource "aws_appautoscaling_target" "game_sim" {
   service_namespace  = "ecs"
 }
 
-# Create Target Tracking Scaling Policy
-resource "aws_appautoscaling_policy" "game_sim_target_tracking" {
-  name               = "game-sim-target-tracking"
-  policy_type        = "TargetTrackingScaling"
+# Create CloudWatch Metric Alarm for Sessions Per Instance
+resource "aws_cloudwatch_metric_alarm" "sessions_per_instance_alarm" {
+  alarm_name          = "sessions-per-instance-too-high"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  threshold           = var.target_autoscale_session_ratio
+  alarm_description   = "Alarm when SessionsPerInstance exceeds target ratio"
+  treat_missing_data  = "breaching"
+  alarm_actions       = [aws_appautoscaling_policy.game_sim_scale_up.arn]
+
+  metric_query {
+    id          = "m1"
+    metric {
+      namespace   = "GameSimulation"
+      metric_name = "ActiveGameSessions"
+      period      = 60
+      stat        = "Average"
+      dimensions = {
+        ServiceName = aws_ecs_service.game_sim.name
+        ClusterName = var.ecs_cluster_name
+      }
+    }
+    return_data = false
+  }
+
+  metric_query {
+    id          = "m2"
+    metric {
+      namespace   = "AWS/AutoScaling"
+      metric_name = "GroupInServiceInstances"
+      dimensions = {
+        AutoScalingGroupName = aws_ecs_service.game_sim.name
+      }
+      period = 60
+      stat   = "Average"
+    }
+    return_data = false
+  }
+
+  metric_query {
+    id          = "e1"
+    expression  = "IF(m2 > 0, m1 / m2, 0)"
+    label       = "SessionsPerInstance"
+    return_data = true
+  }
+}
+
+# Create Scaling Up Policy
+resource "aws_appautoscaling_policy" "game_sim_scale_up" {
+  name               = "game-sim-scale-up"
+  policy_type        = "StepScaling"
   resource_id        = aws_appautoscaling_target.game_sim.resource_id
   scalable_dimension = aws_appautoscaling_target.game_sim.scalable_dimension
   service_namespace  = aws_appautoscaling_target.game_sim.service_namespace
 
-  target_tracking_scaling_policy_configuration {
-    target_value = var.target_autoscale_session_ratio
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown               = 300
+    metric_aggregation_type = "Average"
 
-    customized_metric_specification {
-      metric_math_specification {
-        expression = "SUM(m1) / COUNT(m1)"
-        label      = "SessionsPerInstance"
+    step_adjustment {
+      scaling_adjustment          = 1
+      metric_interval_lower_bound = 0
+    }
+  }
+}
 
-        metric {
-          id         = "m1"
-          metric_name = "ActiveGameSessions"
-          namespace   = "GameSimulation"
-          stat        = "Sum"
-          period      = 60
+# Create Scaling Down Policy
+resource "aws_appautoscaling_policy" "game_sim_scale_down" {
+  name               = "game-sim-scale-down"
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.game_sim.resource_id
+  scalable_dimension = aws_appautoscaling_target.game_sim.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.game_sim.service_namespace
 
-          dimensions {
-            name  = "ServiceName"
-            value = aws_ecs_service.game_sim.name
-          }
-          dimensions {
-            name  = "ClusterName"
-            value = var.ecs_cluster_name
-          }
-        }
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown               = 300
+    metric_aggregation_type = "Average"
+
+    step_adjustment {
+      scaling_adjustment          = -1
+      metric_interval_upper_bound = 0
+    }
+  }
+}
+
+# Create CloudWatch Metric Alarm for Scaling Down
+resource "aws_cloudwatch_metric_alarm" "sessions_per_instance_low_alarm" {
+  alarm_name          = "sessions-per-instance-too-low"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 2
+  threshold           = var.target_autoscale_session_ratio * 0.5  # Scale down when sessions are 50% below target
+  alarm_description   = "Alarm when SessionsPerInstance is below target ratio"
+  treat_missing_data  = "breaching"
+  alarm_actions       = [aws_appautoscaling_policy.game_sim_scale_down.arn]
+
+  metric_query {
+    id          = "m1"
+    metric {
+      namespace   = "GameSimulation"
+      metric_name = "ActiveGameSessions"
+      period      = 60
+      stat        = "Average"
+      dimensions = {
+        ServiceName = aws_ecs_service.game_sim.name
+        ClusterName = var.ecs_cluster_name
       }
     }
+    return_data = false
+  }
 
-    scale_in_cooldown  = 300
-    scale_out_cooldown = 300
+  metric_query {
+    id          = "m2"
+    metric {
+      namespace   = "AWS/AutoScaling"
+      metric_name = "GroupInServiceInstances"
+      dimensions = {
+        AutoScalingGroupName = aws_ecs_service.game_sim.name
+      }
+      period = 60
+      stat   = "Average"
+    }
+    return_data = false
+  }
+
+  metric_query {
+    id          = "e1"
+    expression  = "IF(m2 > 0, m1 / m2, 0)"
+    label       = "SessionsPerInstance"
+    return_data = true
   }
 }

@@ -64,6 +64,54 @@ module "ecr" {
   tags         = var.tags
 }
 
+# Deploy Metadata Service
+module "metadata_service" {
+  source = "./modules/metadata-service"
+
+  project_name = var.project_name
+  environment  = var.environment
+  vpc_id       = module.vpc.vpc_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+  region       = var.region
+  alb_security_group_id = module.alb.alb_security_group_id
+  metadata_repository_url = module.ecr.metadata_repository_url
+  metadata_target_group_arn = module.alb.metadata_target_group_arn
+  metadata_desired_capacity = var.metadata_desired_capacity
+  metadata_min_size = var.metadata_min_size
+  metadata_max_size = var.metadata_max_size
+  target_autoscale_cpu_utilization = var.target_metadata_autoscale_cpu_utilization
+  target_autoscale_memory_utilization = var.target_metadata_autoscale_memory_utilization
+  ecs_cluster_id = module.ecs.cluster_id
+  ecs_cluster_name = "${var.project_name}-${var.environment}"
+  ecs_task_execution_role_arn = module.ecs.ecs_task_execution_role_arn
+  ecs_task_role_arn = module.ecs.ecs_task_role_arn
+  ecs_task_execution_role_policy_attachment = module.ecs.ecs_task_execution_role_policy_attachment
+}
+
+# Deploy Game Simulation Service
+module "game_sim_service" {
+  source = "./modules/game-sim-service"
+
+  project_name = var.project_name
+  environment  = var.environment
+  vpc_id       = module.vpc.vpc_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+  region       = var.region
+  ecs_cluster_id = module.ecs.cluster_id
+  ecs_cluster_name = "${var.project_name}-${var.environment}"
+  ecs_task_execution_role_arn = module.ecs.ecs_task_execution_role_arn
+  ecs_task_role_arn = module.ecs.ecs_task_role_arn
+  ecs_task_execution_role_policy_attachment = module.ecs.ecs_task_execution_role_policy_attachment
+  game_sim_repository_url = module.ecr.game_sim_repository_url
+  game_sim_udp_port = var.game_sim_udp_port
+  game_sim_desired_capacity = var.game_sim_desired_capacity
+  game_sim_min_size = var.game_sim_min_size
+  game_sim_max_size = var.game_sim_max_size
+  target_autoscale_session_ratio = var.target_autoscale_session_ratio
+  metadata_service_dns = module.alb.alb_dns_name
+  metadata_service_security_group_id = module.metadata_service.metadata_security_group_id
+}
+
 # Deploy ECS cluster and services
 module "ecs" {
   source = "./modules/ecs"

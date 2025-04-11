@@ -84,6 +84,30 @@ variable "metadata_desired_capacity" {
   default     = 1
 }
 
+variable "metadata_min_size" {
+  description = "Minimum number of metadata service tasks"
+  type        = number
+  default     = 1
+}
+
+variable "metadata_max_size" {
+  description = "Maximum number of metadata service tasks"
+  type        = number
+  default     = 3
+}
+
+variable "target_metadata_autoscale_cpu_utilization" {
+  description = "Target CPU utilization for autoscaling"
+  type        = number
+  default     = 70
+}
+
+variable "target_metadata_autoscale_memory_utilization" {
+  description = "Target memory utilization for autoscaling"
+  type        = number
+  default     = 70
+}
+
 # Game Simulation Service Variables
 variable "gamesim_udp_port" {
   description = "UDP port for game simulation traffic"
