@@ -7,22 +7,22 @@ resource "aws_security_group" "metadata_sg" {
   vpc_id      = var.vpc_id
 }
 
-# Allow HTTPS traffic from the ALB
+# Allow HTTP traffic from the ALB
 resource "aws_security_group_rule" "alb_ingress" {
   type              = "ingress"
-  from_port         = 443
-  to_port           = 443
+  from_port         = 80
+  to_port           = 80
   protocol          = "tcp"
   security_group_id = aws_security_group.metadata_sg.id
   source_security_group_id = var.alb_security_group_id
-  description       = "Allow HTTPS traffic from ALB"
+  description       = "Allow HTTP traffic from ALB"
 }
 
 # Allow responses to the ALB
 resource "aws_security_group_rule" "alb_egress" {
   type              = "egress"
-  from_port         = 443
-  to_port           = 443
+  from_port         = 80
+  to_port           = 80
   protocol          = "tcp"
   security_group_id = aws_security_group.metadata_sg.id
   source_security_group_id = var.alb_security_group_id
@@ -99,6 +99,8 @@ resource "aws_autoscaling_group" "metadata_asg" {
   max_size                  = var.max_size
   desired_capacity          = var.desired_capacity
   vpc_zone_identifier       = var.public_subnet_ids
+  target_group_arns         = [var.alb_target_group_arn]
+
   launch_template {
     id      = aws_launch_template.metadata_lt.id
     version = "$Latest"

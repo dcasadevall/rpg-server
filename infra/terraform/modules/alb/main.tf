@@ -7,7 +7,8 @@ resource "aws_route53_zone" "main" {
 
 # Create ACM Certificate
 resource "aws_acm_certificate" "alb_cert" {
-  domain_name       = "*.${var.domain_name}"
+  domain_name       = var.domain_name
+  subject_alternative_names = ["*.${var.domain_name}"]
   validation_method = "DNS"
 
   lifecycle {
@@ -84,12 +85,12 @@ resource "aws_lb" "alb" {
 # Create Target Group
 resource "aws_lb_target_group" "metadata_tg" {
   name     = "metadata-tg"
-  port     = 443
-  protocol = "HTTPS"
+  port     = 80
+  protocol = "HTTP"
   vpc_id   = var.vpc_id
 
   health_check {
-    protocol = "HTTPS"
+    protocol = "HTTP"
     path     = "/health/ready"
     matcher  = "200-299"
   }
