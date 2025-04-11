@@ -47,7 +47,7 @@ variable "user_data" {
   description = "User data script for instance initialization"
   type        = string
   default     = ""
-} 
+}
 
 variable "target_autoscale_session_ratio" {
   description = "Average number of active game sessions to target for autoscaling. 8 = 80% session load."

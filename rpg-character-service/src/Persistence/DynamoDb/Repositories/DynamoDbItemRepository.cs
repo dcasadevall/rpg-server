@@ -10,7 +10,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Repositories {
   public class DynamoDbItemRepository(IDynamoDBContext context, LoggedMapper mapper) : IItemRepository {
     /// <inheritdoc/>
     public async Task<Item?> GetByIdAsync(int id) {
-      var item = await context.LoadAsync<ItemDocument>(id.ToString());
+      var item = await context.LoadAsync<ItemDocument>(id);
       return item != null ? mapper.Map<Item>(item) : null;
     }
   }

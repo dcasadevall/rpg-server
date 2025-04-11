@@ -44,17 +44,17 @@ variable "desired_capacity" {
   type        = number
 }
 
-variable "user_data" {
-  description = "User data script for metadata service instance initialization"
-  type        = string
-}
-
 variable "gamesim_security_group_id" {
   description = "Security group ID of the game simulation service"
   type        = string
 }
 
 variable "dynamodb_instance_profile_arn" {
-  description = "ARN of the IAM instance profile for DynamoDB access"
+  description = "ARN of the DynamoDB instance profile"
+  type        = string
+}
+
+variable "user_data" {
+  description = "User data script for the EC2 instances"
   type        = string
 }

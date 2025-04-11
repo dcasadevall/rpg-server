@@ -1,7 +1,8 @@
 # ECR Repository Module
 
-resource "aws_ecr_repository" "character_service" {
-  name                 = "${var.project_name}-static-content"
+# Service Repository
+resource "aws_ecr_repository" "service" {
+  name                 = "${var.project_name}-service"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -16,8 +17,8 @@ resource "aws_ecr_repository" "character_service" {
 }
 
 # ECR Repository Policy
-resource "aws_ecr_repository_policy" "character_service" {
-  repository = aws_ecr_repository.character_service.name
+resource "aws_ecr_repository_policy" "ecr_policy" {
+  repository = aws_ecr_repository.service.name
   policy     = <<EOF
 {
     "Version": "2008-10-17",
