@@ -132,7 +132,7 @@ resource "aws_lb_listener" "http_listener" {
 # Create Route 53 A record for the ALB
 resource "aws_route53_record" "alb" {
   zone_id = aws_route53_zone.main.zone_id
-  name    = "api.${var.domain_name}"
+  name    = "${var.domain_name}"
   type    = "A"
 
   alias {
