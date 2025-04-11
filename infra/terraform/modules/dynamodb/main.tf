@@ -91,9 +91,15 @@ resource "aws_iam_policy" "dynamodb_access" {
   })
 }
 
-# Attach the DynamoDB policy to the role
-resource "aws_iam_role_policy_attachment" "dynamodb_policy_attachment" {
+# Attach the DynamoDB policy to the EC2 role
+resource "aws_iam_role_policy_attachment" "ec2_dynamodb_policy_attachment" {
   role       = aws_iam_role.ec2_dynamodb_role.name
+  policy_arn = aws_iam_policy.dynamodb_access.arn
+}
+
+# Attach the DynamoDB policy to the ECS task role
+resource "aws_iam_role_policy_attachment" "ecs_dynamodb_policy_attachment" {
+  role       = var.ecs_task_role_id
   policy_arn = aws_iam_policy.dynamodb_access.arn
 }
 

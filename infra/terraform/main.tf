@@ -40,12 +40,14 @@ module "alb" {
 module "dynamodb" {
   source = "./modules/dynamodb"
 
+  project_name = var.project_name
   environment = var.environment
   characters_table_name = "characters"
   items_table_name = "items"
   billing_mode = "PAY_PER_REQUEST"
-  read_capacity         = 5
-  write_capacity        = 5
+  read_capacity = var.dynamodb_read_capacity
+  write_capacity = var.dynamodb_write_capacity
+  ecs_task_role_id = module.ecs.ecs_task_role_id
   tags = {
     Environment = var.environment
     Project     = var.project_name
@@ -79,6 +81,7 @@ module "ecs" {
   game_sim_desired_capacity = var.game_sim_desired_capacity
   metadata_desired_capacity = var.metadata_desired_capacity
   metadata_service_dns = module.alb.alb_dns_name
+  cluster_name = "${var.project_name}-${var.environment}"
 }
 
 # Deploy static content store

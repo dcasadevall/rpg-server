@@ -1,5 +1,5 @@
 variable "project_name" {
-  description = "Name of the project"
+  description = "Name of the project used for resource naming and tagging"
   type        = string
 }
 
@@ -14,17 +14,17 @@ variable "region" {
 }
 
 variable "vpc_id" {
-  description = "ID of the VPC"
+  description = "VPC ID where the ECS cluster will be deployed"
   type        = string
 }
 
 variable "public_subnet_ids" {
-  description = "List of public subnet IDs"
+  description = "List of public subnet IDs for ECS tasks"
   type        = list(string)
 }
 
 variable "alb_security_group_id" {
-  description = "ID of the ALB security group"
+  description = "Security group ID of the ALB"
   type        = string
 }
 
@@ -62,4 +62,9 @@ variable "metadata_desired_capacity" {
   description = "Desired number of metadata service tasks"
   type        = number
   default     = 1
+}
+
+variable "cluster_name" {
+  description = "Name of the ECS cluster"
+  type        = string
 }

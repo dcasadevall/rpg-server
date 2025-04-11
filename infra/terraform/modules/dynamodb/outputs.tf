@@ -42,3 +42,13 @@ output "items_table_stream_arn" {
   description = "ARN of the items table stream (if enabled)"
   value       = aws_dynamodb_table.items.stream_arn
 }
+
+output "ec2_dynamodb_policy_attachment" {
+  description = "EC2 DynamoDB policy attachment"
+  value       = aws_iam_role_policy_attachment.ec2_dynamodb_policy_attachment
+}
+
+output "ecs_dynamodb_policy_attachment" {
+  description = "ECS DynamoDB policy attachment"
+  value       = aws_iam_role_policy_attachment.ecs_dynamodb_policy_attachment
+}

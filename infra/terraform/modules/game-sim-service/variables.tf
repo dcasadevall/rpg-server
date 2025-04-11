@@ -1,21 +1,21 @@
-variable "vpc_id" {
-  description = "ID of the VPC"
-  type        = string
-}
-
-variable "public_subnet_ids" {
-  description = "List of public subnet IDs"
-  type        = list(string)
-}
-
-variable "game_sim_repository_url" {
-  description = "URL of the game simulation service ECR repository"
+variable "project_name" {
+  description = "Name of the project used for resource naming and tagging"
   type        = string
 }
 
 variable "environment" {
   description = "Environment name (e.g., dev, prod)"
   type        = string
+}
+
+variable "vpc_id" {
+  description = "VPC ID where the service will be deployed"
+  type        = string
+}
+
+variable "public_subnet_ids" {
+  description = "List of public subnet IDs for the service"
+  type        = list(string)
 }
 
 variable "region" {
@@ -44,8 +44,13 @@ variable "ecs_task_role_arn" {
 }
 
 variable "ecs_task_execution_role_policy_attachment" {
-  description = "Reference to the ECS task execution role policy attachment"
+  description = "ECS task execution role policy attachment"
   type        = any
+}
+
+variable "game_sim_repository_url" {
+  description = "URL of the game simulation service container repository"
+  type        = string
 }
 
 variable "game_sim_udp_port" {
@@ -61,19 +66,16 @@ variable "game_sim_desired_capacity" {
 variable "game_sim_min_size" {
   description = "Minimum number of game simulation service tasks"
   type        = number
-  default     = 1
 }
 
 variable "game_sim_max_size" {
   description = "Maximum number of game simulation service tasks"
   type        = number
-  default     = 10
 }
 
 variable "target_autoscale_session_ratio" {
   description = "Target ratio of game sessions per instance for autoscaling"
   type        = number
-  default     = 8
 }
 
 variable "metadata_service_dns" {

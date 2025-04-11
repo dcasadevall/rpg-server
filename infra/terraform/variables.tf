@@ -146,3 +146,16 @@ variable "target_autoscale_session_ratio" {
   type        = number
   default     = 8
 }
+
+# DynamoDB Variables
+variable "dynamodb_read_capacity" {
+  description = "Number of read capacity units for DynamoDB tables"
+  type        = number
+  default     = 5
+}
+
+variable "dynamodb_write_capacity" {
+  description = "Number of write capacity units for DynamoDB tables"
+  type        = number
+  default     = 5
+}
