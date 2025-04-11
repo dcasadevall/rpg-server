@@ -80,7 +80,11 @@ resource "aws_iam_policy" "dynamodb_access" {
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
           "dynamodb:Query",
-          "dynamodb:Scan"
+          "dynamodb:Scan",
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:DescribeTable",
+          "dynamodb:ListTables"
         ]
         Resource = [
           aws_dynamodb_table.characters.arn,

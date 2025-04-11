@@ -6,8 +6,6 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
   public class DynamoDbSettings {
     public string RegionName => Environment.GetEnvironmentVariable("DYNAMODB_REGION") ?? "us-east-1";
     public string ServiceUrl => Environment.GetEnvironmentVariable("DYNAMODB_SERVICE_URL") ?? "http://localhost:8000";
-    public string AccessKey => Environment.GetEnvironmentVariable("DYNAMODB_ACCESS_KEY") ?? "dummy";
-    public string SecretKey => Environment.GetEnvironmentVariable("DYNAMODB_SECRET_KEY") ?? "dummy";
     public string DbPrefix => Environment.GetEnvironmentVariable("DYNAMODB_DB_PREFIX") ?? "dev-";
   }
 }

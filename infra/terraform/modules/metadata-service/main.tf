@@ -60,7 +60,11 @@ resource "aws_ecs_task_definition" "metadata" {
         },
         {
           name  = "DYNAMODB_SERVICE_URL"
-          value = "dynamodb.${var.region}.amazonaws.com"
+          value = "https://dynamodb.${var.region}.amazonaws.com"
+        },
+        {
+          name  = "DB_TYPE"
+          value = "dynamo-db"
         }
       ]
       logConfiguration = {

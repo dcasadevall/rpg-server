@@ -26,7 +26,7 @@ namespace RPGCharacterService.Persistence.DynamoDb.Configuration {
           ServiceURL = settings.ServiceUrl
         };
 
-        return new AmazonDynamoDBClient(settings.AccessKey, settings.SecretKey, config);
+        return new AmazonDynamoDBClient(config);
       });
 
       // Register DB Context with environment-specific table names
