@@ -58,27 +58,14 @@ resource "aws_launch_template" "gamesim_lt" {
   }
 
   # User data script that installs Docker and runs our container
-  user_data = base64encode(<<-EOF
-    #!/bin/bash
-    # Install Docker
-    yum update -y
-    amazon-linux-extras install docker
-    service docker start
-    usermod -a -G docker ec2-user
-
-    # Login to ECR
-    aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${replace(var.game_sim_repository_url, "/^([^/]+).*$/", "$1")}
-
-    # Pull and run the game simulation service container
-    docker pull ${var.game_sim_repository_url}:latest
-    docker run -d \
-      -e GAME_SIM_PORT=${var.udp_port} \
-      -e GAME_SIM_ENVIRONMENT=${var.environment} \
-      -e METADATA_SERVICE_URL=https://${var.metadata_service_dns} \
-      -p ${var.udp_port}:${var.udp_port}/udp \
-      ${var.game_sim_repository_url}:latest
-  EOF
-  )
+  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+    region = var.region
+    ecr_registry = replace(var.game_sim_repository_url, "/^([^/]+).*$/", "$1")
+    game_sim_repository_url = var.game_sim_repository_url
+    udp_port = var.udp_port
+    environment = var.environment
+    metadata_service_dns = var.metadata_service_dns
+  }))
 }
 
 # Auto Scaling Group

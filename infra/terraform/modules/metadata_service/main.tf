@@ -95,27 +95,12 @@ resource "aws_launch_template" "metadata_lt" {
   }
 
   # User data script that installs Docker and runs our container
-  user_data = base64encode(<<-EOF
-    #!/bin/bash
-    # Install Docker
-    apt-get update
-    apt-get install -y docker.io
-    systemctl start docker
-    usermod -aG docker ubuntu
-
-    # Login to ECR
-    aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${replace(var.metadata_repository_url, "/^([^/]+).*$/", "$1")}
-
-    # Pull and run the metadata service container
-    docker pull ${var.metadata_repository_url}:latest
-    docker run -d \
-      -e ENVIRONMENT=${var.environment} \
-      -e DYNAMODB_DB_PREFIX=${var.environment}- \
-      -e DYNAMODB_SERVICE_URL=dynamodb.${var.region}.amazonaws.com \
-      -p 80:80 \
-      ${var.metadata_repository_url}:latest
-  EOF
-  )
+  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+    region = var.region
+    ecr_registry = replace(var.metadata_repository_url, "/^([^/]+).*$/", "$1")
+    metadata_repository_url = var.metadata_repository_url
+    environment = var.environment
+  }))
 }
 
 # Auto Scaling Group
