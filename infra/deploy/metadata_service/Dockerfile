@@ -35,9 +35,8 @@ ENV ASPNETCORE_URLS=http://+:80
 ENV ASPNETCORE_ENVIRONMENT=Development
 
 # AWS DynamoDB configuration
-ENV AWS_REGION=us-east-1
-ENV DYNAMODB_SERVICE_URL=https://dynamodb.us-east-1.amazonaws.com
 ENV DYNAMODB_DB_PREFIX=dev-
+ENV DYNAMODB_SERVICE_URL=dynamodb.us-east-1.amazonaws.com
 
 # Expose the port the app runs on
 EXPOSE 80

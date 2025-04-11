@@ -19,8 +19,8 @@ spec:
         - containerPort: 7777
           protocol: UDP
         env:
-        - name: DYNAMODB_DB_PREFIX
-          value: ${DYNAMODB_DB_PREFIX}
+        - name: METADATA_SERVICE_URL
+          value: http://metadata-service.default.svc.cluster.local
         resources:
           requests:
             cpu: "500m"
