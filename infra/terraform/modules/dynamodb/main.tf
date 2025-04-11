@@ -67,11 +67,17 @@ resource "aws_iam_role" "ec2_dynamodb_role" {
 # IAM policy for DynamoDB access
 resource "aws_iam_policy" "dynamodb_access" {
   name        = "dynamodb-access-policy-${var.environment}"
-  description = "Policy for accessing DynamoDB tables in ${var.environment} environment"
-
+  description = "Policy for accessing DynamoDB tables"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:ListTables"
+        ]
+        Resource = "*"
+      },
       {
         Effect = "Allow"
         Action = [
@@ -83,8 +89,7 @@ resource "aws_iam_policy" "dynamodb_access" {
           "dynamodb:Scan",
           "dynamodb:BatchGetItem",
           "dynamodb:BatchWriteItem",
-          "dynamodb:DescribeTable",
-          "dynamodb:ListTables"
+          "dynamodb:DescribeTable"
         ]
         Resource = [
           aws_dynamodb_table.characters.arn,
